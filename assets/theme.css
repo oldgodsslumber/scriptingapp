@@ -1,0 +1,256 @@
+/* ============================================================
+   Theme — colors & type
+   Swap the hex values below to rebrand the app.
+   ============================================================ */
+
+/* Webfonts (Google Fonts): Lora (display serif) and Open Sans (UI sans). */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,600&display=swap');
+
+:root {
+  /* --------------------------------------------------------
+     CORE COLORS
+     -------------------------------------------------------- */
+  --c-navy:        #001F5F;  /* dk1 — primary text + dark master bg */
+  --c-violet:      #334190;  /* dk2 — secondary navy / divider */
+  --c-lavender:    #5F67B9;  /* accent1 — vignettes, soft accents */
+  --c-mint:        #86CAC6;  /* accent2 — vignette mid, soft bg */
+  --c-emerald:     #10A5AC;  /* accent3 — high-contrast teal accent */
+  --c-tint-ice:    #D7E2F2;  /* accent4 — light fill, dividers */
+  --c-gold:        #FFC836;  /* accent5 — highlight accent */
+  --c-orange:      #F76923;  /* accent6 — alert / warm accent */
+  --c-ice:         #ECF0F9;  /* lt2 — pale blue background */
+  --c-white:       #FFFFFF;  /* lt1 */
+  --c-link:        #828CFF;  /* hyperlink */
+  --c-link-visited:#A6A8B4;
+
+  /* Custom brand colors referenced in master guide
+     ("navy / violet / wine / emerald" backgrounds,
+      and "ice blue / tint of ice blue / mint / white" backgrounds) */
+  --c-wine:        #6B1F3A;  /* deep wine — section break dark bg */
+  --c-x-dark-grey: #2B2F38;  /* "XDarkGrey" agenda body text */
+  --c-grey-700:    #4A4F5A;
+  --c-grey-500:    #6F7480;
+  --c-grey-300:    #B4B8C2;
+  --c-grey-200:    #D7DAE0;
+  --c-grey-100:    #EEF0F4;
+  --c-grey-50:     #F6F7FA;  /* "light grey background" preferred bg */
+  --c-black:       #0B1020;
+
+  /* --------------------------------------------------------
+     SEMANTIC TOKENS — light theme (default)
+     -------------------------------------------------------- */
+  --bg-app:           var(--c-grey-50);   /* light grey app background */
+  --bg-surface:       var(--c-white);     /* card / surface */
+  --bg-surface-2:     var(--c-ice);       /* tinted surface */
+  --bg-inverse:       var(--c-navy);      /* dark master */
+  --bg-section-violet:var(--c-violet);
+  --bg-section-wine:  var(--c-wine);
+  --bg-section-emerald: #0E7E84;             /* darker emerald for impact */
+
+  --fg-default:       var(--c-navy);      /* body & headlines */
+  --fg-muted:         var(--c-grey-500);
+  --fg-subtle:        var(--c-grey-300);
+  --fg-on-dark:       var(--c-white);
+  --fg-on-dark-muted: rgba(255,255,255,0.72);
+  --fg-link:          var(--c-emerald);
+
+  --border-hairline:  rgba(0,31,95,0.10);
+  --border-strong:    rgba(0,31,95,0.20);
+  --divider:          var(--c-tint-ice);
+
+  --accent-primary:   var(--c-emerald);
+  --accent-soft:      var(--c-lavender);
+  --accent-warm:      var(--c-gold);
+  --accent-alert:     var(--c-orange);
+
+  /* --------------------------------------------------------
+     SHADOWS / RADII / SPACING
+     -------------------------------------------------------- */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  --shadow-1: 0 1px 2px rgba(0,31,95,0.06), 0 1px 1px rgba(0,31,95,0.04);
+  --shadow-2: 0 6px 16px -6px rgba(0,31,95,0.14), 0 2px 4px rgba(0,31,95,0.06);
+  --shadow-3: 0 18px 38px -16px rgba(0,31,95,0.22), 0 4px 10px rgba(0,31,95,0.08);
+  --shadow-inset: inset 0 0 0 1px rgba(0,31,95,0.06);
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* --------------------------------------------------------
+     TYPOGRAPHY
+     -------------------------------------------------------- */
+  --font-display:  'Lora', 'Source Serif Pro', Georgia, 'Times New Roman', serif;
+  --font-sans:     'Open Sans', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono:     ui-monospace, SFMono-Regular, 'JetBrains Mono', Menlo, monospace;
+
+  /* Type scale — display is serif; UI is sans */
+  --fs-eyebrow:    12px;   /* tracking 0.12em, uppercase */
+  --fs-caption:    13px;
+  --fs-body-sm:    14px;
+  --fs-body:       16px;
+  --fs-body-lg:    18px;
+  --fs-h6:         20px;
+  --fs-h5:         24px;
+  --fs-h4:         32px;
+  --fs-h3:         40px;
+  --fs-h2:         54px;   /* slide section title */
+  --fs-h1:         72px;   /* slide hero / cover */
+  --fs-display:    96px;   /* big stat numerals */
+
+  --lh-tight:  1.05;
+  --lh-snug:   1.15;
+  --lh-base:   1.45;
+  --lh-loose:  1.6;
+}
+
+/* ============================================================
+   DARK SURFACE TOKENS — apply on .t-dark or [data-theme="dark"]
+   Dark master: navy / violet / wine / emerald backgrounds
+   ============================================================ */
+.t-dark, [data-theme="dark"] {
+  --bg-app:        var(--c-navy);
+  --bg-surface:    rgba(255,255,255,0.05);
+  --bg-surface-2:  rgba(255,255,255,0.10);
+  --fg-default:    var(--c-white);
+  --fg-muted:      rgba(255,255,255,0.72);
+  --fg-subtle:     rgba(255,255,255,0.45);
+  --border-hairline: rgba(255,255,255,0.12);
+  --border-strong:   rgba(255,255,255,0.24);
+  --divider:       rgba(255,255,255,0.16);
+  --accent-primary: var(--c-mint);
+  --fg-link:       var(--c-mint);
+}
+
+/* ============================================================
+   SEMANTIC TYPE CLASSES
+   ============================================================ */
+.t-eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--fs-eyebrow);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent-primary);
+}
+
+.t-h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.01em;
+  color: var(--fg-default);
+}
+.t-h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  letter-spacing: -0.005em;
+  color: var(--fg-default);
+}
+.t-h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  line-height: var(--lh-snug);
+  color: var(--fg-default);
+}
+.t-h4 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h4);
+  font-weight: 700;
+  line-height: var(--lh-snug);
+  color: var(--fg-default);
+}
+.t-h5 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h5);
+  font-weight: 700;
+  line-height: var(--lh-snug);
+  color: var(--fg-default);
+}
+.t-h6 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h6);
+  font-weight: 700;
+  line-height: var(--lh-snug);
+  color: var(--fg-default);
+}
+
+.t-subtitle {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body-lg);
+  font-weight: 400;
+  line-height: var(--lh-base);
+  color: var(--fg-muted);
+}
+
+.t-body  {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  line-height: var(--lh-base);
+  color: var(--fg-default);
+}
+.t-body-sm {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body-sm);
+  line-height: var(--lh-base);
+  color: var(--fg-muted);
+}
+.t-caption {
+  font-family: var(--font-sans);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-base);
+  color: var(--fg-subtle);
+}
+
+.t-stat {
+  font-family: var(--font-display);
+  font-size: var(--fs-display);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--c-navy);
+}
+
+.t-quote {
+  font-family: var(--font-display);
+  font-size: var(--fs-h4);
+  font-style: italic;
+  font-weight: 400;
+  line-height: var(--lh-snug);
+  color: var(--fg-default);
+}
+
+.t-link {
+  color: var(--fg-link);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  transition: opacity .15s ease;
+}
+.t-link:hover { opacity: .75; }
+
+/* Default body baseline (apply on the html/body of any artifact) */
+.t-base {
+  font-family: var(--font-sans);
+  font-size: var(--fs-body);
+  color: var(--fg-default);
+  background: var(--bg-app);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}

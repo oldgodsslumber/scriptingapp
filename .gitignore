@@ -1,0 +1,15 @@
+# Mac metadata (the folder syncs from a Mac)
+._*
+.DS_Store
+.thumbnail
+
+# Local tool settings
+.claude/
+
+# Internal / company material: kept locally, never published
+private/
+uploads/
+screenshots/
+
+# Python
+__pycache__/
