@@ -161,7 +161,8 @@
       <sc-if value="{{ qLoading }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;align-items:center;gap:10px;padding:20px;font-size:14px;color:var(--fg-muted)">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:vsgspin 0.9s linear infinite"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg>
-          {{ qLoadingLabel }}
+          <span style="flex:1;min-width:0">{{ qLoadingLabel }} <span style="color:var(--fg-subtle);font-variant-numeric:tabular-nums">{{ quickElapsed }}</span><sc-if value="{{ quickSlowHint }}" hint-placeholder-val="{{ false }}"><span style="display:block;margin-top:2px;font-size:12px;color:var(--fg-subtle)">Local models can take a minute or two.</span></sc-if></span>
+          <button onClick="{{ onStopQuick }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Stop</button>
         </div>
       </sc-if>
 
@@ -252,7 +253,8 @@
       <sc-if value="{{ pickBusy }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;align-items:center;gap:10px;padding:4px 20px;font-size:14px;color:var(--fg-muted)">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:vsgspin 0.9s linear infinite"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg>
-          Recommending a type…
+          <span style="flex:1;min-width:0">Recommending a type… <span style="color:var(--fg-subtle);font-variant-numeric:tabular-nums">{{ quickElapsed }}</span></span>
+          <button onClick="{{ onStopQuick }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Stop</button>
         </div>
       </sc-if>
 
@@ -965,7 +967,11 @@
           <sc-if value="{{ showGeminiFields }}" hint-placeholder-val="{{ false }}">
           <div>
             <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Gemini API key</label>
-            <input type="password" value="{{ dKey }}" onChange="{{ onChangeKey }}" placeholder="AIza…" style="width:100%;padding:11px 13px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;font-family:var(--font-mono);color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input type="text" value="{{ dKey }}" onChange="{{ onChangeKey }}" placeholder="AIza…" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-bwignore="true" data-form-type="other" aria-label="Gemini API key" style="flex:1;min-width:0;padding:11px 13px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;font-family:var(--font-mono);color:var(--fg-default);background:var(--c-grey-50);outline:none;-webkit-text-security:{{ keyMask }}"/>
+              <button onClick="{{ onPasteKey }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Paste</button>
+              <button onClick="{{ onToggleKeyShow }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">{{ keyShowLabel }}</button>
+            </div>
             <p style="margin:7px 0 0;font-size:12px;color:var(--fg-muted);line-height:1.5">The key lives client-side, readable by anyone with this page. Fine for your own testing; add a serverless relay before any shared deploy.</p>
           </div>
           </sc-if>
@@ -1132,7 +1138,7 @@ class Component extends DCLogic {
 
   state = {
     view:'intake', settingsOpen:false, toast:null, advanced:false, dAdvanced:false,
-    title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qBusy:false, qError:null, pickKey:'',
+    title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', busySince:0, dKeyShow:false, qAsked:false, qBusy:false, qError:null, pickKey:'',
     provider:'claude', dProvider:'claude',
     geminiKey:'', geminiModel:this.GEMINI_DEFAULT, geminiTemp:0.7, geminiThinking:'medium', voiceDoc:'', voiceDefault:'', brand:'', dBrand:'',
     foundryEndpoint:'http://localhost:8757/v1', foundryModel:'qwen3-14b',
@@ -1216,7 +1222,8 @@ class Component extends DCLogic {
   hasProvider(){ if(this.state.provider==='gemini') return !!this.state.geminiKey; if(this.state.provider==='foundry') return true; return this.claudeAvailable(); }
   requireProvider(){ if(!this.hasProvider()){ if(this.state.provider!=='gemini' && !this.claudeAvailable()) this.showToast('Built-in Claude isn’t available here — add a Gemini API key in Settings.'); this.openSettings(); return false; } return true; }
   stripThink(s){ return (s||'').replace(/<think>[\s\S]*?<\/think>/gi,'').replace(/<\/?think>/gi,'').trim(); }
-  async generateFoundry(promptText){
+  async generateFoundry(promptText, opts, signal){
+    opts=opts||{};
     const base=(this.state.foundryEndpoint||'http://localhost:8757/v1').replace(/\/+$/,'');
     const url=base+'/chat/completions';
     const model=this.state.foundryModel||'qwen3-14b';
@@ -1224,8 +1231,10 @@ class Component extends DCLogic {
     try{
       // ttl asks Foundry Local to keep the model in memory for an hour after this call, so it isn't evicted between steps
       // (other OpenAI-compatible servers ignore the field).
-      res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ model, messages:[{role:'user',content:promptText}], temperature:this.state.geminiTemp, stream:false, max_tokens:8000, ttl:3600 })});
+      // Qwen3 can think for many minutes before a short JSON answer; "/no_think" skips that on the quick calls.
+      const content=opts.quick?(promptText+'\n\n/no_think'):promptText;
+      res=await fetch(url,{method:'POST', signal, headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ model, messages:[{role:'user',content}], temperature:this.state.geminiTemp, stream:false, max_tokens:opts.quick?3000:8000, ttl:3600 })});
     }catch(e){ throw new Error('Can’t reach the local model proxy at '+base+'. Double-click run-proxy.command (it starts Foundry Local and the proxy), then try again.'); }
     if(!res.ok){
       const err=await res.text();
@@ -1265,10 +1274,24 @@ class Component extends DCLogic {
     clearTimeout(timer);
     this.setState({dFoundryChecking:false, dFoundryStatus:status, dFoundryOk:ok, dFoundryModels:models});
   }
+  // opts.signal stops the call; opts.timeoutMs gives up after that long; opts.quick marks a short structured call
+  // (questions, type pick, document summary), which on Foundry skips Qwen's thinking and has a shorter output cap.
   async generate(promptText, opts){
     opts=opts||{};
+    const ctrl=new AbortController(), outer=opts.signal; let timedOut=false;
+    const onAbort=()=>ctrl.abort();
+    if(outer){ if(outer.aborted) ctrl.abort(); else outer.addEventListener('abort', onAbort, {once:true}); }
+    const timer=opts.timeoutMs?setTimeout(()=>{ timedOut=true; ctrl.abort(); }, opts.timeoutMs):null;
+    try{ return await this.generateOnce(promptText, opts, ctrl.signal); }
+    catch(e){
+      if(ctrl.signal.aborted) throw new Error(timedOut?('The model took more than '+Math.round(opts.timeoutMs/60000)+' minutes, so it was stopped. Try again, or switch engines in Settings.'):'Stopped.');
+      throw e;
+    }finally{ clearTimeout(timer); if(outer) outer.removeEventListener('abort', onAbort); }
+  }
+  quickTimeout(){ return this.state.provider==='foundry'?300000:180000; }
+  async generateOnce(promptText, opts, signal){
     if(this.state.provider==='foundry'){
-      return await this.generateFoundry(promptText);
+      return await this.generateFoundry(promptText, opts, signal);
     }
     if(this.state.provider!=='gemini'){
       if(!this.claudeAvailable()) throw new Error('The built-in Claude provider only works inside the Claude app/preview. Open Settings and add a Gemini API key to run this elsewhere.');
@@ -1287,7 +1310,7 @@ class Component extends DCLogic {
     const url='https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent';
     let res;
     try{
-      res=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},
+      res=await fetch(url,{method:'POST', signal, headers:{'Content-Type':'application/json','x-goog-api-key':key},
         body:JSON.stringify({contents:[{role:'user',parts:[{text:promptText}]}], generationConfig})});
     }catch(e){ throw new Error('Can’t reach the Gemini API — check your connection and try again.'); }
     if(!res.ok){
@@ -1500,13 +1523,31 @@ class Component extends DCLogic {
   toggleVideoOpen(sceneIdx, shotIdx){ const sh=this.state.scenes[sceneIdx].shots[shotIdx]; this.updateShot(sceneIdx, shotIdx, {videoOpen:!sh.videoOpen}); }
 
   // ---------- STEP 1 actions ----------
+  // One quick call at a time owns the timer and the Stop button.
+  startQuick(kind){
+    if(this._quick) this._quick.ctrl.abort();
+    clearInterval(this._ticker);
+    const ctrl=new AbortController(); this._quick={ctrl, kind};
+    this._ticker=setInterval(()=>this.setState({}), 1000);
+    this.setState({busySince:Date.now()});
+    return ctrl.signal;
+  }
+  endQuick(signal){ if(this._quick && this._quick.ctrl.signal===signal){ clearInterval(this._ticker); this._ticker=null; this._quick=null; } }
+  stopQuick(){
+    const q=this._quick; if(!q) return;
+    q.ctrl.abort(); this.endQuick(q.ctrl.signal);
+    if(q.kind==='questions') this.setState({qBusy:false, qError:'Stopped. Answer what’s on screen, try again, or continue without more questions.'}, ()=>this.persist());
+    else this.setState({pickBusy:false, pickError:'Stopped. Pick a type yourself, or click Recommend again.'});
+  }
   async doPickForMe(){
     if(!this.state.idea.trim()){ this.showToast('Add an idea first'); return; }
     if(this.state.pickBusy || !this.requireProvider()) return;
     const pid=this.state.projectId;
+    const signal=this.startQuick('pick');
     this.setState({pickBusy:true, pickError:null, pickResult:null});
-    try{ const p=this.parseJSON(await this.generate(this.assemblePickPrompt(),{json:true})); if(!this.stillOn(pid)) return; const t=this.TYPES.find(x=>x.id===(p.type||'').toLowerCase()); if(!t) throw new Error('Could not classify.'); this.setType(t.id); this.setState({pickBusy:false, pickKey:this.pickKeyNow(), pickResult:{typeLabel:t.label, rationale:p.rationale||''}, ...this.suggestTitle(p.title)}, ()=>this.persist()); }
-    catch(e){ if(this.stillOn(pid)) this.setState({pickBusy:false, pickError:String(e.message||e)}); }
+    try{ const p=this.parseJSON(await this.generate(this.assemblePickPrompt(),{json:true, quick:true, signal, timeoutMs:this.quickTimeout()})); if(!this.stillOn(pid) || signal.aborted) return; const t=this.TYPES.find(x=>x.id===(p.type||'').toLowerCase()); if(!t) throw new Error('Could not classify.'); this.setType(t.id); this.setState({pickBusy:false, pickKey:this.pickKeyNow(), pickResult:{typeLabel:t.label, rationale:p.rationale||''}, ...this.suggestTitle(p.title)}, ()=>this.persist()); }
+    catch(e){ if(this.stillOn(pid) && !signal.aborted) this.setState({pickBusy:false, pickError:String(e.message||e)}); }
+    finally{ this.endQuick(signal); }
   }
   // Switching type re-shapes the script to the new type's sections. The old draft is parked per type, so switching back restores it
   // (before, the old type's sections survived only until the next reload, then their text was dropped).
@@ -1603,12 +1644,13 @@ class Component extends DCLogic {
   async askQuestions(more){
     if(this.state.qBusy || !this.requireProvider()) return;
     const pid=this.state.projectId;
+    const signal=this.startQuick('questions');
     this.setState({qBusy:true, qError:null});
     try{
-      await this.ensureBriefs();
-      if(!this.stillOn(pid)) return;
-      const parsed=this.parseJSON(await this.generate(this.assembleQuestionsPrompt(more),{json:true}));
-      if(!this.stillOn(pid)) return;
+      await this.ensureBriefs(signal);
+      if(!this.stillOn(pid) || signal.aborted) return;
+      const parsed=this.parseJSON(await this.generate(this.assembleQuestionsPrompt(more),{json:true, quick:true, signal, timeoutMs:this.quickTimeout()}));
+      if(!this.stillOn(pid) || signal.aborted) return;
       const raw=Array.isArray(parsed)?parsed:((parsed&&parsed.questions)||[]);
       const seen=new Set((this.state.questions||[]).map(q=>q.q.trim().toLowerCase()));
       const fresh=raw.map(x=>typeof x==='string'?{q:x}:(x||{})).map(x=>({ id:this.uid('q'), q:String(x.q||x.question||'').trim(), why:String(x.why||x.rationale||'').trim(),
@@ -1620,7 +1662,8 @@ class Component extends DCLogic {
       // otherwise land on the first new question, or the summary when there are none.
       this.setState({questions, qIndex:Math.min(this.state.qIndex, questions.length-fresh.length), qRead:read, qBusy:false, qAsked:true, ...this.suggestTitle(parsed&&parsed.title)}, ()=>this.persist());
       if(!fresh.length) this.showToast(more?'No more questions. The brief covers what the script needs.':'No questions needed. The idea covers what the script needs.');
-    }catch(e){ if(this.stillOn(pid)) this.setState({qBusy:false, qError:String(e.message||e)}); }
+    }catch(e){ if(this.stillOn(pid) && !signal.aborted) this.setState({qBusy:false, qError:String(e.message||e)}); }
+    finally{ this.endQuick(signal); }
   }
   patchQuestion(i, patch){ const questions=(this.state.questions||[]).slice(); if(!questions[i]) return; questions[i]={...questions[i], ...patch}; this.setState({questions}, ()=>this.persist()); }
   // Next with an empty answer counts as a skip, like Skip does.
@@ -1834,7 +1877,7 @@ class Component extends DCLogic {
   assembleDistillPrompt(r){
     return 'You are a research analyst preparing dense source notes for a short '+this.brandAdj()+' marketing video.\n\n## SOURCE: '+(r.name||'document')+'\n'+((r.text||'').slice(0,40000))+'\n\n## TASK\nExtract everything a scriptwriter could use. Be dense, specific, and faithful — preserve exact numbers, names, and wording. Do NOT invent or generalize, and omit boilerplate, legal text, and contact info.\n\n## OUTPUT (markdown, no preamble)\n**Core message / announcement:** what this is really about, in 1-2 lines.\n**Hard proof (metrics & results):** every concrete number, %, timeframe, or outcome, with its context.\n**Customers, partners & people:** named organizations and individuals, with their role.\n**Notable quotes:** direct quotes worth reusing, with attribution.\n**Capabilities & differentiators:** what the product/offering does and why it stands out.\n**Vivid language:** memorable phrases or framings from the source.';
   }
-  async ensureBriefs(){
+  async ensureBriefs(signal){
     if(this._distilling) return this._distilling;
     if(!this.hasProvider()) return;
     const missing=(this.state.references||[]).filter(r=>r.text && !((r.brief||'').trim()) && !r.briefFailed);
@@ -1844,10 +1887,10 @@ class Component extends DCLogic {
     this.showToast('Reading '+missing.length+' reference document'+(missing.length===1?'':'s')+'…');
     const mark=(id, patch)=>this.setState({references:(this.state.references||[]).map(x=>x.id===id?{...x, ...patch}:x)});
     for(const r of missing){
-      if(!this.stillOn(pid)) break;
+      if(!this.stillOn(pid) || (signal && signal.aborted)) break;
       mark(r.id, {briefBusy:true});
-      try{ const brief=(await this.generate(this.assembleDistillPrompt(r))).trim(); mark(r.id, {brief, briefFailed:false, briefBusy:false}); }
-      catch(e){ mark(r.id, {briefFailed:true, briefBusy:false}); }
+      try{ const brief=(await this.generate(this.assembleDistillPrompt(r),{quick:true, signal, timeoutMs:this.quickTimeout()})).trim(); mark(r.id, {brief, briefFailed:false, briefBusy:false}); }
+      catch(e){ mark(r.id, (signal && signal.aborted)?{briefBusy:false}:{briefFailed:true, briefBusy:false}); }
     }
     this._distilling=null; done();
     this.setState({}, ()=>this.persist());
@@ -2110,6 +2153,11 @@ class Component extends DCLogic {
     const brand=(this.state.dBrand||'').trim(); this.lsSet('vsg_brand',brand); this.applyBrand(brand);
     this.setState({provider:this.state.dProvider, geminiKey:key, geminiModel:model, geminiThinking:thinking, geminiTemp:t, voiceDoc, brand, foundryEndpoint:fEnd, foundryModel:fMod, settingsOpen:false, advanced:!!this.state.dAdvanced});
     if(!this.state.advanced && (this.state.view==='scenes'||this.state.view==='shots')) this.setState({view:'workspace'}, ()=>this.persist()); this.showToast('Settings saved'); }
+  // Some managed Macs and password managers block pasting into key fields; this reads the clipboard directly.
+  async pasteKey(){
+    try{ const t=String((navigator.clipboard && await navigator.clipboard.readText())||'').trim(); if(!t){ this.showToast('The clipboard is empty. Copy the key first.'); return; } this.setState({dKey:t}); this.showToast('Key pasted'); }
+    catch(e){ this.showToast('The browser wouldn’t share the clipboard. Click in the box and press Cmd+V (Ctrl+V on Windows).'); }
+  }
   resetVoice(){ this.setState({dVoice:this.state.voiceDefault}); }
 
   // ---------- navigation ----------
@@ -2238,7 +2286,8 @@ class Component extends DCLogic {
       onIntakeNext:()=>this.intakeNext(), intakeDisabled:!hasIdea, intakeBg:hasIdea?'var(--c-emerald)':'var(--c-grey-300)', intakeCursor:hasIdea?'pointer':'not-allowed',
       intakeHint:!hasIdea?'Add an idea to begin.':(this.hasProvider()?'Next, a few quick questions to sharpen the brief.':(st.provider==='gemini'?'Add your Gemini key in Settings, or switch engines.':'Built-in Claude isn’t available here. Pick Gemini or Local in Settings.')),
       onBackToIdea:()=>this.setState({view:'intake'},()=>this.persist()), onBackToQuestions:()=>this.setState({view:'questions'},()=>this.persist()),
-      qRead:st.qRead, qReadShow:!!st.qRead, hasWorkingTitle:!!(st.title||'').trim(), workingTitle:(st.title||'').trim(), qError:st.qError, onRetryQuestions:()=>this.askQuestions(st.qAsked), qLoading:st.qBusy, qLoadingLabel:qCur?('Reading your idea'+((st.references||[]).length?' and documents':'')+'. Answer this while you wait.'):(st.qAsked?'Thinking of more questions…':'Reading your idea…'),
+      qRead:st.qRead, qReadShow:!!st.qRead, hasWorkingTitle:!!(st.title||'').trim(), workingTitle:(st.title||'').trim(), qError:st.qError, onRetryQuestions:()=>this.askQuestions(st.qAsked), qLoading:st.qBusy, qLoadingLabel:((st.references||[]).find(r=>r.briefBusy)?('Summarizing '+(st.references||[]).find(r=>r.briefBusy).name+'…'):(st.qAsked?'Thinking of more questions…':('Reading your idea'+((st.references||[]).length?' and documents':'')+'…')))+(qCur?' Answer this while you wait.':''),
+      quickElapsed:(st.qBusy||st.pickBusy)&&st.busySince?this.mmss(Math.max(0,(Date.now()-st.busySince)/1000)):'', quickSlowHint:st.provider==='foundry', onStopQuick:()=>this.stopQuick(),
       qWizard:!!qCur, qNum:qi+1, qTotal:qs.length, qCountLabel:st.qBusy?('Question '+(qi+1)):('Question '+(qi+1)+' of '+qs.length), qSkipRestShow:!st.qBusy, qPct:qs.length?Math.round(qi/qs.length*100):0, qText:qCur?qCur.q:'', qWhy:qCur?qCur.why:'', qWhyShow:!!(qCur&&qCur.why),
       qHasOptions:!!(qCur&&(qCur.options||[]).length), qOptions:qCur?(qCur.options||[]).map(o=>{ const sel=(qCur.answer||'').trim()===o; return { label:o, onPick:()=>this.patchQuestion(qi,{answer:o, skipped:false}), bg:sel?'rgba(16,165,172,0.10)':'var(--c-white)', border:sel?'var(--c-emerald)':'var(--border-hairline)' }; }):[],
       qAnswer:qCur?(qCur.answer||''):'', onQAnswer:(e)=>this.patchQuestion(qi,{answer:e.target.value}), qPlaceholder:qCur&&(qCur.options||[]).length?'Pick one above, or write your own answer':'Your answer (optional)',
@@ -2303,7 +2352,7 @@ class Component extends DCLogic {
       dFModelSel:(st.dFoundryModels||[]).includes(st.dFModel)?st.dFModel:'',
       onPickFModel:(e)=>{ if(e.target.value) this.setState({dFModel:e.target.value}); },
       showClaudeOption:this.claudeAvailable() || st.dProvider==='claude', dBrand:st.dBrand, onChangeBrand:(e)=>this.setState({dBrand:e.target.value}),
-      dKey:st.dKey, dModel:st.dModel, dTemp:st.dTemp, dVoice:st.dVoice, dEndpoint:st.dEndpoint, dFModel:st.dFModel, onChangeKey:(e)=>this.setState({dKey:e.target.value}), onChangeModel:(e)=>this.setState({dModel:e.target.value}), onChangeTemp:(e)=>this.setState({dTemp:e.target.value}), onChangeVoice:(e)=>this.setState({dVoice:e.target.value}), onChangeEndpoint:(e)=>this.setState({dEndpoint:e.target.value}), onChangeFModel:(e)=>this.setState({dFModel:e.target.value}), onSaveSettings:()=>this.saveSettings(), dAdvanced:!!st.dAdvanced, onToggleAdvanced:()=>this.setState({dAdvanced:!st.dAdvanced}), advBorder:st.dAdvanced?'var(--c-emerald)':'var(--border-strong)', advBg:st.dAdvanced?'var(--c-emerald)':'var(--c-white)', advCheck:st.dAdvanced?'1':'0', onResetVoice:()=>this.resetVoice(),
+      dKey:st.dKey, dModel:st.dModel, dTemp:st.dTemp, dVoice:st.dVoice, dEndpoint:st.dEndpoint, dFModel:st.dFModel, onChangeKey:(e)=>this.setState({dKey:e.target.value}), onPasteKey:()=>this.pasteKey(), keyMask:st.dKeyShow?'none':'disc', keyShowLabel:st.dKeyShow?'Hide':'Show', onToggleKeyShow:()=>this.setState({dKeyShow:!st.dKeyShow}), onChangeModel:(e)=>this.setState({dModel:e.target.value}), onChangeTemp:(e)=>this.setState({dTemp:e.target.value}), onChangeVoice:(e)=>this.setState({dVoice:e.target.value}), onChangeEndpoint:(e)=>this.setState({dEndpoint:e.target.value}), onChangeFModel:(e)=>this.setState({dFModel:e.target.value}), onSaveSettings:()=>this.saveSettings(), dAdvanced:!!st.dAdvanced, onToggleAdvanced:()=>this.setState({dAdvanced:!st.dAdvanced}), advBorder:st.dAdvanced?'var(--c-emerald)':'var(--border-strong)', advBg:st.dAdvanced?'var(--c-emerald)':'var(--c-white)', advCheck:st.dAdvanced?'1':'0', onResetVoice:()=>this.resetVoice(),
       voiceStatus:(st.dVoice&&st.dVoice.trim())?(st.dVoice.trim().length.toLocaleString()+' characters — baked into every generation'):'No voice doc — generations use a safe default voice.'
     };
   }
