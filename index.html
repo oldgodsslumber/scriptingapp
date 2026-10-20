@@ -145,7 +145,7 @@
       </div>
 
       <sc-if value="{{ qReadShow }}" hint-placeholder-val="{{ false }}">
-        <div style="padding:14px 16px;border-radius:var(--radius-md);background:rgba(95,103,185,0.07);border:1px solid rgba(95,103,185,0.25);font-size:13px;line-height:1.55;color:var(--c-navy)"><strong>What I understand so far:</strong> {{ qRead }}</div>
+        <div style="padding:14px 16px;border-radius:var(--radius-md);background:rgba(95,103,185,0.07);border:1px solid rgba(95,103,185,0.25);font-size:13px;line-height:1.55;color:var(--c-navy)"><sc-if value="{{ hasWorkingTitle }}" hint-placeholder-val="{{ false }}"><div style="margin-bottom:4px"><strong>Working title:</strong> {{ workingTitle }}</div></sc-if><strong>What I understand so far:</strong> {{ qRead }}</div>
       </sc-if>
 
       <sc-if value="{{ qError }}" hint-placeholder-val="{{ null }}">
@@ -168,8 +168,8 @@
       <sc-if value="{{ qWizard }}" hint-placeholder-val="{{ false }}">
       <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:28px;display:flex;flex-direction:column;gap:16px">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-          <span style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-muted)">Question {{ qNum }} of {{ qTotal }}</span>
-          <button onClick="{{ onSkipRest }}" style="padding:0;background:none;border:none;color:var(--fg-muted);font-size:13px;font-weight:600;cursor:pointer">Skip the rest →</button>
+          <span style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-muted)">{{ qCountLabel }}</span>
+          <sc-if value="{{ qSkipRestShow }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onSkipRest }}" style="padding:0;background:none;border:none;color:var(--fg-muted);font-size:13px;font-weight:600;cursor:pointer">Skip the rest →</button></sc-if>
         </div>
         <div style="height:4px;border-radius:999px;background:var(--c-grey-100);overflow:hidden"><div style="height:100%;width:{{ qPct }}%;background:var(--c-emerald);transition:width .2s ease"></div></div>
         <div>
@@ -391,13 +391,13 @@
     <div style="position:sticky;top:0;z-index:20;background:var(--c-white);border-bottom:1px solid var(--border-hairline)">
       <div style="max-width:1140px;margin:0 auto;padding:18px 28px 0">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:20px;flex-wrap:wrap">
-          <div style="min-width:0">
+          <div style="flex:1 1 460px;min-width:0">
             <button onClick="{{ onBackToIntake }}" style="display:inline-flex;align-items:center;gap:6px;padding:0;background:none;border:none;color:var(--fg-muted);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:6px">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
               Type
             </button>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-              <h1 style="font-family:var(--font-display);font-weight:600;font-size:26px;line-height:1.15;color:var(--c-navy);margin:0;max-width:640px">{{ scriptTitle }}</h1>
+              <input value="{{ titleValue }}" onChange="{{ onTitle }}" placeholder="{{ titlePlaceholder }}" title="Click to rename" aria-label="Video title" style="font-family:var(--font-display);font-weight:600;font-size:26px;line-height:1.15;color:var(--c-navy);margin:0 0 0 -8px;padding:3px 7px;flex:1 1 440px;min-width:0;max-width:680px;border:1px solid transparent;border-radius:var(--radius-sm);background:transparent;outline:none" style-hover="border-color:var(--border-hairline)"/>
               <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--c-violet);background:rgba(95,103,185,0.10);padding:3px 10px;border-radius:999px">{{ typeLabel }}</span>
             </div>
           </div>
@@ -1132,7 +1132,7 @@ class Component extends DCLogic {
 
   state = {
     view:'intake', settingsOpen:false, toast:null, advanced:false, dAdvanced:false,
-    questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qBusy:false, qError:null, pickKey:'',
+    title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qBusy:false, qError:null, pickKey:'',
     provider:'claude', dProvider:'claude',
     geminiKey:'', geminiModel:this.GEMINI_DEFAULT, geminiTemp:0.7, geminiThinking:'medium', voiceDoc:'', voiceDefault:'', brand:'', dBrand:'',
     foundryEndpoint:'http://localhost:8757/v1', foundryModel:'qwen3-14b',
@@ -1321,7 +1321,8 @@ class Component extends DCLogic {
   // ---------- STEP 1 prompts ----------
   // The voice guide is a print guide (headlines, parentheses, en dashes); the script is read aloud, so say how to adapt it.
   SPOKEN_RULES = '## WRITTEN TO BE HEARD\nThis script is read aloud, and the voice guide above was written for print, so adapt it: no headlines, bullets, markdown, emoji, or stage directions. No parentheses or brackets — say an aside as part of the sentence. Spell out symbols a speaker would say (“percent”, “and”). Keep sentences short enough to say in one breath.';
-  videoBlock(type){ return '## VIDEO\nType: '+type.label+' — '+type.desc+'\nWho is speaking: '+type.delivery+'\nTarget runtime: up to '+type.runtime+' at ~'+type.wpm+' words/min. Soft word cap ~'+type.wordCap+' words total.\nShorter beats longer: land each section at or a little under its target, and never pad to fill time.\nIdea: '+this.state.idea+'\n'+this.qaBlock(); }
+  speakerLine(){ const sp=this.speakerAnswer(); return sp?('\nRequested speaker: '+sp+'. Write the words for this speaker to say. Where this differs from the line above, the requested speaker wins: a presenter from '+this.brandNoun()+' speaks on camera in first person, conversational, as part of '+this.brandNoun()+', not as a narrator.'):''; }
+  videoBlock(type){ return '## VIDEO\nType: '+type.label+' — '+type.desc+'\nWho is speaking: '+type.delivery+this.speakerLine()+'\nTarget runtime: up to '+type.runtime+' at ~'+type.wpm+' words/min. Soft word cap ~'+type.wordCap+' words total.\nShorter beats longer: land each section at or a little under its target, and never pad to fill time.\nIdea: '+this.state.idea+'\n'+this.qaBlock(); }
   conceptSection(){ const cb=this.conceptBlock(); return cb?('\n## CREATIVE CONCEPT (follow this angle throughout)\n'+cb+'\n'):''; }
   sourceSection(cap){ const rt=this.refMaterial(cap); return rt?('\n## SOURCE MATERIAL (the factual backbone — draw the most specific, compelling facts, metrics, customer names, and proof points from here; do not copy its tone)\n'+rt+'\n\nWherever a section can carry a concrete proof point from the source — a number, a named customer, a specific outcome, a real quote — prefer it over a generic claim. Never invent figures, names, or quotes the source and prep answers don\'t support.\n'):''; }
   prepFor(sec){ return ((this.state.prepAnswers||{})[sec.id]||'').trim()||'(none provided)'; }
@@ -1360,7 +1361,8 @@ class Component extends DCLogic {
     if(/^["“‘']/.test(t) && /["”’']$/.test(t)) t=t.slice(1,-1).trim();
     return t;
   }
-  assemblePickPrompt(){ const b=this.brandNoun(); return 'Classify this video idea into exactly one '+this.brandAdj()+' video type.\nTypes:\n- overview: crisp high-level flyover of '+b+' for a broad first-time audience (~60–90s).\n- explainer: problem → product → three-step how-it-works → result (~90s–2min).\n- executive: an executive speaking — thank-you, company context, why '+b+', support statement (~75–90s).\n\nIdea: '+this.state.idea+'\n'+this.qaBlock()+'\nReturn ONLY JSON: {"type":"overview|explainer|executive","rationale":"one short sentence"}'; }
+  assemblePickPrompt(){ const b=this.brandNoun(); return 'Classify this video idea into exactly one '+this.brandAdj()+' video type.\nTypes:\n- overview: crisp high-level flyover of '+b+' for a broad first-time audience (~60–90s).\n- explainer: problem → product → three-step how-it-works → result (~90s–2min).\n- executive: an executive speaking — thank-you, company context, why '+b+', support statement (~75–90s).\n\nIdea: '+this.state.idea+'\n'+this.qaBlock()+this.speakerWeight()+'\nAlso give "title": a short working title for the video, 3 to 8 words, specific to it, with no quotes.\n\nReturn ONLY JSON: {"type":"overview|explainer|executive","rationale":"one short sentence","title":""}'; }
+  speakerWeight(){ const sp=this.speakerAnswer(); return sp?('\n## REQUESTED SPEAKER (a strong signal, not a rule)\n'+sp+'\nWeigh it with the content. A voiceover narrator fits Overview or Explainer. An executive points to Executive when the content is remarks, thanks, or a statement of support, but an executive can also front an Overview. Someone from '+this.brandNoun()+', such as a product marketing manager, usually fits Explainer or Overview. Pick the type whose structure best fits the content; if the speaker shaped the choice, say so in the rationale.\n'):''; }
 
   // ---------- STEP 2 prompt ----------
   scriptBlock(){ const t=this.currentType(); return this.state.sections.map(s=>{ const secs=Math.round(this.sectionSeconds(s.text)); return '### '+s.label+' ['+secs+'s]\n'+(s.text||'(empty)'); }).join('\n\n'); }
@@ -1503,7 +1505,7 @@ class Component extends DCLogic {
     if(this.state.pickBusy || !this.requireProvider()) return;
     const pid=this.state.projectId;
     this.setState({pickBusy:true, pickError:null, pickResult:null});
-    try{ const p=this.parseJSON(await this.generate(this.assemblePickPrompt(),{json:true})); if(!this.stillOn(pid)) return; const t=this.TYPES.find(x=>x.id===(p.type||'').toLowerCase()); if(!t) throw new Error('Could not classify.'); this.setType(t.id); this.setState({pickBusy:false, pickKey:this.pickKeyNow(), pickResult:{typeLabel:t.label, rationale:p.rationale||''}}, ()=>this.persist()); }
+    try{ const p=this.parseJSON(await this.generate(this.assemblePickPrompt(),{json:true})); if(!this.stillOn(pid)) return; const t=this.TYPES.find(x=>x.id===(p.type||'').toLowerCase()); if(!t) throw new Error('Could not classify.'); this.setType(t.id); this.setState({pickBusy:false, pickKey:this.pickKeyNow(), pickResult:{typeLabel:t.label, rationale:p.rationale||''}, ...this.suggestTitle(p.title)}, ()=>this.persist()); }
     catch(e){ if(this.stillOn(pid)) this.setState({pickBusy:false, pickError:String(e.message||e)}); }
   }
   // Switching type re-shapes the script to the new type's sections. The old draft is parked per type, so switching back restores it
@@ -1567,6 +1569,12 @@ class Component extends DCLogic {
   // ---------- intake questions (step 2) ----------
   // Asked after the idea and before the type: the answers feed the type pick and every script prompt.
   briefKey(){ return (this.state.idea||'').trim()+'|'+(this.state.references||[]).map(r=>r.id).join(','); }
+  // Asked every time by the app, not the model, so the three options are always the same.
+  speakerQuestion(){ const b=(this.state.brand||'').trim()||'the company'; return { id:'speaker', kind:'speaker', q:'Who will deliver this video?', why:'The script is written in their voice, and it weighs on the video type.', options:['A voiceover narrator', 'Someone from '+b+', like a product marketing manager', 'An executive'], answer:'', skipped:false }; }
+  speakerAnswer(){ const q=(this.state.questions||[]).find(x=>x.kind==='speaker'); return (q && !q.skipped && (q.answer||'').trim()) || ''; }
+  // Model-suggested titles only fill in until the producer names the video themselves.
+  cleanTitle(t){ return String(t||'').replace(/^["'“‘\s]+|["'”’\s.]+$/g,'').replace(/\s+/g,' ').slice(0,80); }
+  suggestTitle(t){ const v=this.cleanTitle(t); return (v && !this.state.titleManual)?{title:v}:{}; }
   answeredQA(){ return (this.state.questions||[]).filter(q=>!q.skipped && (q.answer||'').trim()); }
   qaBlock(){ const a=this.answeredQA(); return a.length?('\n## INTAKE ANSWERS (from the person requesting the video — treat them as facts and direction)\n'+a.map(q=>'Q: '+q.q+'\nA: '+q.answer.trim()).join('\n\n')+'\n'):''; }
   typesBrief(){ return this.TYPES.map(t=>'- '+t.label+' ('+t.runtime+'): '+t.desc+' Sections: '+t.sections.map(s=>s.label).join(', ')+'.').join('\n'); }
@@ -1577,11 +1585,11 @@ class Component extends DCLogic {
       +(src?'\n## REFERENCE DOCUMENTS (read these closely; the video will be built from them)\n'+src+'\n':'')
       +(answered.length?'\n## ALREADY ANSWERED (do not ask again)\n'+answered.map(q=>'Q: '+q.q+'\nA: '+q.answer.trim()).join('\n\n')+'\n':'')
       +(skipped.length?'\n## ALREADY ASKED AND SKIPPED (do not ask again or rephrase)\n'+skipped.map(q=>'- '+q.q).join('\n')+'\n':'')
-      +'\n## TASK\nAsk '+(more?'up to 4 more':'5 to 7')+' short, specific questions, most important first. Ask only what the idea'+(src?' and source material':'')+' do not already answer, and never generic questions like "what is your video about?". Good targets: who the audience is and what they already know; the one message they should remember; concrete proof (numbers, named customers, outcomes); who is speaking, if it could be an executive; the action viewers should take; anything ambiguous in the idea. One thing per question, answerable in a sentence, in plain language. The person can skip any question, so asking is cheap.\n'
+      +'\n## TASK\nAsk '+(more?'up to 4 more':'5 to 7')+' short, specific questions, most important first. Ask only what the idea'+(src?' and source material':'')+' do not already answer, and never generic questions like "what is your video about?". Good targets: who the audience is and what they already know; the one message they should remember; concrete proof (numbers, named customers, outcomes); the action viewers should take; anything ambiguous in the idea. Do not ask who will deliver, narrate or present the video; that is asked separately. One thing per question, answerable in a sentence, in plain language. The person can skip any question, so asking is cheap.\n'
       +(src?'Use the reference documents to make the questions informed and specific. Where they offer choices (several customer stories, metrics, products, features, or angles), ask which to feature and name the candidates, e.g. "The deck cites two bank results. Which should lead?". Where they leave gaps (who the video is for, the one message, the action to take), ask about those. Never ask for a fact the documents already state, and if the documents and the idea disagree, ask which is right.\n':'')
       +'For each question, give 2 to 4 short example answers in "options", drawn from '+(src?'the reference documents and the idea':'the idea')+', when examples would help; otherwise an empty list. Give "why": one short clause on how the answer shapes the script.\n'
       +(more?'If the brief already covers what the script needs, return an empty "questions" list.\n':'')
-      +'Also return "read": one sentence saying what you understand the video to be'+(src?', drawing on the idea and the documents':'')+'.\n\n## OUTPUT\nReturn ONLY valid JSON, no markdown fences, exactly this shape:\n{"read":"","questions":[{"q":"","why":"","options":[""]}]}';
+      +'Also return "read": one sentence saying what you understand the video to be'+(src?', drawing on the idea and the documents':'')+'; and "title": a short working title for the video, 3 to 8 words, specific to this idea, with no quotes.\n\n## OUTPUT\nReturn ONLY valid JSON, no markdown fences, exactly this shape:\n{"read":"","title":"","questions":[{"q":"","why":"","options":[""]}]}';
   }
   // Coming back with the same idea returns to the questions already asked. A changed idea gets a fresh round,
   // and answers already given are kept, since they still carry information.
@@ -1589,8 +1597,8 @@ class Component extends DCLogic {
     if(!(this.state.idea||'').trim()){ this.showToast('Describe the video first'); return; }
     const key=this.briefKey();
     if(this.state.qKey===key && this.state.qAsked){ this.setState({view:'questions'}, ()=>this.persist()); return; }
-    const kept=this.answeredQA();
-    this.setState({view:'questions', questions:kept, qIndex:kept.length, qKey:key, qAsked:false, qRead:'', qError:null}, ()=>{ this.persist(); this.askQuestions(false); });
+    const kept=this.answeredQA(); const questions=kept.some(q=>q.kind==='speaker')?kept:kept.concat([this.speakerQuestion()]);
+    this.setState({view:'questions', questions, qIndex:kept.length, qKey:key, qAsked:false, qRead:'', qError:null}, ()=>{ this.persist(); this.askQuestions(false); });
   }
   async askQuestions(more){
     if(this.state.qBusy || !this.requireProvider()) return;
@@ -1608,8 +1616,9 @@ class Component extends DCLogic {
         .filter(x=>x.q && !seen.has(x.q.toLowerCase())).slice(0, more?4:7);
       const questions=(this.state.questions||[]).concat(fresh);
       const read=String((parsed&&parsed.read)||'').trim()||this.state.qRead||'';
-      // Land on the first new question; with none, the summary shows.
-      this.setState({questions, qIndex:questions.length-fresh.length, qRead:read, qBusy:false, qAsked:true}, ()=>this.persist());
+      // Someone still on an earlier question (the speaker question, while this ran) stays there;
+      // otherwise land on the first new question, or the summary when there are none.
+      this.setState({questions, qIndex:Math.min(this.state.qIndex, questions.length-fresh.length), qRead:read, qBusy:false, qAsked:true, ...this.suggestTitle(parsed&&parsed.title)}, ()=>this.persist());
       if(!fresh.length) this.showToast(more?'No more questions. The brief covers what the script needs.':'No questions needed. The idea covers what the script needs.');
     }catch(e){ if(this.stillOn(pid)) this.setState({qBusy:false, qError:String(e.message||e)}); }
   }
@@ -1863,8 +1872,8 @@ class Component extends DCLogic {
   async parsePdf(buf){ const pdfjs=await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.min.mjs'); pdfjs.GlobalWorkerOptions.workerSrc='https://cdn.jsdelivr.net/npm/pdfjs-dist@4.6.82/build/pdf.worker.min.mjs'; const pdf=await pdfjs.getDocument({data:buf}).promise; let text=''; for(let p=1;p<=pdf.numPages;p++){ const page=await pdf.getPage(p); const c=await page.getTextContent(); text+=c.items.map(i=>i.str).join(' ')+'\n'; } return text.trim(); }
 
   // ---------- persistence ----------
-  projectTitle(){ const i=(this.state.idea||'').trim(); if(!i) return 'Untitled script'; const t=i.split(/[.!?\n]/)[0].trim(); return t.length>72?t.slice(0,72)+'…':t; }
-  projectData(){ return { version:5, idea:this.state.idea, questions:(this.state.questions||[]).map(q=>({id:q.id, q:q.q, why:q.why, options:q.options, answer:q.answer, skipped:!!q.skipped})), qIndex:this.state.qIndex, qRead:this.state.qRead, qKey:this.state.qKey, qAsked:!!this.state.qAsked, pickKey:this.state.pickKey||'', pickResult:this.state.pickResult||null, typeId:this.state.selectedTypeId, prepAnswers:this.state.prepAnswers, references:this.state.references, concepts:this.state.concepts, selectedConceptId:this.state.selectedConceptId, customConcept:this.state.customConcept, conceptSeen:this.state.conceptSeen, conceptKey:this.state.conceptKey||'', view:this.state.view, industry:this.state.industry, targetShotSeconds:this.state.targetShotSeconds, sections:this.state.sections.map(s=>({id:s.id,text:s.text,locked:!!s.locked})), sectionsByType:this.state.sectionsByType||{}, scenes:this.state.scenes, personas:this.state.personas }; }
+  projectTitle(){ const named=(this.state.title||'').trim(); if(named) return named; const i=(this.state.idea||'').trim(); if(!i) return 'Untitled script'; const t=i.split(/[.!?\n]/)[0].trim(); return t.length>72?t.slice(0,72)+'…':t; }
+  projectData(){ return { version:5, idea:this.state.idea, title:this.state.title||'', titleManual:!!this.state.titleManual, questions:(this.state.questions||[]).map(q=>({id:q.id, kind:q.kind||'', q:q.q, why:q.why, options:q.options, answer:q.answer, skipped:!!q.skipped})), qIndex:this.state.qIndex, qRead:this.state.qRead, qKey:this.state.qKey, qAsked:!!this.state.qAsked, pickKey:this.state.pickKey||'', pickResult:this.state.pickResult||null, typeId:this.state.selectedTypeId, prepAnswers:this.state.prepAnswers, references:this.state.references, concepts:this.state.concepts, selectedConceptId:this.state.selectedConceptId, customConcept:this.state.customConcept, conceptSeen:this.state.conceptSeen, conceptKey:this.state.conceptKey||'', view:this.state.view, industry:this.state.industry, targetShotSeconds:this.state.targetShotSeconds, sections:this.state.sections.map(s=>({id:s.id,text:s.text,locked:!!s.locked})), sectionsByType:this.state.sectionsByType||{}, scenes:this.state.scenes, personas:this.state.personas }; }
   _lib(){ try{ return JSON.parse(this.lsGet('vsg_projects','{}'))||{}; }catch(e){ return {}; } }
   _refreshSaved(lib){ lib=lib||this._lib(); const list=Object.values(lib).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).map(p=>({id:p.id,title:p.title||'Untitled video',updatedAt:p.updatedAt||0})); this.setState({savedProjects:list}); }
   relTime(ts){ if(!ts) return ''; const d=Date.now()-ts; const m=Math.round(d/60000); if(m<1) return 'just now'; if(m<60) return m+'m ago'; const h=Math.round(m/60); if(h<24) return h+'h ago'; return Math.round(h/24)+'d ago'; }
@@ -1902,7 +1911,7 @@ class Component extends DCLogic {
     if(!references.length && d.referenceText){ references=[{id:this.uid('ref'), name:d.referenceFileName||'reference', text:d.referenceText}]; }
     // A failed summary gets another try each time the video is opened (it was usually a network blip).
     references=references.map(r=>({...r, briefFailed:false, briefBusy:false}));
-    this.setState({ idea:d.idea||'', selectedTypeId:d.typeId||null, prepAnswers:d.prepAnswers||{}, references, sectionsByType, refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:d.concepts||[], selectedConceptId:d.selectedConceptId||null, customConcept:d.customConcept||'', conceptSeen:d.conceptSeen||[], conceptKey:d.conceptKey||'', conceptBusy:false, conceptError:null, sections, industry:d.industry||'', targetShotSeconds:d.targetShotSeconds||4, scenes:(d.scenes||[]).map(s=>({...s, scene_id:s.scene_id||this.uid('s'), regenBusy:false, shotsGenerating:false, shots:(s.shots||[]).map(sh=>({...sh, shot_id:sh.shot_id||this.uid('sh'), regenBusy:false, videoBusy:false}))})), personas:d.personas||[], view:this.viewFor(d.view, sections.length>0), questions:Array.isArray(d.questions)?d.questions:[], qIndex:(d.qIndex!=null?d.qIndex:(d.questions||[]).length), qRead:d.qRead||'', qKey:d.qKey||'', qAsked:!!d.qAsked, qError:null, pickKey:d.pickKey||'', ...this.idleFlags(), pickResult:d.pickResult||null, pickError:null, scenesError:null, expanded:{} });
+    this.setState({ idea:d.idea||'', selectedTypeId:d.typeId||null, prepAnswers:d.prepAnswers||{}, references, sectionsByType, refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:d.concepts||[], selectedConceptId:d.selectedConceptId||null, customConcept:d.customConcept||'', conceptSeen:d.conceptSeen||[], conceptKey:d.conceptKey||'', conceptBusy:false, conceptError:null, sections, industry:d.industry||'', targetShotSeconds:d.targetShotSeconds||4, scenes:(d.scenes||[]).map(s=>({...s, scene_id:s.scene_id||this.uid('s'), regenBusy:false, shotsGenerating:false, shots:(s.shots||[]).map(sh=>({...sh, shot_id:sh.shot_id||this.uid('sh'), regenBusy:false, videoBusy:false}))})), personas:d.personas||[], view:this.viewFor(d.view, sections.length>0), title:d.title||'', titleManual:!!d.titleManual, questions:Array.isArray(d.questions)?d.questions:[], qIndex:(d.qIndex!=null?d.qIndex:(d.questions||[]).length), qRead:d.qRead||'', qKey:d.qKey||'', qAsked:!!d.qAsked, qError:null, pickKey:d.pickKey||'', ...this.idleFlags(), pickResult:d.pickResult||null, pickError:null, scenesError:null, expanded:{} });
   }
   exportJSON(){ const blob=new Blob([JSON.stringify(this.projectData(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(this.projectTitle().replace(/[^a-z0-9]+/gi,'-').toLowerCase()||'video-script')+'.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
   importJSON(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ let d; try{ d=JSON.parse(r.result); }catch(err){ d=null; } if(!d||typeof d!=='object'||Array.isArray(d)){ this.showToast('Invalid project file'); return; }
@@ -1910,7 +1919,7 @@ class Component extends DCLogic {
       this.flushPersist(); this.setState({projectId:this.uid('proj'), projectsMenuOpen:false}); this.loadProjectData(d); this.persistNow(); this.showToast('Imported as a new video'); }; r.readAsText(f); }; inp.click(); }
   // The brief steps reopen where they were left; scenes and shots need advanced mode, so without it they open the script.
   viewFor(v, hasSections){ if(['intake','questions','type','concept'].includes(v)) return v; if(!hasSections) return 'intake'; if((v==='scenes'||v==='shots') && !this.state.advanced) return 'workspace'; return v||'workspace'; }
-  newProject(){ this.flushPersist(); const id=this.uid('proj'); this.setState({ projectId:id, view:'intake', idea:'', questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
+  newProject(){ this.flushPersist(); const id=this.uid('proj'); this.setState({ projectId:id, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
   downloadText(name, text, mime){ this.downloadBlob(name, new Blob([text],{type:mime||'text/plain'})); }
   _fallbackCopy(text){ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ document.execCommand('copy'); this.showToast('Copied to clipboard'); }catch(e){ this.showToast('Copy failed'); } ta.remove(); }
   copyText(text){ try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(()=>this.showToast('Copied to clipboard'),()=>this._fallbackCopy(text)); return; } }catch(e){} this._fallbackCopy(text); }
@@ -2173,7 +2182,7 @@ class Component extends DCLogic {
     if(st.advanced) steps.push(
       mkStep(5,'Scenes',step===5,this.canStep2()||isExec,()=>this.goScenes(), isExec?'Executive videos carry no b-roll':'Generate a script first'),
       mkStep(6,'Shots',step===6,this.canStep3(),()=>this.goShots(),'Generate scenes first'));
-    const qs=st.questions||[], qi=st.qIndex||0, qCur=(!st.qBusy && qi<qs.length)?qs[qi]:null, nAns=this.answeredQA().length;
+    const qs=st.questions||[], qi=st.qIndex||0, qCur=(qi<qs.length)?qs[qi]:null, nAns=this.answeredQA().length;
 
     const types=this.TYPES.map(t=>{ const sel=st.selectedTypeId===t.id; return { id:t.id, label:t.label, desc:t.desc, runtime:t.runtime, onSelect:()=>this.setType(t.id), hasDraft:!sel && !!(st.sectionsByType||{})[t.id], bg:sel?'rgba(16,165,172,0.06)':'var(--c-white)', border:sel?'var(--c-emerald)':'var(--border-hairline)', dot:sel?'var(--c-emerald)':'var(--c-grey-300)', dotFill:sel?'var(--c-emerald)':'transparent', checkOpacity:sel?'1':'0' }; });
     const prepList=type?type.prep.map(p=>{ const sec=type.sections.find(s=>s.id===p.feeds); return { id:p.feeds, q:p.q, feedsLabel:sec?sec.label:p.feeds, value:st.prepAnswers[p.feeds]||'', onChange:(e)=>{ const pa={...st.prepAnswers,[p.feeds]:e.target.value}; this.setState({prepAnswers:pa},()=>this.persist()); } }; }):[];
@@ -2229,11 +2238,11 @@ class Component extends DCLogic {
       onIntakeNext:()=>this.intakeNext(), intakeDisabled:!hasIdea, intakeBg:hasIdea?'var(--c-emerald)':'var(--c-grey-300)', intakeCursor:hasIdea?'pointer':'not-allowed',
       intakeHint:!hasIdea?'Add an idea to begin.':(this.hasProvider()?'Next, a few quick questions to sharpen the brief.':(st.provider==='gemini'?'Add your Gemini key in Settings, or switch engines.':'Built-in Claude isn’t available here. Pick Gemini or Local in Settings.')),
       onBackToIdea:()=>this.setState({view:'intake'},()=>this.persist()), onBackToQuestions:()=>this.setState({view:'questions'},()=>this.persist()),
-      qRead:st.qRead, qReadShow:!!st.qRead, qError:st.qError, onRetryQuestions:()=>this.askQuestions(st.qAsked), qLoading:st.qBusy, qLoadingLabel:qs.length?'Thinking of more questions…':'Reading your idea…',
-      qWizard:!!qCur, qNum:qi+1, qTotal:qs.length, qPct:qs.length?Math.round(qi/qs.length*100):0, qText:qCur?qCur.q:'', qWhy:qCur?qCur.why:'', qWhyShow:!!(qCur&&qCur.why),
+      qRead:st.qRead, qReadShow:!!st.qRead, hasWorkingTitle:!!(st.title||'').trim(), workingTitle:(st.title||'').trim(), qError:st.qError, onRetryQuestions:()=>this.askQuestions(st.qAsked), qLoading:st.qBusy, qLoadingLabel:qCur?('Reading your idea'+((st.references||[]).length?' and documents':'')+'. Answer this while you wait.'):(st.qAsked?'Thinking of more questions…':'Reading your idea…'),
+      qWizard:!!qCur, qNum:qi+1, qTotal:qs.length, qCountLabel:st.qBusy?('Question '+(qi+1)):('Question '+(qi+1)+' of '+qs.length), qSkipRestShow:!st.qBusy, qPct:qs.length?Math.round(qi/qs.length*100):0, qText:qCur?qCur.q:'', qWhy:qCur?qCur.why:'', qWhyShow:!!(qCur&&qCur.why),
       qHasOptions:!!(qCur&&(qCur.options||[]).length), qOptions:qCur?(qCur.options||[]).map(o=>{ const sel=(qCur.answer||'').trim()===o; return { label:o, onPick:()=>this.patchQuestion(qi,{answer:o, skipped:false}), bg:sel?'rgba(16,165,172,0.10)':'var(--c-white)', border:sel?'var(--c-emerald)':'var(--border-hairline)' }; }):[],
       qAnswer:qCur?(qCur.answer||''):'', onQAnswer:(e)=>this.patchQuestion(qi,{answer:e.target.value}), qPlaceholder:qCur&&(qCur.options||[]).length?'Pick one above, or write your own answer':'Your answer (optional)',
-      qCanBack:qi>0, onQBack:()=>this.setState({qIndex:Math.max(0,qi-1)},()=>this.persist()), onQSkip:()=>this.qAdvance(true), onQNext:()=>this.qAdvance(false), qNextLabel:qi>=qs.length-1?'Done':'Next',
+      qCanBack:qi>0, onQBack:()=>this.setState({qIndex:Math.max(0,qi-1)},()=>this.persist()), onQSkip:()=>this.qAdvance(true), onQNext:()=>this.qAdvance(false), qNextLabel:(qi>=qs.length-1 && !st.qBusy)?'Done':'Next',
       onSkipRest:()=>this.setState({qIndex:qs.length},()=>this.persist()),
       qSummary:!qCur && !st.qBusy && (st.qAsked||qs.length>0), qSummaryNote:qs.length?(nAns+' answered, '+(qs.length-nAns)+' skipped. Click a question to change its answer.'):'Your idea already covers what the script needs. Ask for more questions if you want to add detail.',
       qList:qs.map((q,i)=>{ const ans=!q.skipped && (q.answer||'').trim(); return { q:q.q, answerText:ans?q.answer.trim():'Skipped', answerColor:ans?'var(--fg-default)':'var(--fg-subtle)', onEdit:()=>this.setState({qIndex:i},()=>this.persist()) }; }),
@@ -2251,7 +2260,7 @@ class Component extends DCLogic {
       conceptWriteDisabled:!this.conceptBlock(), conceptWriteBg:this.conceptBlock()?'var(--c-emerald)':'var(--c-grey-300)', conceptWriteCursor:this.conceptBlock()?'pointer':'not-allowed',
 
       // script workspace
-      scriptTitle:this.projectTitle(), runtimeLabel:type?type.runtime:'', wpm, generating:st.generating, genError:st.genError,
+      scriptTitle:this.projectTitle(), titleValue:st.title||'', titlePlaceholder:this.projectTitle(), onTitle:(e)=>{ const v=e.target.value; this.setState({title:v, titleManual:!!v.trim()}, ()=>this.persist()); }, runtimeLabel:type?type.runtime:'', wpm, generating:st.generating, genError:st.genError,
       onBackToIntake:()=>this.setState({view:'type'},()=>this.persist()), onRegenAll:()=>this.regenAll(), regenAllLabel:st.regenAllBusy?'Regenerating…':'Regenerate all', regenAllSpin:st.regenAllBusy?'animation:vsgspin 0.9s linear infinite':'',
       onGoScenes:()=>this.goScenes(), toScenesLabel:isExec?'Scenes (N/A)':'Continue to Scenes',
       scriptExportOpen:st.scriptExportOpen, onToggleExport:()=>this.setState({scriptExportOpen:!st.scriptExportOpen}), onExportDocx:()=>this.exportDocx(), onExportPdf:()=>this.exportPdf(),
