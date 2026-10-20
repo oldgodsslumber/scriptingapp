@@ -1,12 +1,16 @@
 # Video Script & B-Roll Generator
 
-A browser app for planning short corporate videos. Start with an idea and it takes you through:
+A browser app for writing short corporate video scripts. Start with an idea and it takes you through:
 
-1. **Script.** Pick a video type (Overview, Explainer or Executive), answer the prep questions, and get a voiceover script written to each section's word budget and your brand voice.
-2. **Scenes.** The locked script becomes an ordered list of see-say b-roll scenes covering the whole runtime, plus a small recurring cast.
-3. **Shots.** Each scene breaks down into shots with ready-to-paste image and video (LTX) prompts.
+1. **Idea.** Describe the video and attach any reference documents (.docx, .pptx, .pdf, .txt, .md).
+2. **Questions.** The model reads the idea and the documents, then asks a few follow-up questions, one at a time. Answer what you can and skip the rest; you can ask for more.
+3. **Type.** It recommends a video type (Overview, Explainer or Executive) from your answers. You can switch.
+4. **Script.** A voiceover script written to each section's word budget and your brand voice. Download it as Word or PDF; the file ends with the brief it was written from.
 
-Export at any step, including a `.storyboard` file for Storyboarder.
+**Advanced mode** (Settings) adds two steps for the video team:
+
+5. **Scenes.** The locked script becomes an ordered list of see-say b-roll scenes covering the whole runtime, plus a small recurring cast.
+6. **Shots.** Each scene breaks down into shots with ready-to-paste image and video (LTX) prompts, and exports to a `.storyboard` file for Storyboarder.
 
 **Live app:** https://oldgodsslumber.github.io/scriptingapp/
 

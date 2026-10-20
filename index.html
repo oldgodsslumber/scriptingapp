@@ -26,7 +26,7 @@
     <div style="display:flex;align-items:center;gap:12px;min-width:0">
       <img src="assets/logo.svg" alt="" style="height:24px;width:auto;display:block"/>
       <span style="width:1px;height:22px;background:var(--divider)"></span>
-      <div style="font-family:var(--font-display);font-weight:600;font-size:17px;color:var(--c-navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Video Script &amp; B-Roll Generator</div>
+      <div style="font-family:var(--font-display);font-weight:600;font-size:17px;color:var(--c-navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ appTitle }}</div>
     </div>
 
     <!-- STEPPER -->
@@ -82,9 +82,9 @@
   <main data-screen-label="Intake" style="flex:1;overflow:auto;padding:40px 28px 80px">
     <div style="max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:28px">
       <div>
-        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c-emerald);margin-bottom:8px">Step 1 · Script</div>
-        <h1 style="font-family:var(--font-display);font-weight:600;font-size:34px;line-height:1.1;color:var(--c-navy);margin:0 0 6px">Start a new script</h1>
-        <p style="margin:0;font-size:15px;color:var(--fg-muted);max-width:620px">Capture the idea, pick a video type, answer the prep questions, and generate an on-voice narration draft you can tune section by section.</p>
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c-emerald);margin-bottom:8px">Step 1 · Idea</div>
+        <h1 style="font-family:var(--font-display);font-weight:600;font-size:34px;line-height:1.1;color:var(--c-navy);margin:0 0 6px">What’s the video?</h1>
+        <p style="margin:0;font-size:15px;color:var(--fg-muted);max-width:620px">Describe the idea and attach any reference documents. Next come a few quick questions to sharpen it, then a recommended video type, then the script.</p>
       </div>
 
       <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px">
@@ -94,63 +94,8 @@
       </section>
 
       <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:4px;flex-wrap:wrap">
-          <label style="font-size:15px;font-weight:700;color:var(--c-navy)">Video type</label>
-          <button onClick="{{ onPickForMe }}" style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--radius-pill);background:rgba(95,103,185,0.10);border:1px solid rgba(95,103,185,0.35);color:var(--c-violet);font-size:13px;font-weight:600;cursor:pointer">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M18.36 5.64l-1.42 1.42M7.05 16.95l-1.41 1.41M18.36 18.36l-1.42-1.42M7.05 7.05L5.64 5.64"></path><circle cx="12" cy="12" r="4"></circle></svg>
-            <span>{{ pickLabel }}</span>
-          </button>
-        </div>
-        <p style="margin:0 0 16px;font-size:13px;color:var(--fg-muted)">Each type has its own structure, timing, and word budgets. Not sure? Let the model classify the idea.</p>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
-          <sc-for list="{{ types }}" as="t" hint-placeholder-count="3">
-            <button onClick="{{ t.onSelect }}" style="text-align:left;cursor:pointer;padding:18px;border-radius:var(--radius-md);background:{{ t.bg }};border:1.5px solid {{ t.border }};display:flex;flex-direction:column;gap:8px;transition:all .15s ease">
-              <div style="display:flex;align-items:center;justify-content:space-between">
-                <span style="font-family:var(--font-display);font-weight:600;font-size:19px;color:var(--c-navy)">{{ t.label }}</span>
-                <span style="width:18px;height:18px;border-radius:999px;border:1.5px solid {{ t.dot }};background:{{ t.dotFill }};display:grid;place-items:center">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ t.checkOpacity }}"><path d="M20 6 9 17l-5-5"></path></svg>
-                </span>
-              </div>
-              <span style="font-size:13px;line-height:1.5;color:var(--fg-muted);min-height:58px">{{ t.desc }}</span>
-              <span style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-                <span style="font-size:12px;font-weight:600;color:var(--c-emerald)">{{ t.runtime }}</span>
-                <sc-if value="{{ t.hasDraft }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:600;color:var(--c-violet);background:rgba(95,103,185,0.10);padding:2px 8px;border-radius:999px">Draft kept</span></sc-if>
-              </span>
-            </button>
-          </sc-for>
-        </div>
-        <sc-if value="{{ pickResult }}" hint-placeholder-val="{{ null }}">
-          <div style="margin-top:16px;padding:14px 16px;border-radius:var(--radius-md);background:rgba(95,103,185,0.07);border:1px solid rgba(95,103,185,0.25);display:flex;gap:12px;align-items:flex-start">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-violet)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
-            <div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><strong>Suggested: {{ pickResult.typeLabel }}.</strong> {{ pickResult.rationale }}</div>
-          </div>
-        </sc-if>
-        <sc-if value="{{ pickError }}" hint-placeholder-val="{{ null }}">
-          <div style="margin-top:14px;font-size:13px;color:var(--c-orange)">{{ pickError }}</div>
-        </sc-if>
-      </section>
-
-      <sc-if value="{{ hasType }}" hint-placeholder-val="{{ false }}">
-      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px">
-        <label style="font-size:15px;font-weight:700;color:var(--c-navy)">Prep questions</label>
-        <p style="margin:6px 0 18px;font-size:13px;color:var(--fg-muted)">The {{ typeLabel }} workshop questions, slotted to the sections they feed. Answers seed the draft — thorough answers make a better first pass.</p>
-        <div style="display:flex;flex-direction:column;gap:18px">
-          <sc-for list="{{ prepList }}" as="p" hint-placeholder-count="5">
-            <div>
-              <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap">
-                <span style="font-size:14px;font-weight:600;color:var(--c-navy)">{{ p.q }}</span>
-                <span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--c-emerald);background:rgba(16,165,172,0.10);padding:2px 8px;border-radius:999px;white-space:nowrap">feeds {{ p.feedsLabel }}</span>
-              </div>
-              <textarea value="{{ p.value }}" onChange="{{ p.onChange }}" placeholder="Your answer…" style="width:100%;min-height:60px;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;line-height:1.5;color:var(--fg-default);background:var(--c-grey-50);outline:none"></textarea>
-            </div>
-          </sc-for>
-        </div>
-      </section>
-      </sc-if>
-
-      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px">
         <label style="font-size:15px;font-weight:700;color:var(--c-navy)">Reference material <span style="font-weight:400;color:var(--fg-muted)">· optional</span></label>
-        <p style="margin:6px 0 14px;font-size:13px;color:var(--fg-muted)">Drop one or more .docx, .pptx, .pdf, .txt or .md files. Each is parsed to text in your browser and used to ground facts (images / multimodal deferred).</p>
+        <p style="margin:6px 0 14px;font-size:13px;color:var(--fg-muted)">Drop one or more .docx, .pptx, .pdf, .txt or .md files. Each is read in your browser. The questions in the next step are drawn from them, and the script uses them for facts.</p>
         <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
           <sc-for list="{{ references }}" as="r" hint-placeholder-count="2">
             <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--radius-md);background:var(--c-grey-50);border:1px solid var(--border-hairline)">
@@ -175,6 +120,198 @@
       </section>
 
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:sticky;bottom:0;padding:16px 0;background:linear-gradient(to top,var(--bg-app) 70%,transparent)">
+        <div style="font-size:13px;color:var(--fg-muted)">{{ intakeHint }}</div>
+        <button onClick="{{ onIntakeNext }}" disabled="{{ intakeDisabled }}" style="display:flex;align-items:center;gap:10px;padding:14px 26px;border-radius:var(--radius-md);background:{{ intakeBg }};border:none;color:#fff;font-size:15px;font-weight:700;cursor:{{ intakeCursor }};box-shadow:var(--shadow-2)">
+          <span>Next: a few questions</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </button>
+      </div>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ===================== QUESTIONS (STEP 2) ===================== -->
+  <sc-if value="{{ isQuestions }}" hint-placeholder-val="{{ false }}">
+  <main data-screen-label="Questions" style="flex:1;overflow:auto;padding:40px 28px 80px">
+    <div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px">
+      <div>
+        <button onClick="{{ onBackToIdea }}" style="display:inline-flex;align-items:center;gap:6px;padding:0;background:none;border:none;color:var(--fg-muted);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+          Idea
+        </button>
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c-emerald);margin-bottom:8px">Step 2 · Questions</div>
+        <h1 style="font-family:var(--font-display);font-weight:600;font-size:34px;line-height:1.1;color:var(--c-navy);margin:0 0 6px">A few questions</h1>
+        <p style="margin:0;font-size:15px;color:var(--fg-muted);max-width:640px">Answer what you can and skip the rest. Every answer sharpens the script.</p>
+      </div>
+
+      <sc-if value="{{ qReadShow }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:14px 16px;border-radius:var(--radius-md);background:rgba(95,103,185,0.07);border:1px solid rgba(95,103,185,0.25);font-size:13px;line-height:1.55;color:var(--c-navy)"><strong>What I understand so far:</strong> {{ qRead }}</div>
+      </sc-if>
+
+      <sc-if value="{{ qError }}" hint-placeholder-val="{{ null }}">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px;border-radius:var(--radius-md);background:rgba(247,105,35,0.08);border:1px solid rgba(247,105,35,0.3)">
+          <span style="font-size:13px;color:var(--c-orange)">{{ qError }}</span>
+          <span style="display:flex;gap:8px">
+            <button onClick="{{ onRetryQuestions }}" style="padding:7px 14px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid rgba(247,105,35,0.4);color:var(--c-orange);font-size:12px;font-weight:700;cursor:pointer">Retry</button>
+            <button onClick="{{ onOpenSettings }}" style="padding:7px 14px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:12px;font-weight:600;cursor:pointer">Settings</button>
+          </span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ qLoading }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:10px;padding:20px;font-size:14px;color:var(--fg-muted)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:vsgspin 0.9s linear infinite"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg>
+          {{ qLoadingLabel }}
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ qWizard }}" hint-placeholder-val="{{ false }}">
+      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:28px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+          <span style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--fg-muted)">Question {{ qNum }} of {{ qTotal }}</span>
+          <button onClick="{{ onSkipRest }}" style="padding:0;background:none;border:none;color:var(--fg-muted);font-size:13px;font-weight:600;cursor:pointer">Skip the rest →</button>
+        </div>
+        <div style="height:4px;border-radius:999px;background:var(--c-grey-100);overflow:hidden"><div style="height:100%;width:{{ qPct }}%;background:var(--c-emerald);transition:width .2s ease"></div></div>
+        <div>
+          <div style="font-family:var(--font-display);font-weight:600;font-size:22px;line-height:1.25;color:var(--c-navy)">{{ qText }}</div>
+          <sc-if value="{{ qWhyShow }}" hint-placeholder-val="{{ false }}"><div style="margin-top:6px;font-size:13px;color:var(--fg-muted)">{{ qWhy }}</div></sc-if>
+        </div>
+        <sc-if value="{{ qHasOptions }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <sc-for list="{{ qOptions }}" as="o" hint-placeholder-count="3">
+              <button onClick="{{ o.onPick }}" style="padding:8px 14px;border-radius:var(--radius-pill);background:{{ o.bg }};border:1.5px solid {{ o.border }};color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer;text-align:left">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </sc-if>
+        <textarea value="{{ qAnswer }}" onChange="{{ onQAnswer }}" placeholder="{{ qPlaceholder }}" style="width:100%;min-height:90px;padding:12px 14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:15px;line-height:1.5;color:var(--fg-default);background:var(--c-grey-50);outline:none"></textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <span>
+            <sc-if value="{{ qCanBack }}" hint-placeholder-val="{{ false }}">
+              <button onClick="{{ onQBack }}" style="padding:11px 18px;border-radius:var(--radius-md);background:transparent;border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:14px;font-weight:600;cursor:pointer">Back</button>
+            </sc-if>
+          </span>
+          <span style="display:flex;gap:8px">
+            <button onClick="{{ onQSkip }}" style="padding:11px 18px;border-radius:var(--radius-md);background:transparent;border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:14px;font-weight:600;cursor:pointer">Skip</button>
+            <button onClick="{{ onQNext }}" style="padding:11px 24px;border-radius:var(--radius-md);background:var(--c-emerald);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer">{{ qNextLabel }}</button>
+          </span>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ qSummary }}" hint-placeholder-val="{{ false }}">
+      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px">
+        <label style="display:block;font-size:15px;font-weight:700;color:var(--c-navy);margin-bottom:4px">Your answers</label>
+        <p style="margin:0 0 14px;font-size:13px;color:var(--fg-muted)">{{ qSummaryNote }}</p>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ qList }}" as="a" hint-placeholder-count="3">
+            <button onClick="{{ a.onEdit }}" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;width:100%;padding:12px 14px;border-radius:var(--radius-md);background:var(--c-grey-50);border:1px solid var(--border-hairline);cursor:pointer;text-align:left">
+              <span style="min-width:0">
+                <span style="display:block;font-size:13px;font-weight:600;color:var(--c-navy)">{{ a.q }}</span>
+                <span style="display:block;margin-top:3px;font-size:13px;line-height:1.5;color:{{ a.answerColor }}">{{ a.answerText }}</span>
+              </span>
+              <span style="flex-shrink:0;font-size:12px;font-weight:600;color:var(--c-violet)">Edit</span>
+            </button>
+          </sc-for>
+        </div>
+        <div style="margin-top:16px">
+          <button onClick="{{ onAskMore }}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--radius-pill);background:rgba(95,103,185,0.10);border:1px solid rgba(95,103,185,0.35);color:var(--c-violet);font-size:13px;font-weight:600;cursor:pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
+            Ask more questions
+          </button>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ qFooter }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:sticky;bottom:0;padding:16px 0;background:linear-gradient(to top,var(--bg-app) 70%,transparent)">
+        <div style="font-size:13px;color:var(--fg-muted)">{{ qHint }}</div>
+        <button onClick="{{ onQuestionsNext }}" style="display:flex;align-items:center;gap:10px;padding:14px 26px;border-radius:var(--radius-md);background:var(--c-emerald);border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-2)">
+          <span>Next: recommend a type</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+        </button>
+      </div>
+      </sc-if>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ===================== TYPE (STEP 3) ===================== -->
+  <sc-if value="{{ isTypeStep }}" hint-placeholder-val="{{ false }}">
+  <main data-screen-label="Type" style="flex:1;overflow:auto;padding:40px 28px 80px">
+    <div style="max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:28px">
+      <div>
+        <button onClick="{{ onBackToQuestions }}" style="display:inline-flex;align-items:center;gap:6px;padding:0;background:none;border:none;color:var(--fg-muted);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+          Questions
+        </button>
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c-emerald);margin-bottom:8px">Step 3 · Type</div>
+        <h1 style="font-family:var(--font-display);font-weight:600;font-size:34px;line-height:1.1;color:var(--c-navy);margin:0 0 6px">Pick the video type</h1>
+        <p style="margin:0;font-size:15px;color:var(--fg-muted);max-width:640px">Recommended from your idea and answers. Click another type to switch.</p>
+      </div>
+
+      <sc-if value="{{ pickBusy }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:10px;padding:4px 20px;font-size:14px;color:var(--fg-muted)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:vsgspin 0.9s linear infinite"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg>
+          Recommending a type…
+        </div>
+      </sc-if>
+
+      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:4px;flex-wrap:wrap">
+          <label style="font-size:15px;font-weight:700;color:var(--c-navy)">Video type</label>
+          <button onClick="{{ onPickForMe }}" style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--radius-pill);background:rgba(95,103,185,0.10);border:1px solid rgba(95,103,185,0.35);color:var(--c-violet);font-size:13px;font-weight:600;cursor:pointer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v2M12 19v2M5 12H3M21 12h-2M18.36 5.64l-1.42 1.42M7.05 16.95l-1.41 1.41M18.36 18.36l-1.42-1.42M7.05 7.05L5.64 5.64"></path><circle cx="12" cy="12" r="4"></circle></svg>
+            <span>{{ pickLabel }}</span>
+          </button>
+        </div>
+        <p style="margin:0 0 16px;font-size:13px;color:var(--fg-muted)">Each type has its own structure, timing, and word budgets.</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+          <sc-for list="{{ types }}" as="t" hint-placeholder-count="3">
+            <button onClick="{{ t.onSelect }}" style="text-align:left;cursor:pointer;padding:18px;border-radius:var(--radius-md);background:{{ t.bg }};border:1.5px solid {{ t.border }};display:flex;flex-direction:column;gap:8px;transition:all .15s ease">
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="font-family:var(--font-display);font-weight:600;font-size:19px;color:var(--c-navy)">{{ t.label }}</span>
+                <span style="width:18px;height:18px;border-radius:999px;border:1.5px solid {{ t.dot }};background:{{ t.dotFill }};display:grid;place-items:center">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ t.checkOpacity }}"><path d="M20 6 9 17l-5-5"></path></svg>
+                </span>
+              </div>
+              <span style="font-size:13px;line-height:1.5;color:var(--fg-muted);min-height:58px">{{ t.desc }}</span>
+              <span style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                <span style="font-size:12px;font-weight:600;color:var(--c-emerald)">{{ t.runtime }}</span>
+                <sc-if value="{{ t.hasDraft }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px;font-weight:600;color:var(--c-violet);background:rgba(95,103,185,0.10);padding:2px 8px;border-radius:999px">Draft kept</span></sc-if>
+              </span>
+            </button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ pickResult }}" hint-placeholder-val="{{ null }}">
+          <div style="margin-top:16px;padding:14px 16px;border-radius:var(--radius-md);background:rgba(95,103,185,0.07);border:1px solid rgba(95,103,185,0.25);display:flex;gap:12px;align-items:flex-start">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-violet)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
+            <div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><strong>Recommended: {{ pickResult.typeLabel }}.</strong> {{ pickResult.rationale }}</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ pickError }}" hint-placeholder-val="{{ null }}">
+          <div style="margin-top:14px;font-size:13px;color:var(--c-orange)">{{ pickError }}</div>
+        </sc-if>
+      </section>
+
+      <sc-if value="{{ showPrep }}" hint-placeholder-val="{{ false }}">
+      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px">
+        <label style="font-size:15px;font-weight:700;color:var(--c-navy)">Prep questions</label>
+        <p style="margin:6px 0 18px;font-size:13px;color:var(--fg-muted)">The {{ typeLabel }} workshop questions, slotted to the sections they feed. Answers seed the draft — thorough answers make a better first pass.</p>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <sc-for list="{{ prepList }}" as="p" hint-placeholder-count="5">
+            <div>
+              <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:6px;flex-wrap:wrap">
+                <span style="font-size:14px;font-weight:600;color:var(--c-navy)">{{ p.q }}</span>
+                <span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--c-emerald);background:rgba(16,165,172,0.10);padding:2px 8px;border-radius:999px;white-space:nowrap">feeds {{ p.feedsLabel }}</span>
+              </div>
+              <textarea value="{{ p.value }}" onChange="{{ p.onChange }}" placeholder="Your answer…" style="width:100%;min-height:60px;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;line-height:1.5;color:var(--fg-default);background:var(--c-grey-50);outline:none"></textarea>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+      </sc-if>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:sticky;bottom:0;padding:16px 0;background:linear-gradient(to top,var(--bg-app) 70%,transparent)">
         <div style="font-size:13px;color:var(--fg-muted)">{{ generateHint }}</div>
         <button onClick="{{ onGenerate }}" disabled="{{ generateDisabled }}" style="display:flex;align-items:center;gap:10px;padding:14px 26px;border-radius:var(--radius-md);background:{{ generateBg }};border:none;color:#fff;font-size:15px;font-weight:700;cursor:{{ generateCursor }};box-shadow:var(--shadow-2)">
           <span>Generate script</span>
@@ -185,16 +322,16 @@
   </main>
   </sc-if>
 
-  <!-- ===================== CONCEPT (STEP 1 · OVERVIEW) ===================== -->
+  <!-- ===================== CONCEPT (STEP 3 · OVERVIEW) ===================== -->
   <sc-if value="{{ isConcept }}" hint-placeholder-val="{{ false }}">
   <main data-screen-label="Concept" style="flex:1;overflow:auto;padding:40px 28px 80px">
     <div style="max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:24px">
       <div>
         <button onClick="{{ onBackToIntakeFromConcept }}" style="display:inline-flex;align-items:center;gap:6px;padding:0;background:none;border:none;color:var(--fg-muted);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
-          Intake
+          Type
         </button>
-        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c-emerald);margin-bottom:8px">Step 1 · Concept</div>
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c-emerald);margin-bottom:8px">Step 3 · Concept</div>
         <h1 style="font-family:var(--font-display);font-weight:600;font-size:34px;line-height:1.1;color:var(--c-navy);margin:0 0 6px">Pick a concept</h1>
         <p style="margin:0;font-size:15px;color:var(--fg-muted);max-width:640px">Three directions for your {{ conceptTypeLabel }}. Choose one, write your own, or generate three more — then it writes the full script to that angle.</p>
       </div>
@@ -257,7 +394,7 @@
           <div style="min-width:0">
             <button onClick="{{ onBackToIntake }}" style="display:inline-flex;align-items:center;gap:6px;padding:0;background:none;border:none;color:var(--fg-muted);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:6px">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
-              Intake
+              Type
             </button>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
               <h1 style="font-family:var(--font-display);font-weight:600;font-size:26px;line-height:1.15;color:var(--c-navy);margin:0;max-width:640px">{{ scriptTitle }}</h1>
@@ -288,10 +425,18 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ regenAllSpin }}"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg>
               {{ regenAllLabel }}
             </button>
+            <sc-if value="{{ advanced }}" hint-placeholder-val="{{ false }}">
             <button onClick="{{ onGoScenes }}" style="display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:var(--radius-sm);background:var(--c-navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
               {{ toScenesLabel }}
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
             </button>
+            </sc-if>
+            <sc-if value="{{ simpleMode }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ onExportDocx }}" style="display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:var(--radius-sm);background:var(--c-emerald);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M7 10l5 5 5-5"></path><path d="M12 15V3"></path></svg>
+              Download script (.docx)
+            </button>
+            </sc-if>
           </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:18px 0 16px">
@@ -864,6 +1009,15 @@
               <button onClick="{{ onResetVoice }}" style="padding:5px 11px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:12px;font-weight:600;cursor:pointer">Reset to sample</button>
             </div>
           </div>
+          <div style="border-top:1px solid var(--divider);padding-top:18px">
+            <button onClick="{{ onToggleAdvanced }}" role="checkbox" aria-checked="{{ dAdvanced }}" style="display:flex;align-items:flex-start;gap:12px;width:100%;padding:0;background:none;border:none;cursor:pointer;text-align:left">
+              <span style="flex-shrink:0;width:20px;height:20px;margin-top:1px;border-radius:5px;border:1.5px solid {{ advBorder }};background:{{ advBg }};display:grid;place-items:center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ advCheck }}"><path d="M20 6 9 17l-5-5"></path></svg></span>
+              <span>
+                <span style="display:block;font-size:13px;font-weight:700;color:var(--c-navy)">Advanced mode</span>
+                <span style="display:block;margin-top:2px;font-size:12px;line-height:1.5;color:var(--fg-muted)">For the video team. Adds the Scenes and Shots steps after the script: b-roll scenes, personas, and image and video prompts.</span>
+              </span>
+            </button>
+          </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--border-hairline);background:var(--c-grey-50)">
           <button onClick="{{ onCloseSettings }}" style="padding:10px 18px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
@@ -977,7 +1131,8 @@ class Component extends DCLogic {
   GEMINI_RETIRED = /^(gemini-(1\.|2\.0|pro$|3-pro-preview$|3\.5-flash$|3\.7-flash$)|gemma-3-|gemma-4-e\d)/i;
 
   state = {
-    view:'intake', settingsOpen:false, toast:null,
+    view:'intake', settingsOpen:false, toast:null, advanced:false, dAdvanced:false,
+    questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qBusy:false, qError:null, pickKey:'',
     provider:'claude', dProvider:'claude',
     geminiKey:'', geminiModel:this.GEMINI_DEFAULT, geminiTemp:0.7, geminiThinking:'medium', voiceDoc:'', voiceDefault:'', brand:'', dBrand:'',
     foundryEndpoint:'http://localhost:8757/v1', foundryModel:'qwen3-14b',
@@ -1011,14 +1166,15 @@ class Component extends DCLogic {
     const thinking=this.lsGet('vsg_gemini_thinking','medium');
     const fEndpoint=this.lsGet('vsg_foundry_endpoint','http://localhost:8757/v1'), fModel=this.lsGet('vsg_foundry_model','qwen3-14b');
     let provider=this.lsGet('vsg_provider',null); if(!provider || (provider==='claude' && !this.claudeAvailable())){ provider=this.claudeAvailable()?'claude':'gemini'; }
-    const brand=this.lsGet('vsg_brand',''); this.applyBrand(brand);
     const temp=parseFloat(this.lsGet('vsg_gemini_temp','0.7')), voice=this.lsGet('vsg_voice_doc',null);
+    const advanced=this.lsGet('vsg_advanced','0')==='1';
+    const brand=this.lsGet('vsg_brand',''); this.applyBrand(brand);
     const [voiceDefault, scenePromptTpl, shotPromptTpl]=await Promise.all([
       this.loadAsset('assets/voice-guide.md'), this.loadAsset('assets/Scene_Prompt_v5.md'), this.loadAsset('assets/Shot_Prompt_v2.md')]);
     const effVoice = (voice!=null)?voice:voiceDefault;
     this.setState({ geminiKey:key, geminiModel:model, geminiTemp:isNaN(temp)?0.7:temp, geminiThinking:thinking,
       voiceDoc:(voice!=null?voice:''), voiceDefault, scenePromptTpl, shotPromptTpl, brand, dBrand:brand,
-      provider, dProvider:provider, foundryEndpoint:fEndpoint, foundryModel:fModel,
+      provider, dProvider:provider, advanced, dAdvanced:advanced, foundryEndpoint:fEndpoint, foundryModel:fModel,
       dKey:key, dModel:model, dTemp:isNaN(temp)?0.7:temp, dThinking:thinking, dVoice:effVoice, dEndpoint:fEndpoint, dFModel:fModel });
     let lib=this._lib(); const old=this.lsGet('vsg_project',null); let currentId=this.lsGet('vsg_current',null);
     if(Object.keys(lib).length===0 && old){ try{ const d=JSON.parse(old); const id=this.uid('proj'); lib[id]={id, title:(d.idea?String(d.idea).slice(0,72):'Untitled video'), updatedAt:Date.now(), data:d}; this.lsSet('vsg_projects',JSON.stringify(lib)); currentId=id; }catch(e){} }
@@ -1158,14 +1314,14 @@ class Component extends DCLogic {
   }
   // Generations capture the video they started in; a reply that lands after the user switched videos is dropped instead of being written into (and saved over) the other one.
   stillOn(pid){ return this.state.projectId===pid; }
-  idleFlags(){ return { generating:false, genError:null, regenAllBusy:false, pickBusy:false, conceptBusy:false, scenesGenerating:false, scenesRegenBusy:false, allShotsBusy:false }; }
+  idleFlags(){ return { generating:false, genError:null, regenAllBusy:false, pickBusy:false, conceptBusy:false, qBusy:false, scenesGenerating:false, scenesRegenBusy:false, allShotsBusy:false }; }
   patchScene(sceneId, fn){ const i=this.sceneIndexById(sceneId); if(i<0) return false; const scenes=this.state.scenes.slice(); scenes[i]=fn(scenes[i]); this.setState({scenes}); return true; }
   patchShot(sceneId, shotId, fn){ return this.patchScene(sceneId, sc=>({...sc, shots:(sc.shots||[]).map(sh=>sh.shot_id===shotId?fn(sh):sh)})); }
 
   // ---------- STEP 1 prompts ----------
   // The voice guide is a print guide (headlines, parentheses, en dashes); the script is read aloud, so say how to adapt it.
   SPOKEN_RULES = '## WRITTEN TO BE HEARD\nThis script is read aloud, and the voice guide above was written for print, so adapt it: no headlines, bullets, markdown, emoji, or stage directions. No parentheses or brackets — say an aside as part of the sentence. Spell out symbols a speaker would say (“percent”, “and”). Keep sentences short enough to say in one breath.';
-  videoBlock(type){ return '## VIDEO\nType: '+type.label+' — '+type.desc+'\nWho is speaking: '+type.delivery+'\nTarget runtime: up to '+type.runtime+' at ~'+type.wpm+' words/min. Soft word cap ~'+type.wordCap+' words total.\nShorter beats longer: land each section at or a little under its target, and never pad to fill time.\nIdea: '+this.state.idea+'\n'; }
+  videoBlock(type){ return '## VIDEO\nType: '+type.label+' — '+type.desc+'\nWho is speaking: '+type.delivery+'\nTarget runtime: up to '+type.runtime+' at ~'+type.wpm+' words/min. Soft word cap ~'+type.wordCap+' words total.\nShorter beats longer: land each section at or a little under its target, and never pad to fill time.\nIdea: '+this.state.idea+'\n'+this.qaBlock(); }
   conceptSection(){ const cb=this.conceptBlock(); return cb?('\n## CREATIVE CONCEPT (follow this angle throughout)\n'+cb+'\n'):''; }
   sourceSection(cap){ const rt=this.refMaterial(cap); return rt?('\n## SOURCE MATERIAL (the factual backbone — draw the most specific, compelling facts, metrics, customer names, and proof points from here; do not copy its tone)\n'+rt+'\n\nWherever a section can carry a concrete proof point from the source — a number, a named customer, a specific outcome, a real quote — prefer it over a generic claim. Never invent figures, names, or quotes the source and prep answers don\'t support.\n'):''; }
   prepFor(sec){ return ((this.state.prepAnswers||{})[sec.id]||'').trim()||'(none provided)'; }
@@ -1204,7 +1360,7 @@ class Component extends DCLogic {
     if(/^["“‘']/.test(t) && /["”’']$/.test(t)) t=t.slice(1,-1).trim();
     return t;
   }
-  assemblePickPrompt(){ const b=this.brandNoun(); return 'Classify this video idea into exactly one '+this.brandAdj()+' video type.\nTypes:\n- overview: crisp high-level flyover of '+b+' for a broad first-time audience (~60–90s).\n- explainer: problem → product → three-step how-it-works → result (~90s–2min).\n- executive: an executive speaking — thank-you, company context, why '+b+', support statement (~75–90s).\n\nIdea: '+this.state.idea+'\n\nReturn ONLY JSON: {"type":"overview|explainer|executive","rationale":"one short sentence"}'; }
+  assemblePickPrompt(){ const b=this.brandNoun(); return 'Classify this video idea into exactly one '+this.brandAdj()+' video type.\nTypes:\n- overview: crisp high-level flyover of '+b+' for a broad first-time audience (~60–90s).\n- explainer: problem → product → three-step how-it-works → result (~90s–2min).\n- executive: an executive speaking — thank-you, company context, why '+b+', support statement (~75–90s).\n\nIdea: '+this.state.idea+'\n'+this.qaBlock()+'\nReturn ONLY JSON: {"type":"overview|explainer|executive","rationale":"one short sentence"}'; }
 
   // ---------- STEP 2 prompt ----------
   scriptBlock(){ const t=this.currentType(); return this.state.sections.map(s=>{ const secs=Math.round(this.sectionSeconds(s.text)); return '### '+s.label+' ['+secs+'s]\n'+(s.text||'(empty)'); }).join('\n\n'); }
@@ -1347,21 +1503,21 @@ class Component extends DCLogic {
     if(this.state.pickBusy || !this.requireProvider()) return;
     const pid=this.state.projectId;
     this.setState({pickBusy:true, pickError:null, pickResult:null});
-    try{ const p=this.parseJSON(await this.generate(this.assemblePickPrompt(),{json:true})); if(!this.stillOn(pid)) return; const t=this.TYPES.find(x=>x.id===(p.type||'').toLowerCase()); if(!t) throw new Error('Could not classify.'); this.setType(t.id); this.setState({pickBusy:false, pickResult:{typeLabel:t.label, rationale:p.rationale||''}}, ()=>this.persist()); }
+    try{ const p=this.parseJSON(await this.generate(this.assemblePickPrompt(),{json:true})); if(!this.stillOn(pid)) return; const t=this.TYPES.find(x=>x.id===(p.type||'').toLowerCase()); if(!t) throw new Error('Could not classify.'); this.setType(t.id); this.setState({pickBusy:false, pickKey:this.pickKeyNow(), pickResult:{typeLabel:t.label, rationale:p.rationale||''}}, ()=>this.persist()); }
     catch(e){ if(this.stillOn(pid)) this.setState({pickBusy:false, pickError:String(e.message||e)}); }
   }
   // Switching type re-shapes the script to the new type's sections. The old draft is parked per type, so switching back restores it
   // (before, the old type's sections survived only until the next reload, then their text was dropped).
   setType(id){
     const st=this.state, prev=this.currentType(), next=this.TYPES.find(t=>t.id===id);
-    if(!next || st.selectedTypeId===id){ this.setState({pickResult:null, pickError:null}); return; }
+    if(!next || st.selectedTypeId===id){ this.setState({pickError:null}); return; }
     const parked={...(st.sectionsByType||{})};
     const hasText=st.sections.some(s=>(s.text||'').trim());
     if(prev && hasText) parked[prev.id]=st.sections.map(s=>({id:s.id, text:s.text||'', locked:!!s.locked}));
     const back=parked[id]; delete parked[id];
     let sections=[];
     if(back||hasText){ const src={}; (back||st.sections).forEach(s=>src[s.id]=s); sections=next.sections.map(s=>({...s, text:(src[s.id]||{}).text||'', locked:!!(back&&(src[s.id]||{}).locked), regenBusy:false})); }
-    this.setState({selectedTypeId:id, sections, sectionsByType:parked, pickResult:null, pickError:null});
+    this.setState({selectedTypeId:id, sections, sectionsByType:parked, pickError:null});
     if(hasText) this.markAllScenesStale();
     if(back) this.showToast('Restored your '+next.label+' draft'+(prev&&hasText?' — the '+prev.label+' draft is kept too.':'.'));
     else if(prev && hasText) this.showToast('Your '+prev.label+' draft is kept — switch back to '+prev.label+' to restore it.');
@@ -1375,7 +1531,7 @@ class Component extends DCLogic {
     const type=this.currentType();
     const rt=this.refMaterial(8000); const ref=rt?('\n## SOURCE MATERIAL (mine this for the strongest, most specific angles — real metrics, customers, quotes, announcements)\n'+rt+'\n'):'';
     const seen=this.state.conceptSeen||[]; const avoid=seen.length?('\n## ALREADY PITCHED (do not repeat these; take fresh directions)\n'+seen.map(s=>'- '+s).join('\n')+'\n'):'';
-    return 'You are a creative director pitching video concepts for a '+this.brandAdj()+' '+type.label+' video.\n\n## VOICE / BRAND CONTEXT\n'+this.voiceBlock().slice(0,2000)+'\n\n## VIDEO IDEA\n'+this.state.idea+'\n'+ref+avoid+'\n## TASK\nPitch exactly 3 DISTINCT creative concepts for this '+type.label.toLowerCase()+'. Each is a different angle or through-line for how to tell the story — not a script, not section text. Keep each logline to one vivid sentence.\n\n## OUTPUT\nReturn ONLY valid JSON, no markdown fences, exactly this shape:\n{"concepts":[{"title":"short punchy name","logline":"one-sentence description of the angle"}]}';
+    return 'You are a creative director pitching video concepts for a '+this.brandAdj()+' '+type.label+' video.\n\n## VOICE / BRAND CONTEXT\n'+this.voiceBlock().slice(0,2000)+'\n\n## VIDEO IDEA\n'+this.state.idea+'\n'+this.qaBlock()+ref+avoid+'\n## TASK\nPitch exactly 3 DISTINCT creative concepts for this '+type.label.toLowerCase()+'. Each is a different angle or through-line for how to tell the story — not a script, not section text. Keep each logline to one vivid sentence.\n\n## OUTPUT\nReturn ONLY valid JSON, no markdown fences, exactly this shape:\n{"concepts":[{"title":"short punchy name","logline":"one-sentence description of the angle"}]}';
   }
   async pitchConcepts(){
     if(this.state.conceptBusy || !this.requireProvider()) return;
@@ -1407,6 +1563,66 @@ class Component extends DCLogic {
   onCustomConcept(v){ this.setState({customConcept:v, selectedConceptId:v.trim()?null:this.state.selectedConceptId}, ()=>this.persist()); }
   writeFromConcept(){ if(!this.conceptBlock()) return; this.generateScript(); }
   skipConcept(){ this.setState({selectedConceptId:null, customConcept:''}, ()=>this.generateScript()); }
+
+  // ---------- intake questions (step 2) ----------
+  // Asked after the idea and before the type: the answers feed the type pick and every script prompt.
+  briefKey(){ return (this.state.idea||'').trim()+'|'+(this.state.references||[]).map(r=>r.id).join(','); }
+  answeredQA(){ return (this.state.questions||[]).filter(q=>!q.skipped && (q.answer||'').trim()); }
+  qaBlock(){ const a=this.answeredQA(); return a.length?('\n## INTAKE ANSWERS (from the person requesting the video — treat them as facts and direction)\n'+a.map(q=>'Q: '+q.q+'\nA: '+q.answer.trim()).join('\n\n')+'\n'):''; }
+  typesBrief(){ return this.TYPES.map(t=>'- '+t.label+' ('+t.runtime+'): '+t.desc+' Sections: '+t.sections.map(s=>s.label).join(', ')+'.').join('\n'); }
+  assembleQuestionsPrompt(more){
+    const answered=this.answeredQA(); const skipped=(this.state.questions||[]).filter(q=>!answered.includes(q));
+    const src=this.refMaterial(8000);
+    return 'You are a '+this.brandAdj()+' video producer doing intake with someone who wants a short video. Read their idea'+(src?' and the reference documents they attached':'')+', then ask the follow-up questions whose answers would most improve the script.\n\n## VIDEO TYPES WE MAKE\n'+this.typesBrief()+'\n\n## IDEA\n'+this.state.idea+'\n'
+      +(src?'\n## REFERENCE DOCUMENTS (read these closely; the video will be built from them)\n'+src+'\n':'')
+      +(answered.length?'\n## ALREADY ANSWERED (do not ask again)\n'+answered.map(q=>'Q: '+q.q+'\nA: '+q.answer.trim()).join('\n\n')+'\n':'')
+      +(skipped.length?'\n## ALREADY ASKED AND SKIPPED (do not ask again or rephrase)\n'+skipped.map(q=>'- '+q.q).join('\n')+'\n':'')
+      +'\n## TASK\nAsk '+(more?'up to 4 more':'5 to 7')+' short, specific questions, most important first. Ask only what the idea'+(src?' and source material':'')+' do not already answer, and never generic questions like "what is your video about?". Good targets: who the audience is and what they already know; the one message they should remember; concrete proof (numbers, named customers, outcomes); who is speaking, if it could be an executive; the action viewers should take; anything ambiguous in the idea. One thing per question, answerable in a sentence, in plain language. The person can skip any question, so asking is cheap.\n'
+      +(src?'Use the reference documents to make the questions informed and specific. Where they offer choices (several customer stories, metrics, products, features, or angles), ask which to feature and name the candidates, e.g. "The deck cites two bank results. Which should lead?". Where they leave gaps (who the video is for, the one message, the action to take), ask about those. Never ask for a fact the documents already state, and if the documents and the idea disagree, ask which is right.\n':'')
+      +'For each question, give 2 to 4 short example answers in "options", drawn from '+(src?'the reference documents and the idea':'the idea')+', when examples would help; otherwise an empty list. Give "why": one short clause on how the answer shapes the script.\n'
+      +(more?'If the brief already covers what the script needs, return an empty "questions" list.\n':'')
+      +'Also return "read": one sentence saying what you understand the video to be'+(src?', drawing on the idea and the documents':'')+'.\n\n## OUTPUT\nReturn ONLY valid JSON, no markdown fences, exactly this shape:\n{"read":"","questions":[{"q":"","why":"","options":[""]}]}';
+  }
+  // Coming back with the same idea returns to the questions already asked. A changed idea gets a fresh round,
+  // and answers already given are kept, since they still carry information.
+  intakeNext(){
+    if(!(this.state.idea||'').trim()){ this.showToast('Describe the video first'); return; }
+    const key=this.briefKey();
+    if(this.state.qKey===key && this.state.qAsked){ this.setState({view:'questions'}, ()=>this.persist()); return; }
+    const kept=this.answeredQA();
+    this.setState({view:'questions', questions:kept, qIndex:kept.length, qKey:key, qAsked:false, qRead:'', qError:null}, ()=>{ this.persist(); this.askQuestions(false); });
+  }
+  async askQuestions(more){
+    if(this.state.qBusy || !this.requireProvider()) return;
+    const pid=this.state.projectId;
+    this.setState({qBusy:true, qError:null});
+    try{
+      await this.ensureBriefs();
+      if(!this.stillOn(pid)) return;
+      const parsed=this.parseJSON(await this.generate(this.assembleQuestionsPrompt(more),{json:true}));
+      if(!this.stillOn(pid)) return;
+      const raw=Array.isArray(parsed)?parsed:((parsed&&parsed.questions)||[]);
+      const seen=new Set((this.state.questions||[]).map(q=>q.q.trim().toLowerCase()));
+      const fresh=raw.map(x=>typeof x==='string'?{q:x}:(x||{})).map(x=>({ id:this.uid('q'), q:String(x.q||x.question||'').trim(), why:String(x.why||x.rationale||'').trim(),
+        options:(Array.isArray(x.options)?x.options:[]).map(o=>String(o).trim()).filter(Boolean).slice(0,4), answer:'', skipped:false }))
+        .filter(x=>x.q && !seen.has(x.q.toLowerCase())).slice(0, more?4:7);
+      const questions=(this.state.questions||[]).concat(fresh);
+      const read=String((parsed&&parsed.read)||'').trim()||this.state.qRead||'';
+      // Land on the first new question; with none, the summary shows.
+      this.setState({questions, qIndex:questions.length-fresh.length, qRead:read, qBusy:false, qAsked:true}, ()=>this.persist());
+      if(!fresh.length) this.showToast(more?'No more questions. The brief covers what the script needs.':'No questions needed. The idea covers what the script needs.');
+    }catch(e){ if(this.stillOn(pid)) this.setState({qBusy:false, qError:String(e.message||e)}); }
+  }
+  patchQuestion(i, patch){ const questions=(this.state.questions||[]).slice(); if(!questions[i]) return; questions[i]={...questions[i], ...patch}; this.setState({questions}, ()=>this.persist()); }
+  // Next with an empty answer counts as a skip, like Skip does.
+  qAdvance(skip){ const i=this.state.qIndex; const q=(this.state.questions||[])[i]; if(q) this.patchQuestion(i, {skipped:skip || !(q.answer||'').trim()}); this.setState({qIndex:i+1}, ()=>this.persist()); }
+  pickKeyNow(){ return this.briefKey()+'|'+this.answeredQA().map(q=>q.id+':'+q.answer.trim()).join('|'); }
+  // The type is recommended from the idea plus the answers; it's re-recommended only when those change.
+  questionsNext(){
+    if(!(this.state.idea||'').trim()){ this.showToast('Describe the video first'); this.setState({view:'intake'}); return; }
+    const repick=!this.state.selectedTypeId || this.state.pickKey!==this.pickKeyNow();
+    this.setState({view:'type'}, ()=>{ this.persist(); if(repick) this.doPickForMe(); });
+  }
 
   async generateScript(){
     const type=this.currentType();
@@ -1610,11 +1826,11 @@ class Component extends DCLogic {
     return 'You are a research analyst preparing dense source notes for a short '+this.brandAdj()+' marketing video.\n\n## SOURCE: '+(r.name||'document')+'\n'+((r.text||'').slice(0,40000))+'\n\n## TASK\nExtract everything a scriptwriter could use. Be dense, specific, and faithful — preserve exact numbers, names, and wording. Do NOT invent or generalize, and omit boilerplate, legal text, and contact info.\n\n## OUTPUT (markdown, no preamble)\n**Core message / announcement:** what this is really about, in 1-2 lines.\n**Hard proof (metrics & results):** every concrete number, %, timeframe, or outcome, with its context.\n**Customers, partners & people:** named organizations and individuals, with their role.\n**Notable quotes:** direct quotes worth reusing, with attribution.\n**Capabilities & differentiators:** what the product/offering does and why it stands out.\n**Vivid language:** memorable phrases or framings from the source.';
   }
   async ensureBriefs(){
-    if(this._distilling) return;
+    if(this._distilling) return this._distilling;
     if(!this.hasProvider()) return;
     const missing=(this.state.references||[]).filter(r=>r.text && !((r.brief||'').trim()) && !r.briefFailed);
     if(!missing.length) return;
-    this._distilling=true;
+    let done; this._distilling=new Promise(r=>{ done=r; });
     const pid=this.state.projectId;
     this.showToast('Reading '+missing.length+' reference document'+(missing.length===1?'':'s')+'…');
     const mark=(id, patch)=>this.setState({references:(this.state.references||[]).map(x=>x.id===id?{...x, ...patch}:x)});
@@ -1624,7 +1840,7 @@ class Component extends DCLogic {
       try{ const brief=(await this.generate(this.assembleDistillPrompt(r))).trim(); mark(r.id, {brief, briefFailed:false, briefBusy:false}); }
       catch(e){ mark(r.id, {briefFailed:true, briefBusy:false}); }
     }
-    this._distilling=false;
+    this._distilling=null; done();
     this.setState({}, ()=>this.persist());
   }
   retryBrief(id){ if(!this.requireProvider()) return; this.setState({references:(this.state.references||[]).map(x=>x.id===id?{...x, briefFailed:false}:x)}); this.ensureBriefs(); }
@@ -1648,7 +1864,7 @@ class Component extends DCLogic {
 
   // ---------- persistence ----------
   projectTitle(){ const i=(this.state.idea||'').trim(); if(!i) return 'Untitled script'; const t=i.split(/[.!?\n]/)[0].trim(); return t.length>72?t.slice(0,72)+'…':t; }
-  projectData(){ return { version:4, idea:this.state.idea, typeId:this.state.selectedTypeId, prepAnswers:this.state.prepAnswers, references:this.state.references, concepts:this.state.concepts, selectedConceptId:this.state.selectedConceptId, customConcept:this.state.customConcept, conceptSeen:this.state.conceptSeen, conceptKey:this.state.conceptKey||'', view:this.state.view, industry:this.state.industry, targetShotSeconds:this.state.targetShotSeconds, sections:this.state.sections.map(s=>({id:s.id,text:s.text,locked:!!s.locked})), sectionsByType:this.state.sectionsByType||{}, scenes:this.state.scenes, personas:this.state.personas }; }
+  projectData(){ return { version:5, idea:this.state.idea, questions:(this.state.questions||[]).map(q=>({id:q.id, q:q.q, why:q.why, options:q.options, answer:q.answer, skipped:!!q.skipped})), qIndex:this.state.qIndex, qRead:this.state.qRead, qKey:this.state.qKey, qAsked:!!this.state.qAsked, pickKey:this.state.pickKey||'', pickResult:this.state.pickResult||null, typeId:this.state.selectedTypeId, prepAnswers:this.state.prepAnswers, references:this.state.references, concepts:this.state.concepts, selectedConceptId:this.state.selectedConceptId, customConcept:this.state.customConcept, conceptSeen:this.state.conceptSeen, conceptKey:this.state.conceptKey||'', view:this.state.view, industry:this.state.industry, targetShotSeconds:this.state.targetShotSeconds, sections:this.state.sections.map(s=>({id:s.id,text:s.text,locked:!!s.locked})), sectionsByType:this.state.sectionsByType||{}, scenes:this.state.scenes, personas:this.state.personas }; }
   _lib(){ try{ return JSON.parse(this.lsGet('vsg_projects','{}'))||{}; }catch(e){ return {}; } }
   _refreshSaved(lib){ lib=lib||this._lib(); const list=Object.values(lib).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)).map(p=>({id:p.id,title:p.title||'Untitled video',updatedAt:p.updatedAt||0})); this.setState({savedProjects:list}); }
   relTime(ts){ if(!ts) return ''; const d=Date.now()-ts; const m=Math.round(d/60000); if(m<1) return 'just now'; if(m<60) return m+'m ago'; const h=Math.round(m/60); if(h<24) return h+'h ago'; return Math.round(h/24)+'d ago'; }
@@ -1686,13 +1902,15 @@ class Component extends DCLogic {
     if(!references.length && d.referenceText){ references=[{id:this.uid('ref'), name:d.referenceFileName||'reference', text:d.referenceText}]; }
     // A failed summary gets another try each time the video is opened (it was usually a network blip).
     references=references.map(r=>({...r, briefFailed:false, briefBusy:false}));
-    this.setState({ idea:d.idea||'', selectedTypeId:d.typeId||null, prepAnswers:d.prepAnswers||{}, references, sectionsByType, refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:d.concepts||[], selectedConceptId:d.selectedConceptId||null, customConcept:d.customConcept||'', conceptSeen:d.conceptSeen||[], conceptKey:d.conceptKey||'', conceptBusy:false, conceptError:null, sections, industry:d.industry||'', targetShotSeconds:d.targetShotSeconds||4, scenes:(d.scenes||[]).map(s=>({...s, scene_id:s.scene_id||this.uid('s'), regenBusy:false, shotsGenerating:false, shots:(s.shots||[]).map(sh=>({...sh, shot_id:sh.shot_id||this.uid('sh'), regenBusy:false, videoBusy:false}))})), personas:d.personas||[], view:(d.view==='concept'?'concept':(sections.length?(d.view||'workspace'):'intake')), ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, expanded:{} });
+    this.setState({ idea:d.idea||'', selectedTypeId:d.typeId||null, prepAnswers:d.prepAnswers||{}, references, sectionsByType, refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:d.concepts||[], selectedConceptId:d.selectedConceptId||null, customConcept:d.customConcept||'', conceptSeen:d.conceptSeen||[], conceptKey:d.conceptKey||'', conceptBusy:false, conceptError:null, sections, industry:d.industry||'', targetShotSeconds:d.targetShotSeconds||4, scenes:(d.scenes||[]).map(s=>({...s, scene_id:s.scene_id||this.uid('s'), regenBusy:false, shotsGenerating:false, shots:(s.shots||[]).map(sh=>({...sh, shot_id:sh.shot_id||this.uid('sh'), regenBusy:false, videoBusy:false}))})), personas:d.personas||[], view:this.viewFor(d.view, sections.length>0), questions:Array.isArray(d.questions)?d.questions:[], qIndex:(d.qIndex!=null?d.qIndex:(d.questions||[]).length), qRead:d.qRead||'', qKey:d.qKey||'', qAsked:!!d.qAsked, qError:null, pickKey:d.pickKey||'', ...this.idleFlags(), pickResult:d.pickResult||null, pickError:null, scenesError:null, expanded:{} });
   }
   exportJSON(){ const blob=new Blob([JSON.stringify(this.projectData(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(this.projectTitle().replace(/[^a-z0-9]+/gi,'-').toLowerCase()||'video-script')+'.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
   importJSON(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ let d; try{ d=JSON.parse(r.result); }catch(err){ d=null; } if(!d||typeof d!=='object'||Array.isArray(d)){ this.showToast('Invalid project file'); return; }
       // An import becomes its own video rather than overwriting the one that's open.
       this.flushPersist(); this.setState({projectId:this.uid('proj'), projectsMenuOpen:false}); this.loadProjectData(d); this.persistNow(); this.showToast('Imported as a new video'); }; r.readAsText(f); }; inp.click(); }
-  newProject(){ this.flushPersist(); const id=this.uid('proj'); this.setState({ projectId:id, view:'intake', idea:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
+  // The brief steps reopen where they were left; scenes and shots need advanced mode, so without it they open the script.
+  viewFor(v, hasSections){ if(['intake','questions','type','concept'].includes(v)) return v; if(!hasSections) return 'intake'; if((v==='scenes'||v==='shots') && !this.state.advanced) return 'workspace'; return v||'workspace'; }
+  newProject(){ this.flushPersist(); const id=this.uid('proj'); this.setState({ projectId:id, view:'intake', idea:'', questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
   downloadText(name, text, mime){ this.downloadBlob(name, new Blob([text],{type:mime||'text/plain'})); }
   _fallbackCopy(text){ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ document.execCommand('copy'); this.showToast('Copied to clipboard'); }catch(e){ this.showToast('Copy failed'); } ta.remove(); }
   copyText(text){ try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(()=>this.showToast('Copied to clipboard'),()=>this._fallbackCopy(text)); return; } }catch(e){} this._fallbackCopy(text); }
@@ -1851,6 +2069,10 @@ class Component extends DCLogic {
     let body=para(this.projectTitle(),{bold:true,size:40,color:'001F5F',font:'Lora',after:40});
     body+=para(t.label+'  ·  target '+t.runtime+'  ·  ~'+t.wpm+' wpm',{size:20,color:'6F7480',after:200});
     this.state.sections.forEach(s=>{ body+=para(s.label,{bold:true,size:20,color:'0E7E84',font:'Open Sans',caps:true,before:200,after:20}); (s.text||'').split(/\n+/).forEach(line=>{ body+=para(line,{size:24,color:'23272F',after:120}); }); });
+    // The brief rides along so the video team sees what the script was written from.
+    body+=para('Brief',{bold:true,size:28,color:'001F5F',font:'Lora',before:480,after:80});
+    body+=para('Idea',{bold:true,size:20,color:'0E7E84',font:'Open Sans',caps:true,before:120,after:20}); (this.state.idea||'').split(/\n+/).forEach(line=>{ body+=para(line,{size:22,color:'23272F',after:100}); });
+    this.answeredQA().forEach(q=>{ body+=para(q.q,{bold:true,size:22,color:'001F5F',before:160,after:20}); body+=para(q.answer.trim(),{size:22,color:'23272F',after:100}); });
     const doc='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+body+'<w:sectPr><w:pgSz w:w="12240" w:h="15840"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>';
     const ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>';
     const rels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
@@ -1860,8 +2082,9 @@ class Component extends DCLogic {
   }
   exportPdf(){
     const t=this.currentType(); const esc=(s)=>this.xmlEsc(s);
-    const secs=this.state.sections.map(s=>'<h2>'+esc(s.label)+'</h2><p>'+esc(s.text||'')+'</p>').join('');
-    const html='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(this.projectTitle())+'</title><style>@import url("https://fonts.googleapis.com/css2?family=Lora:wght@600&family=Open+Sans:wght@400;600&display=swap");*{box-sizing:border-box}body{font-family:\'Open Sans\',system-ui,sans-serif;color:#001F5F;max-width:640px;margin:48px auto;padding:0 24px;line-height:1.6}h1{font-family:Lora,serif;font-size:26px;margin:0 0 4px}.meta{color:#6F7480;font-size:13px;margin:0 0 28px;font-weight:600;letter-spacing:.04em}h2{font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#0E7E84;margin:22px 0 4px}p{margin:0 0 6px;font-size:15px;color:#23272F}@media print{body{margin:24px auto}}</style></head><body><h1>'+esc(this.projectTitle())+'</h1><p class="meta">'+esc(t.label)+' &middot; target '+esc(t.runtime)+' &middot; ~'+t.wpm+' wpm</p>'+secs+'</body></html>';
+    const secs=this.state.sections.map(s=>'<h2>'+esc(s.label)+'</h2><p>'+esc(s.text||'')+'</p>').join('')
+      +'<h3>Brief</h3><h2>Idea</h2><p>'+esc(this.state.idea||'')+'</p>'+this.answeredQA().map(q=>'<p class="q">'+esc(q.q)+'</p><p>'+esc(q.answer.trim())+'</p>').join('');
+    const html='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(this.projectTitle())+'</title><style>@import url("https://fonts.googleapis.com/css2?family=Lora:wght@600&family=Open+Sans:wght@400;600&display=swap");*{box-sizing:border-box}body{font-family:\'Open Sans\',system-ui,sans-serif;color:#001F5F;max-width:640px;margin:48px auto;padding:0 24px;line-height:1.6}h1{font-family:Lora,serif;font-size:26px;margin:0 0 4px}.meta{color:#6F7480;font-size:13px;margin:0 0 28px;font-weight:600;letter-spacing:.04em}h2{font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#0E7E84;margin:22px 0 4px}p{margin:0 0 6px;font-size:15px;color:#23272F}h3{font-family:Lora,serif;font-size:20px;margin:40px 0 4px;padding-top:20px;border-top:1px solid #D7DAE0}p.q{font-weight:600;color:#001F5F;margin-top:14px}@media print{body{margin:24px auto}}</style></head><body><h1>'+esc(this.projectTitle())+'</h1><p class="meta">'+esc(t.label)+' &middot; target '+esc(t.runtime)+' &middot; ~'+t.wpm+' wpm</p>'+secs+'</body></html>';
     const w=window.open('','_blank');
     if(!w){ this.showToast('Allow pop-ups to export PDF'); this.setState({scriptExportOpen:false}); return; }
     w.document.write(html); w.document.close(); w.focus(); setTimeout(()=>{ try{ w.print(); }catch(e){} },500);
@@ -1869,22 +2092,22 @@ class Component extends DCLogic {
   }
 
   // ---------- settings ----------
-  openSettings(){ this.setState({settingsOpen:true, dProvider:this.state.provider, dKey:this.state.geminiKey, dModel:this.state.geminiModel, dModelCustom:false, dTemp:this.state.geminiTemp, dThinking:this.state.geminiThinking, dVoice:(this.state.voiceDoc||this.state.voiceDefault), dBrand:this.state.brand, dEndpoint:this.state.foundryEndpoint, dFModel:this.state.foundryModel, dFoundryStatus:'', dFoundryOk:false}); }
+  openSettings(){ this.setState({settingsOpen:true, dProvider:this.state.provider, dKey:this.state.geminiKey, dModel:this.state.geminiModel, dModelCustom:false, dTemp:this.state.geminiTemp, dThinking:this.state.geminiThinking, dVoice:(this.state.voiceDoc||this.state.voiceDefault), dBrand:this.state.brand, dAdvanced:this.state.advanced, dEndpoint:this.state.foundryEndpoint, dFModel:this.state.foundryModel, dFoundryStatus:'', dFoundryOk:false}); }
   saveSettings(){ const temp=parseFloat(this.state.dTemp); const t=isNaN(temp)?0.7:this.clamp(temp,0,2); const fEnd=(this.state.dEndpoint||'http://localhost:8757/v1').trim(); const fMod=(this.state.dFModel||'qwen3-14b').trim();
     const model=this.normalizeGeminiModel(this.state.dModel), key=(this.state.dKey||'').trim(), thinking=this.state.dThinking||'';
     // A voice doc identical to the shipped default is stored as "use the default", so later edits to voice-guide.md still reach this browser.
     const voice=this.state.dVoice||''; const voiceDoc=(voice.trim()===(this.state.voiceDefault||'').trim())?'':voice;
-    this.lsSet('vsg_provider',this.state.dProvider); this.lsSet('vsg_gemini_key',key); this.lsSet('vsg_gemini_model',model); this.lsSet('vsg_gemini_thinking',thinking); this.lsSet('vsg_gemini_temp',String(t)); this.lsSet('vsg_voice_doc',voiceDoc); this.lsSet('vsg_foundry_endpoint',fEnd); this.lsSet('vsg_foundry_model',fMod);
+    this.lsSet('vsg_provider',this.state.dProvider); this.lsSet('vsg_gemini_key',key); this.lsSet('vsg_gemini_model',model); this.lsSet('vsg_gemini_thinking',thinking); this.lsSet('vsg_gemini_temp',String(t)); this.lsSet('vsg_voice_doc',voiceDoc); this.lsSet('vsg_foundry_endpoint',fEnd); this.lsSet('vsg_foundry_model',fMod); this.lsSet('vsg_advanced',this.state.dAdvanced?'1':'0');
     const brand=(this.state.dBrand||'').trim(); this.lsSet('vsg_brand',brand); this.applyBrand(brand);
-    this.setState({provider:this.state.dProvider, geminiKey:key, geminiModel:model, geminiThinking:thinking, geminiTemp:t, voiceDoc, brand, foundryEndpoint:fEnd, foundryModel:fMod, settingsOpen:false}); this.showToast('Settings saved'); }
+    this.setState({provider:this.state.dProvider, geminiKey:key, geminiModel:model, geminiThinking:thinking, geminiTemp:t, voiceDoc, brand, foundryEndpoint:fEnd, foundryModel:fMod, settingsOpen:false, advanced:!!this.state.dAdvanced});
+    if(!this.state.advanced && (this.state.view==='scenes'||this.state.view==='shots')) this.setState({view:'workspace'}, ()=>this.persist()); this.showToast('Settings saved'); }
   resetVoice(){ this.setState({dVoice:this.state.voiceDefault}); }
 
   // ---------- navigation ----------
   canStep2(){ const t=this.currentType(); return !!(t && t.id!=='executive' && this.state.sections.some(s=>s.text&&s.text.trim())); }
   canStep3(){ return this.state.scenes.length>0; }
-  goStep1(){ this.setState({view:(this.state.sections.length?'workspace':'intake')}, ()=>this.persist()); }
-  goScenes(){ const t=this.currentType(); if(t&&t.id==='executive'){ this.setState({view:'scenes'}); return; } if(!this.canStep2()){ this.showToast('Generate a script first'); return; } this.setState({view:'scenes'}, ()=>this.persist()); }
-  goShots(){ if(!this.canStep3()){ this.showToast('Generate scenes first'); return; } this.setState({view:'shots'}, ()=>this.persist()); }
+  goScenes(){ if(!this.state.advanced) return; const t=this.currentType(); if(t&&t.id==='executive'){ this.setState({view:'scenes'}); return; } if(!this.canStep2()){ this.showToast('Generate a script first'); return; } this.setState({view:'scenes'}, ()=>this.persist()); }
+  goShots(){ if(!this.state.advanced) return; if(!this.canStep3()){ this.showToast('Generate scenes first'); return; } this.setState({view:'shots'}, ()=>this.persist()); }
 
   // ---------- view models ----------
   sectionVM(s,i){
@@ -1938,13 +2161,19 @@ class Component extends DCLogic {
   renderVals(){
     const st=this.state; const showCoaching=this.props.showCoaching!==false; const type=this.currentType();
     const isExec=type&&type.id==='executive';
-    const step = (st.view==='scenes')?2:(st.view==='shots')?3:1;
+    const stepOf={intake:1, questions:2, type:3, concept:3, workspace:4, scenes:5, shots:6}; const step=stepOf[st.view]||1;
+    const hasIdea=!!(st.idea||'').trim(), hasScript=st.sections.some(s=>(s.text||'').trim());
     const mkStep=(n,label,active,enabled,onClick,title)=>({ n, label, title, onClick:enabled?onClick:(()=>this.showToast(title||'Not available yet')), pillBg:active?'rgba(16,165,172,0.10)':'transparent', pillBorder:active?'rgba(16,165,172,0.35)':'var(--border-hairline)', numBg:active?'var(--c-emerald)':(enabled?'var(--c-grey-200)':'var(--c-grey-100)'), numColor:active?'#fff':'var(--c-grey-700)', labelColor:active?'var(--c-navy)':'var(--fg-muted)', cursor:enabled?'pointer':'not-allowed', opacity:enabled?'1':'0.5' });
     const steps=[
-      mkStep(1,'Script',step===1,true,()=>this.goStep1(),'Script'),
-      mkStep(2,'Scenes',step===2,this.canStep2()||isExec,()=>this.goScenes(), isExec?'Executive videos carry no b-roll':'Generate a script first'),
-      mkStep(3,'Shots',step===3,this.canStep3(),()=>this.goShots(),'Generate scenes first')
+      mkStep(1,'Idea',step===1,true,()=>this.setState({view:'intake'},()=>this.persist()),'Idea'),
+      mkStep(2,'Questions',step===2,hasIdea,()=>this.intakeNext(),'Describe the video first'),
+      mkStep(3,'Type',step===3,hasIdea,()=>this.questionsNext(),'Describe the video first'),
+      mkStep(4,'Script',step===4,hasScript,()=>this.setState({view:'workspace'},()=>this.persist()),'Pick a type and generate the script first')
     ];
+    if(st.advanced) steps.push(
+      mkStep(5,'Scenes',step===5,this.canStep2()||isExec,()=>this.goScenes(), isExec?'Executive videos carry no b-roll':'Generate a script first'),
+      mkStep(6,'Shots',step===6,this.canStep3(),()=>this.goShots(),'Generate scenes first'));
+    const qs=st.questions||[], qi=st.qIndex||0, qCur=(!st.qBusy && qi<qs.length)?qs[qi]:null, nAns=this.answeredQA().length;
 
     const types=this.TYPES.map(t=>{ const sel=st.selectedTypeId===t.id; return { id:t.id, label:t.label, desc:t.desc, runtime:t.runtime, onSelect:()=>this.setType(t.id), hasDraft:!sel && !!(st.sectionsByType||{})[t.id], bg:sel?'rgba(16,165,172,0.06)':'var(--c-white)', border:sel?'var(--c-emerald)':'var(--border-hairline)', dot:sel?'var(--c-emerald)':'var(--c-grey-300)', dotFill:sel?'var(--c-emerald)':'transparent', checkOpacity:sel?'1':'0' }; });
     const prepList=type?type.prep.map(p=>{ const sec=type.sections.find(s=>s.id===p.feeds); return { id:p.feeds, q:p.q, feedsLabel:sec?sec.label:p.feeds, value:st.prepAnswers[p.feeds]||'', onChange:(e)=>{ const pa={...st.prepAnswers,[p.feeds]:e.target.value}; this.setState({prepAnswers:pa},()=>this.persist()); } }; }):[];
@@ -1978,7 +2207,8 @@ class Component extends DCLogic {
     const longHolds=st.scenes.filter(s=>(s.shots||[]).length && this.clipSeconds(s,(s.shots||[]).length)>(st.targetShotSeconds||4)*1.5).length;
 
     return {
-      steps, isIntake:st.view==='intake', isWorkspace:st.view==='workspace', isScenes:st.view==='scenes', isShots:st.view==='shots',
+      steps, appTitle:st.advanced?'Video Script & B-Roll Generator':'Video Script Generator', advanced:st.advanced, simpleMode:!st.advanced,
+      isIntake:st.view==='intake', isQuestions:st.view==='questions', isTypeStep:st.view==='type', isWorkspace:st.view==='workspace', isScenes:st.view==='scenes', isShots:st.view==='shots',
       settingsOpen:st.settingsOpen, toast:st.toast, showCoaching,
       hasToastAction:!!st.toastAction, toastActionLabel:(st.toastAction||{}).label||'', onToastAction:()=>{ const a=st.toastAction; clearTimeout(this._tt); this.setState({toast:null, toastAction:null}); if(a&&a.fn) a.fn(); },
       onOpenSettings:()=>this.openSettings(), onCloseSettings:()=>this.setState({settingsOpen:false}), stop:(e)=>e.stopPropagation(),
@@ -1989,11 +2219,27 @@ class Component extends DCLogic {
 
       // intake
       idea:st.idea, onIdea:(e)=>this.setState({idea:e.target.value},()=>this.persist()), types, hasType:!!type, typeLabel:type?type.label:'',
-      pickLabel:st.pickBusy?'Classifying…':'Pick for me', onPickForMe:()=>this.doPickForMe(), pickResult:st.pickResult, pickError:st.pickError, prepList,
+      pickLabel:st.pickBusy?'Recommending…':'Recommend again', onPickForMe:()=>this.doPickForMe(), pickResult:st.pickResult, pickError:st.pickError, prepList,
       references:(st.references||[]).map(r=>({ id:r.id, name:r.name, charLabel:((r.text?r.text.length:0).toLocaleString())+' characters'+((r.brief||'').trim()?' · distilled ✓':(r.briefBusy?' · summarizing…':(r.briefFailed?' · summary failed, using raw text':' · distilled on generate'))), briefFailed:!!r.briefFailed && !r.briefBusy && !(r.brief||'').trim(), onRetry:()=>this.retryBrief(r.id), onRemove:()=>this.removeReference(r.id) })), refStatus:st.refStatus,
       onRefFile:(e)=>{ const fs=e.target.files?Array.from(e.target.files):[]; e.target.value=''; this.onRefFiles(fs); }, onDragOver:(e)=>e.preventDefault(), onDrop:(e)=>{ e.preventDefault(); const fs=e.dataTransfer.files?Array.from(e.dataTransfer.files):[]; if(fs.length) this.onRefFiles(fs); },
       generateDisabled:!canGen, generateBg:canGen?'var(--c-emerald)':'var(--c-grey-300)', generateCursor:canGen?'pointer':'not-allowed',
       generateHint:!st.idea.trim()?'Add an idea to begin.':(!type?'Choose a video type.':(this.hasProvider()?(type.id==='overview'?'Ready — next you’ll pick a concept, then it drafts on-voice with '+engineName+'.':'Ready — this will draft every section on-voice with '+engineName+'.'):(st.provider==='gemini'?'Add your Gemini key in Settings, or switch engines.':'Built-in Claude isn’t available here — pick Gemini or Local in Settings.'))), onGenerate:()=>{ if(canGen) this.onGenerateClick(); },
+
+      // intake → questions → type
+      onIntakeNext:()=>this.intakeNext(), intakeDisabled:!hasIdea, intakeBg:hasIdea?'var(--c-emerald)':'var(--c-grey-300)', intakeCursor:hasIdea?'pointer':'not-allowed',
+      intakeHint:!hasIdea?'Add an idea to begin.':(this.hasProvider()?'Next, a few quick questions to sharpen the brief.':(st.provider==='gemini'?'Add your Gemini key in Settings, or switch engines.':'Built-in Claude isn’t available here. Pick Gemini or Local in Settings.')),
+      onBackToIdea:()=>this.setState({view:'intake'},()=>this.persist()), onBackToQuestions:()=>this.setState({view:'questions'},()=>this.persist()),
+      qRead:st.qRead, qReadShow:!!st.qRead, qError:st.qError, onRetryQuestions:()=>this.askQuestions(st.qAsked), qLoading:st.qBusy, qLoadingLabel:qs.length?'Thinking of more questions…':'Reading your idea…',
+      qWizard:!!qCur, qNum:qi+1, qTotal:qs.length, qPct:qs.length?Math.round(qi/qs.length*100):0, qText:qCur?qCur.q:'', qWhy:qCur?qCur.why:'', qWhyShow:!!(qCur&&qCur.why),
+      qHasOptions:!!(qCur&&(qCur.options||[]).length), qOptions:qCur?(qCur.options||[]).map(o=>{ const sel=(qCur.answer||'').trim()===o; return { label:o, onPick:()=>this.patchQuestion(qi,{answer:o, skipped:false}), bg:sel?'rgba(16,165,172,0.10)':'var(--c-white)', border:sel?'var(--c-emerald)':'var(--border-hairline)' }; }):[],
+      qAnswer:qCur?(qCur.answer||''):'', onQAnswer:(e)=>this.patchQuestion(qi,{answer:e.target.value}), qPlaceholder:qCur&&(qCur.options||[]).length?'Pick one above, or write your own answer':'Your answer (optional)',
+      qCanBack:qi>0, onQBack:()=>this.setState({qIndex:Math.max(0,qi-1)},()=>this.persist()), onQSkip:()=>this.qAdvance(true), onQNext:()=>this.qAdvance(false), qNextLabel:qi>=qs.length-1?'Done':'Next',
+      onSkipRest:()=>this.setState({qIndex:qs.length},()=>this.persist()),
+      qSummary:!qCur && !st.qBusy && (st.qAsked||qs.length>0), qSummaryNote:qs.length?(nAns+' answered, '+(qs.length-nAns)+' skipped. Click a question to change its answer.'):'Your idea already covers what the script needs. Ask for more questions if you want to add detail.',
+      qList:qs.map((q,i)=>{ const ans=!q.skipped && (q.answer||'').trim(); return { q:q.q, answerText:ans?q.answer.trim():'Skipped', answerColor:ans?'var(--fg-default)':'var(--fg-subtle)', onEdit:()=>this.setState({qIndex:i},()=>this.persist()) }; }),
+      onAskMore:()=>this.askQuestions(true), qFooter:!qCur && !st.qBusy,
+      qHint:nAns?'Next, a type recommendation based on your answers.':'No answers yet. That’s fine; you can still continue.', onQuestionsNext:()=>this.questionsNext(),
+      showPrep:st.advanced && !!type, pickBusy:st.pickBusy,
 
       // concept (overview step)
       isConcept:st.view==='concept', conceptTypeLabel:type?type.label:'', conceptError:st.conceptError,
@@ -2001,12 +2247,12 @@ class Component extends DCLogic {
       conceptCards:(st.concepts||[]).map(c=>{ const sel=st.selectedConceptId===c.id && !((st.customConcept||'').trim()); return { id:c.id, title:c.title, logline:c.logline, onSelect:()=>this.selectConcept(c.id), cardBg:sel?'rgba(16,165,172,0.06)':'var(--c-white)', cardBorder:sel?'var(--c-emerald)':'var(--border-hairline)', dot:sel?'var(--c-emerald)':'var(--c-grey-300)', dotFill:sel?'var(--c-emerald)':'transparent', checkOpacity:sel?'1':'0' }; }),
       customConcept:st.customConcept, onCustomConcept:(e)=>this.onCustomConcept(e.target.value),
       onRegenConcepts:()=>this.regenConcepts(), regenConceptsLabel:st.conceptBusy?'Pitching…':'Generate 3 more', conceptSpin:st.conceptBusy?'animation:vsgspin 0.9s linear infinite':'',
-      onWriteConcept:()=>this.writeFromConcept(), onSkipConcept:()=>this.skipConcept(), onBackToIntakeFromConcept:()=>this.setState({view:'intake'},()=>this.persist()),
+      onWriteConcept:()=>this.writeFromConcept(), onSkipConcept:()=>this.skipConcept(), onBackToIntakeFromConcept:()=>this.setState({view:'type'},()=>this.persist()),
       conceptWriteDisabled:!this.conceptBlock(), conceptWriteBg:this.conceptBlock()?'var(--c-emerald)':'var(--c-grey-300)', conceptWriteCursor:this.conceptBlock()?'pointer':'not-allowed',
 
       // script workspace
       scriptTitle:this.projectTitle(), runtimeLabel:type?type.runtime:'', wpm, generating:st.generating, genError:st.genError,
-      onBackToIntake:()=>this.setState({view:'intake'},()=>this.persist()), onRegenAll:()=>this.regenAll(), regenAllLabel:st.regenAllBusy?'Regenerating…':'Regenerate all', regenAllSpin:st.regenAllBusy?'animation:vsgspin 0.9s linear infinite':'',
+      onBackToIntake:()=>this.setState({view:'type'},()=>this.persist()), onRegenAll:()=>this.regenAll(), regenAllLabel:st.regenAllBusy?'Regenerating…':'Regenerate all', regenAllSpin:st.regenAllBusy?'animation:vsgspin 0.9s linear infinite':'',
       onGoScenes:()=>this.goScenes(), toScenesLabel:isExec?'Scenes (N/A)':'Continue to Scenes',
       scriptExportOpen:st.scriptExportOpen, onToggleExport:()=>this.setState({scriptExportOpen:!st.scriptExportOpen}), onExportDocx:()=>this.exportDocx(), onExportPdf:()=>this.exportPdf(),
       totalWords, wordCap, totalColor, totalPct, estLabel:this.mmss(estSec), timingColor, timingNote, timingBandStart:this.clamp(rMin/tScale*100,0,100), timingBandWidth:this.clamp((rMax-rMin)/tScale*100,0,100), timingPct:this.clamp(estSec/tScale*100,0,100),
@@ -2048,7 +2294,7 @@ class Component extends DCLogic {
       dFModelSel:(st.dFoundryModels||[]).includes(st.dFModel)?st.dFModel:'',
       onPickFModel:(e)=>{ if(e.target.value) this.setState({dFModel:e.target.value}); },
       showClaudeOption:this.claudeAvailable() || st.dProvider==='claude', dBrand:st.dBrand, onChangeBrand:(e)=>this.setState({dBrand:e.target.value}),
-      dKey:st.dKey, dModel:st.dModel, dTemp:st.dTemp, dVoice:st.dVoice, dEndpoint:st.dEndpoint, dFModel:st.dFModel, onChangeKey:(e)=>this.setState({dKey:e.target.value}), onChangeModel:(e)=>this.setState({dModel:e.target.value}), onChangeTemp:(e)=>this.setState({dTemp:e.target.value}), onChangeVoice:(e)=>this.setState({dVoice:e.target.value}), onChangeEndpoint:(e)=>this.setState({dEndpoint:e.target.value}), onChangeFModel:(e)=>this.setState({dFModel:e.target.value}), onSaveSettings:()=>this.saveSettings(), onResetVoice:()=>this.resetVoice(),
+      dKey:st.dKey, dModel:st.dModel, dTemp:st.dTemp, dVoice:st.dVoice, dEndpoint:st.dEndpoint, dFModel:st.dFModel, onChangeKey:(e)=>this.setState({dKey:e.target.value}), onChangeModel:(e)=>this.setState({dModel:e.target.value}), onChangeTemp:(e)=>this.setState({dTemp:e.target.value}), onChangeVoice:(e)=>this.setState({dVoice:e.target.value}), onChangeEndpoint:(e)=>this.setState({dEndpoint:e.target.value}), onChangeFModel:(e)=>this.setState({dFModel:e.target.value}), onSaveSettings:()=>this.saveSettings(), dAdvanced:!!st.dAdvanced, onToggleAdvanced:()=>this.setState({dAdvanced:!st.dAdvanced}), advBorder:st.dAdvanced?'var(--c-emerald)':'var(--border-strong)', advBg:st.dAdvanced?'var(--c-emerald)':'var(--c-white)', advCheck:st.dAdvanced?'1':'0', onResetVoice:()=>this.resetVoice(),
       voiceStatus:(st.dVoice&&st.dVoice.trim())?(st.dVoice.trim().length.toLocaleString()+' characters — baked into every generation'):'No voice doc — generations use a safe default voice.'
     };
   }
