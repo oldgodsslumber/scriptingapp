@@ -161,7 +161,7 @@
       <sc-if value="{{ qLoading }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;align-items:center;gap:10px;padding:20px;font-size:14px;color:var(--fg-muted)">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:vsgspin 0.9s linear infinite"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg>
-          <span style="flex:1;min-width:0">{{ qLoadingLabel }} <span style="color:var(--fg-subtle);font-variant-numeric:tabular-nums">{{ quickElapsed }}</span><sc-if value="{{ quickSlowHint }}" hint-placeholder-val="{{ false }}"><span style="display:block;margin-top:2px;font-size:12px;color:var(--fg-subtle)">Local models can take a minute or two.</span></sc-if></span>
+          <span style="flex:1;min-width:0">{{ qLoadingLabel }} <span style="color:var(--fg-subtle);font-variant-numeric:tabular-nums">{{ quickElapsed }}</span><sc-if value="{{ quickSlowHint }}" hint-placeholder-val="{{ false }}"><span style="display:block;margin-top:2px;font-size:12px;color:var(--fg-subtle)">{{ quickSlowText }}</span></sc-if></span>
           <button onClick="{{ onStopQuick }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Stop</button>
         </div>
       </sc-if>
@@ -962,6 +962,13 @@
               <span style="flex:1;min-width:200px;font-size:12px;line-height:1.5;color:{{ foundryStatusColor }}">{{ dFoundryStatus }}</span>
             </sc-if>
           </div>
+          <div>
+            <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Thinking</label>
+            <select value="{{ dFThinkSel }}" onChange="{{ onChangeFThink }}" style="width:100%;padding:11px 13px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none">
+              <option value="on">On — better questions and scripts, slower (recommended)</option><option value="off">Off for the quick steps — fastest</option>
+            </select>
+            <p style="margin:7px 0 0;font-size:12px;color:var(--fg-muted);line-height:1.5">Qwen reasons before it answers. Off skips that for the questions, the type pick and document summaries; the script always thinks.</p>
+          </div>
           <p style="margin:-6px 0 0;font-size:12px;color:var(--fg-muted);line-height:1.5">Runs against Foundry Local on your Mac through the local proxy, and nothing leaves the device. Double-click run-proxy.command: it starts Foundry Local, loads the model, and opens this app at http://127.0.0.1:8757/. The model can be a short name (qwen3-14b) or a full id (qwen3-14b-generic-gpu).</p>
           </sc-if>
           <sc-if value="{{ showGeminiFields }}" hint-placeholder-val="{{ false }}">
@@ -1141,7 +1148,7 @@ class Component extends DCLogic {
     title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', busySince:0, dKeyShow:false, qAsked:false, qBusy:false, qError:null, pickKey:'',
     provider:'claude', dProvider:'claude',
     geminiKey:'', geminiModel:this.GEMINI_DEFAULT, geminiTemp:0.7, geminiThinking:'medium', voiceDoc:'', voiceDefault:'', brand:'', dBrand:'',
-    foundryEndpoint:'http://localhost:8757/v1', foundryModel:'qwen3-14b',
+    foundryEndpoint:'http://localhost:8757/v1', foundryModel:'qwen3-14b', foundryThink:true, dFoundryThink:true,
     scenePromptTpl:'', shotPromptTpl:'',
     dKey:'', dModel:this.GEMINI_DEFAULT, dModelCustom:false, dTemp:0.7, dThinking:'medium', dVoice:'', dEndpoint:'http://localhost:8757/v1', dFModel:'qwen3-14b',
     idea:'', selectedTypeId:null, prepAnswers:{},
@@ -1170,7 +1177,7 @@ class Component extends DCLogic {
     // One-time move off the old Gemma default onto the current Gemini default (Gemma stays selectable).
     if(this.lsGet('vsg_gemini_model_rev','')!=='2026-10'){ if(model==='gemma-4-31b-it') model=this.GEMINI_DEFAULT; this.lsSet('vsg_gemini_model',model); this.lsSet('vsg_gemini_model_rev','2026-10'); }
     const thinking=this.lsGet('vsg_gemini_thinking','medium');
-    const fEndpoint=this.lsGet('vsg_foundry_endpoint','http://localhost:8757/v1'), fModel=this.lsGet('vsg_foundry_model','qwen3-14b');
+    const fEndpoint=this.lsGet('vsg_foundry_endpoint','http://localhost:8757/v1'), fModel=this.lsGet('vsg_foundry_model','qwen3-14b'), fThink=this.lsGet('vsg_foundry_think','1')!=='0';
     let provider=this.lsGet('vsg_provider',null); if(!provider || (provider==='claude' && !this.claudeAvailable())){ provider=this.claudeAvailable()?'claude':'gemini'; }
     const temp=parseFloat(this.lsGet('vsg_gemini_temp','0.7')), voice=this.lsGet('vsg_voice_doc',null);
     const advanced=this.lsGet('vsg_advanced','0')==='1';
@@ -1180,7 +1187,7 @@ class Component extends DCLogic {
     const effVoice = (voice!=null)?voice:voiceDefault;
     this.setState({ geminiKey:key, geminiModel:model, geminiTemp:isNaN(temp)?0.7:temp, geminiThinking:thinking,
       voiceDoc:(voice!=null?voice:''), voiceDefault, scenePromptTpl, shotPromptTpl, brand, dBrand:brand,
-      provider, dProvider:provider, advanced, dAdvanced:advanced, foundryEndpoint:fEndpoint, foundryModel:fModel,
+      provider, dProvider:provider, advanced, dAdvanced:advanced, foundryEndpoint:fEndpoint, foundryModel:fModel, foundryThink:fThink, dFoundryThink:fThink,
       dKey:key, dModel:model, dTemp:isNaN(temp)?0.7:temp, dThinking:thinking, dVoice:effVoice, dEndpoint:fEndpoint, dFModel:fModel });
     let lib=this._lib(); const old=this.lsGet('vsg_project',null); let currentId=this.lsGet('vsg_current',null);
     if(Object.keys(lib).length===0 && old){ try{ const d=JSON.parse(old); const id=this.uid('proj'); lib[id]={id, title:(d.idea?String(d.idea).slice(0,72):'Untitled video'), updatedAt:Date.now(), data:d}; this.lsSet('vsg_projects',JSON.stringify(lib)); currentId=id; }catch(e){} }
@@ -1231,10 +1238,12 @@ class Component extends DCLogic {
     try{
       // ttl asks Foundry Local to keep the model in memory for an hour after this call, so it isn't evicted between steps
       // (other OpenAI-compatible servers ignore the field).
-      // Qwen3 can think for many minutes before a short JSON answer; "/no_think" skips that on the quick calls.
-      const content=opts.quick?(promptText+'\n\n/no_think'):promptText;
+      // Qwen3 can think for minutes before a short JSON answer. With thinking off in Settings, "/no_think" skips it
+      // on the quick calls (and caps the reply); the script always thinks.
+      const fast=!!opts.quick && !this.state.foundryThink;
+      const content=fast?(promptText+'\n\n/no_think'):promptText;
       res=await fetch(url,{method:'POST', signal, headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ model, messages:[{role:'user',content}], temperature:this.state.geminiTemp, stream:false, max_tokens:opts.quick?3000:8000, ttl:3600 })});
+        body:JSON.stringify({ model, messages:[{role:'user',content}], temperature:this.state.geminiTemp, stream:false, max_tokens:fast?3000:8000, ttl:3600 })});
     }catch(e){ throw new Error('Can’t reach the local model proxy at '+base+'. Double-click run-proxy.command (it starts Foundry Local and the proxy), then try again.'); }
     if(!res.ok){
       const err=await res.text();
@@ -1288,7 +1297,7 @@ class Component extends DCLogic {
       throw e;
     }finally{ clearTimeout(timer); if(outer) outer.removeEventListener('abort', onAbort); }
   }
-  quickTimeout(){ return this.state.provider==='foundry'?300000:180000; }
+  quickTimeout(){ if(this.state.provider!=='foundry') return 180000; return this.state.foundryThink?600000:300000; }
   async generateOnce(promptText, opts, signal){
     if(this.state.provider==='foundry'){
       return await this.generateFoundry(promptText, opts, signal);
@@ -2144,14 +2153,14 @@ class Component extends DCLogic {
   }
 
   // ---------- settings ----------
-  openSettings(){ this.setState({settingsOpen:true, dProvider:this.state.provider, dKey:this.state.geminiKey, dModel:this.state.geminiModel, dModelCustom:false, dTemp:this.state.geminiTemp, dThinking:this.state.geminiThinking, dVoice:(this.state.voiceDoc||this.state.voiceDefault), dBrand:this.state.brand, dAdvanced:this.state.advanced, dEndpoint:this.state.foundryEndpoint, dFModel:this.state.foundryModel, dFoundryStatus:'', dFoundryOk:false}); }
+  openSettings(){ this.setState({settingsOpen:true, dProvider:this.state.provider, dKey:this.state.geminiKey, dModel:this.state.geminiModel, dModelCustom:false, dTemp:this.state.geminiTemp, dThinking:this.state.geminiThinking, dVoice:(this.state.voiceDoc||this.state.voiceDefault), dBrand:this.state.brand, dAdvanced:this.state.advanced, dEndpoint:this.state.foundryEndpoint, dFModel:this.state.foundryModel, dFoundryThink:this.state.foundryThink, dFoundryStatus:'', dFoundryOk:false}); }
   saveSettings(){ const temp=parseFloat(this.state.dTemp); const t=isNaN(temp)?0.7:this.clamp(temp,0,2); const fEnd=(this.state.dEndpoint||'http://localhost:8757/v1').trim(); const fMod=(this.state.dFModel||'qwen3-14b').trim();
     const model=this.normalizeGeminiModel(this.state.dModel), key=(this.state.dKey||'').trim(), thinking=this.state.dThinking||'';
     // A voice doc identical to the shipped default is stored as "use the default", so later edits to voice-guide.md still reach this browser.
     const voice=this.state.dVoice||''; const voiceDoc=(voice.trim()===(this.state.voiceDefault||'').trim())?'':voice;
-    this.lsSet('vsg_provider',this.state.dProvider); this.lsSet('vsg_gemini_key',key); this.lsSet('vsg_gemini_model',model); this.lsSet('vsg_gemini_thinking',thinking); this.lsSet('vsg_gemini_temp',String(t)); this.lsSet('vsg_voice_doc',voiceDoc); this.lsSet('vsg_foundry_endpoint',fEnd); this.lsSet('vsg_foundry_model',fMod); this.lsSet('vsg_advanced',this.state.dAdvanced?'1':'0');
+    this.lsSet('vsg_provider',this.state.dProvider); this.lsSet('vsg_gemini_key',key); this.lsSet('vsg_gemini_model',model); this.lsSet('vsg_gemini_thinking',thinking); this.lsSet('vsg_gemini_temp',String(t)); this.lsSet('vsg_voice_doc',voiceDoc); this.lsSet('vsg_foundry_endpoint',fEnd); this.lsSet('vsg_foundry_model',fMod); this.lsSet('vsg_foundry_think',this.state.dFoundryThink?'1':'0'); this.lsSet('vsg_advanced',this.state.dAdvanced?'1':'0');
     const brand=(this.state.dBrand||'').trim(); this.lsSet('vsg_brand',brand); this.applyBrand(brand);
-    this.setState({provider:this.state.dProvider, geminiKey:key, geminiModel:model, geminiThinking:thinking, geminiTemp:t, voiceDoc, brand, foundryEndpoint:fEnd, foundryModel:fMod, settingsOpen:false, advanced:!!this.state.dAdvanced});
+    this.setState({provider:this.state.dProvider, geminiKey:key, geminiModel:model, geminiThinking:thinking, geminiTemp:t, voiceDoc, brand, foundryEndpoint:fEnd, foundryModel:fMod, foundryThink:!!this.state.dFoundryThink, settingsOpen:false, advanced:!!this.state.dAdvanced});
     if(!this.state.advanced && (this.state.view==='scenes'||this.state.view==='shots')) this.setState({view:'workspace'}, ()=>this.persist()); this.showToast('Settings saved'); }
   // Some managed Macs and password managers block pasting into key fields; this reads the clipboard directly.
   async pasteKey(){
@@ -2287,7 +2296,7 @@ class Component extends DCLogic {
       intakeHint:!hasIdea?'Add an idea to begin.':(this.hasProvider()?'Next, a few quick questions to sharpen the brief.':(st.provider==='gemini'?'Add your Gemini key in Settings, or switch engines.':'Built-in Claude isn’t available here. Pick Gemini or Local in Settings.')),
       onBackToIdea:()=>this.setState({view:'intake'},()=>this.persist()), onBackToQuestions:()=>this.setState({view:'questions'},()=>this.persist()),
       qRead:st.qRead, qReadShow:!!st.qRead, hasWorkingTitle:!!(st.title||'').trim(), workingTitle:(st.title||'').trim(), qError:st.qError, onRetryQuestions:()=>this.askQuestions(st.qAsked), qLoading:st.qBusy, qLoadingLabel:((st.references||[]).find(r=>r.briefBusy)?('Summarizing '+(st.references||[]).find(r=>r.briefBusy).name+'…'):(st.qAsked?'Thinking of more questions…':('Reading your idea'+((st.references||[]).length?' and documents':'')+'…')))+(qCur?' Answer this while you wait.':''),
-      quickElapsed:(st.qBusy||st.pickBusy)&&st.busySince?this.mmss(Math.max(0,(Date.now()-st.busySince)/1000)):'', quickSlowHint:st.provider==='foundry', onStopQuick:()=>this.stopQuick(),
+      quickElapsed:(st.qBusy||st.pickBusy)&&st.busySince?this.mmss(Math.max(0,(Date.now()-st.busySince)/1000)):'', quickSlowHint:st.provider==='foundry', quickSlowText:st.foundryThink?'The local model thinks before it answers, which can take a few minutes.':'Local models can take a minute or two.', onStopQuick:()=>this.stopQuick(),
       qWizard:!!qCur, qNum:qi+1, qTotal:qs.length, qCountLabel:st.qBusy?('Question '+(qi+1)):('Question '+(qi+1)+' of '+qs.length), qSkipRestShow:!st.qBusy, qPct:qs.length?Math.round(qi/qs.length*100):0, qText:qCur?qCur.q:'', qWhy:qCur?qCur.why:'', qWhyShow:!!(qCur&&qCur.why),
       qHasOptions:!!(qCur&&(qCur.options||[]).length), qOptions:qCur?(qCur.options||[]).map(o=>{ const sel=(qCur.answer||'').trim()===o; return { label:o, onPick:()=>this.patchQuestion(qi,{answer:o, skipped:false}), bg:sel?'rgba(16,165,172,0.10)':'var(--c-white)', border:sel?'var(--c-emerald)':'var(--border-hairline)' }; }):[],
       qAnswer:qCur?(qCur.answer||''):'', onQAnswer:(e)=>this.patchQuestion(qi,{answer:e.target.value}), qPlaceholder:qCur&&(qCur.options||[]).length?'Pick one above, or write your own answer':'Your answer (optional)',
@@ -2352,7 +2361,7 @@ class Component extends DCLogic {
       dFModelSel:(st.dFoundryModels||[]).includes(st.dFModel)?st.dFModel:'',
       onPickFModel:(e)=>{ if(e.target.value) this.setState({dFModel:e.target.value}); },
       showClaudeOption:this.claudeAvailable() || st.dProvider==='claude', dBrand:st.dBrand, onChangeBrand:(e)=>this.setState({dBrand:e.target.value}),
-      dKey:st.dKey, dModel:st.dModel, dTemp:st.dTemp, dVoice:st.dVoice, dEndpoint:st.dEndpoint, dFModel:st.dFModel, onChangeKey:(e)=>this.setState({dKey:e.target.value}), onPasteKey:()=>this.pasteKey(), keyMask:st.dKeyShow?'none':'disc', keyShowLabel:st.dKeyShow?'Hide':'Show', onToggleKeyShow:()=>this.setState({dKeyShow:!st.dKeyShow}), onChangeModel:(e)=>this.setState({dModel:e.target.value}), onChangeTemp:(e)=>this.setState({dTemp:e.target.value}), onChangeVoice:(e)=>this.setState({dVoice:e.target.value}), onChangeEndpoint:(e)=>this.setState({dEndpoint:e.target.value}), onChangeFModel:(e)=>this.setState({dFModel:e.target.value}), onSaveSettings:()=>this.saveSettings(), dAdvanced:!!st.dAdvanced, onToggleAdvanced:()=>this.setState({dAdvanced:!st.dAdvanced}), advBorder:st.dAdvanced?'var(--c-emerald)':'var(--border-strong)', advBg:st.dAdvanced?'var(--c-emerald)':'var(--c-white)', advCheck:st.dAdvanced?'1':'0', onResetVoice:()=>this.resetVoice(),
+      dKey:st.dKey, dModel:st.dModel, dTemp:st.dTemp, dVoice:st.dVoice, dEndpoint:st.dEndpoint, dFModel:st.dFModel, onChangeKey:(e)=>this.setState({dKey:e.target.value}), dFThinkSel:st.dFoundryThink?'on':'off', onChangeFThink:(e)=>this.setState({dFoundryThink:e.target.value!=='off'}), onPasteKey:()=>this.pasteKey(), keyMask:st.dKeyShow?'none':'disc', keyShowLabel:st.dKeyShow?'Hide':'Show', onToggleKeyShow:()=>this.setState({dKeyShow:!st.dKeyShow}), onChangeModel:(e)=>this.setState({dModel:e.target.value}), onChangeTemp:(e)=>this.setState({dTemp:e.target.value}), onChangeVoice:(e)=>this.setState({dVoice:e.target.value}), onChangeEndpoint:(e)=>this.setState({dEndpoint:e.target.value}), onChangeFModel:(e)=>this.setState({dFModel:e.target.value}), onSaveSettings:()=>this.saveSettings(), dAdvanced:!!st.dAdvanced, onToggleAdvanced:()=>this.setState({dAdvanced:!st.dAdvanced}), advBorder:st.dAdvanced?'var(--c-emerald)':'var(--border-strong)', advBg:st.dAdvanced?'var(--c-emerald)':'var(--c-white)', advCheck:st.dAdvanced?'1':'0', onResetVoice:()=>this.resetVoice(),
       voiceStatus:(st.dVoice&&st.dVoice.trim())?(st.dVoice.trim().length.toLocaleString()+' characters — baked into every generation'):'No voice doc — generations use a safe default voice.'
     };
   }
