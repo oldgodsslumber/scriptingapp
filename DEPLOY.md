@@ -50,7 +50,10 @@ Create `functions/.env.<your-project-id>`. Git ignores it, so the domain and adm
 ALLOWED_DOMAIN=example.com
 ADMIN_EMAILS=you@example.com
 DAILY_LIMIT=200
+GEMINI_BASE_URL=https://generativelanguage.googleapis.com
 ```
+
+List every line, even `GEMINI_BASE_URL`: a non-interactive deploy stops on any setting that is missing.
 
 `ADMIN_EMAILS` is the starting team. Add or remove the rest of the team in the Studio afterwards; that list lives in Firestore, so changing it needs no redeploy.
 
@@ -59,6 +62,8 @@ Then deploy:
 ```sh
 firebase deploy --only functions,firestore:rules
 ```
+
+On a project's first deploy, one function can fail with "HTTP Error: 500, Could not create Cloud Run service" while new permissions spread. Deploy that function again on its own (`firebase deploy --only functions:generate --force`). `--force` also sets up automatic deletion of old build images, which otherwise add a small monthly bill.
 
 ## 4. Publish and set up the brand pack
 
