@@ -1,10 +1,65 @@
 rules_version = '2';
-// Browsers never read or write Firestore directly. The brand pack and usage counts are reached only
-// through the Cloud Functions in functions/index.js, which check the signed-in email first.
+// Who can touch what. The brand pack, usage counts and config/access are written only by the Cloud Functions
+// in functions/index.js (which also keep config/access and config/team in step with the deploy settings).
+//   - Anyone signed in at the allowed domain works on their own scripts, sees their messages and versions,
+//     and posts notifications about their own scripts.
+//   - Team members (config/team) see and edit every script, change status, write internal notes,
+//     and manage the team list.
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if false;
+    function signedIn() { return request.auth != null && request.auth.token.email_verified == true; }
+    function myEmail() { return request.auth.token.email.lower(); }
+    function isMember() { return signedIn() && myEmail().split('@')[1] == get(/databases/$(database)/documents/config/access).data.domain; }
+    function isTeam() { return isMember() && myEmail() in get(/databases/$(database)/documents/config/team).data.emails; }
+    function ownsScript(id) { return isMember() && get(/databases/$(database)/documents/scripts/$(id)).data.ownerUid == request.auth.uid; }
+    function ownsScriptAfter(id) { return isMember() && getAfter(/databases/$(database)/documents/scripts/$(id)).data.ownerUid == request.auth.uid; }
+
+    // Script summary: owner, title, status and workflow fields. The script itself is in content/main.
+    match /scripts/{id} {
+      allow read: if isTeam() || (isMember() && (resource == null || resource.data.ownerUid == request.auth.uid));
+      allow create: if isMember()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerEmail == myEmail()
+        && request.resource.data.status == 'drafting';
+      allow update: if (isTeam() || (isMember() && resource.data.ownerUid == request.auth.uid))
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.ownerEmail == resource.data.ownerEmail
+        // the owner may only submit, or leave the status as the team set it
+        && (isTeam() || request.resource.data.status in ['drafting', 'submitted'] || request.resource.data.status == resource.data.status);
+      allow delete: if isMember() && resource.data.ownerUid == request.auth.uid && resource.data.status == 'drafting';
+
+      match /content/{c} {
+        allow read: if isTeam() || ownsScript(id);
+        allow write: if isTeam() || ownsScriptAfter(id);
+      }
+      match /versions/{v} {
+        allow read: if isTeam() || ownsScript(id);
+        allow create: if (isTeam() || ownsScript(id)) && request.resource.data.by == myEmail();
+      }
+      match /messages/{m} {
+        allow read: if isTeam() || (ownsScript(id) && resource.data.internal == false);
+        allow create: if request.resource.data.authorEmail == myEmail()
+          && (isTeam() || (ownsScript(id) && request.resource.data.internal == false && request.resource.data.authorIsTeam == false));
+      }
+    }
+
+    // Notifications: who did what to which script.
+    match /events/{e} {
+      allow read: if isTeam() || (isMember() && resource.data.ownerUid == request.auth.uid);
+      allow create: if isMember() && request.resource.data.actorEmail == myEmail()
+        && (isTeam() || (request.resource.data.ownerUid == request.auth.uid && request.resource.data.actorIsTeam == false));
+    }
+
+    // Each person's own read marker for notifications.
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // The team list. Team members manage it; nobody can remove themselves.
+    match /config/team {
+      allow read: if isTeam();
+      allow update: if isTeam() && request.resource.data.emails is list
+        && myEmail() in request.resource.data.emails && request.resource.data.emails.size() <= 100;
     }
   }
 }

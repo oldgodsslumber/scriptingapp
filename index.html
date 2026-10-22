@@ -41,6 +41,32 @@
     </nav>
 
     <div style="display:flex;align-items:center;gap:8px">
+      <sc-if value="{{ showBell }}" hint-placeholder-val="{{ false }}">
+      <div style="position:relative">
+        <button onClick="{{ onToggleNotifs }}" title="Notifications" aria-label="Notifications" style="position:relative;display:grid;place-items:center;width:36px;height:36px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);cursor:pointer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <sc-if value="{{ hasUnread }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-7px;right:-7px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--c-orange);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center">{{ unreadCount }}</span></sc-if>
+        </button>
+        <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:calc(100% + 6px);right:0;z-index:50;width:340px;max-height:440px;overflow:auto;background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-md);box-shadow:var(--shadow-3);padding:6px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px">
+              <span style="font-size:13px;font-weight:700;color:var(--c-navy)">Notifications</span>
+              <button onClick="{{ onMarkAllRead }}" style="padding:0;background:none;border:none;color:var(--c-violet);font-size:12px;font-weight:600;cursor:pointer">Mark all read</button>
+            </div>
+            <sc-for list="{{ notifs }}" as="n" hint-placeholder-count="3">
+              <button onClick="{{ n.onOpen }}" style="display:block;width:100%;padding:9px 10px;border-radius:var(--radius-sm);background:{{ n.bg }};border:none;cursor:pointer;text-align:left">
+                <span style="display:block;font-size:13px;line-height:1.45;color:var(--c-navy)">{{ n.text }}</span>
+                <span style="display:block;margin-top:2px;font-size:11px;color:var(--fg-subtle)">{{ n.when }}</span>
+              </button>
+            </sc-for>
+            <sc-if value="{{ noNotifs }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:var(--fg-subtle);text-align:center;padding:14px">Nothing yet.</div></sc-if>
+          </div>
+        </sc-if>
+      </div>
+      </sc-if>
+      <sc-if value="{{ isTeam }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ onOpenStudio }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:{{ studioBtnBg }};border:1px solid var(--c-violet);color:{{ studioBtnColor }};font-size:13px;font-weight:700;cursor:pointer">Studio</button>
+      </sc-if>
       <div style="position:relative">
         <button onClick="{{ onToggleProjects }}" style="display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2z"></path></svg>
@@ -53,12 +79,14 @@
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>
               New video
             </button>
+            <button onClick="{{ onImport }}" style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:var(--radius-sm);background:transparent;border:none;color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer;text-align:left">Import a video (.json)</button>
+            <button onClick="{{ onExport }}" style="display:flex;align-items:center;gap:9px;width:100%;padding:9px 12px;border-radius:var(--radius-sm);background:transparent;border:none;color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer;text-align:left">Export this video (.json)</button>
             <div style="height:1px;background:var(--divider);margin:5px 8px"></div>
             <sc-for list="{{ savedProjects }}" as="pj" hint-placeholder-count="2">
               <div onClick="{{ pj.onOpen }}" style="display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--radius-sm);cursor:pointer;background:{{ pj.rowBg }}">
                 <div style="flex:1;min-width:0">
                   <div style="font-size:13px;font-weight:600;color:var(--c-navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pj.title }}</div>
-                  <div style="font-size:11px;color:var(--fg-subtle)">{{ pj.when }}</div>
+                  <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--fg-subtle)">{{ pj.when }}<sc-if value="{{ pj.hasStatus }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;font-size:10px;padding:1px 7px;background:{{ pj.statusBg }};color:{{ pj.statusColor }}">{{ pj.statusLabel }}</span></sc-if></div>
                 </div>
                 <button onClick="{{ pj.onDelete }}" title="Delete" style="display:grid;place-items:center;width:26px;height:26px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-orange);cursor:pointer;flex-shrink:0"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path></svg></button>
               </div>
@@ -68,14 +96,27 @@
         </sc-if>
       </div>
       <button onClick="{{ onNew }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer">New</button>
-      <button onClick="{{ onImport }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer">Import</button>
-      <button onClick="{{ onExport }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer">Export</button>
       <button onClick="{{ onOpenSettings }}" style="display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:13px;font-weight:600;cursor:pointer">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         Settings
       </button>
     </div>
   </header>
+
+  <sc-if value="{{ teamEditOn }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 28px;background:rgba(95,103,185,0.10);border-bottom:1px solid rgba(95,103,185,0.25);font-size:13px;color:var(--c-navy)">
+      <span style="flex:1;min-width:240px"><strong>Editing {{ teamEditOwner }}’s script.</strong> Changes save to their copy, and they’ll see them.</span>
+      <button onClick="{{ onSaveVersion }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Save a version</button>
+      <button onClick="{{ onBackToStudio }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Back to Studio</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ remoteChangeOn }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 28px;background:rgba(247,105,35,0.08);border-bottom:1px solid rgba(247,105,35,0.3);font-size:13px;color:var(--c-navy)">
+      <span style="flex:1;min-width:240px">{{ remoteChangeText }}</span>
+      <button onClick="{{ onLoadRemote }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Load their version</button>
+      <button onClick="{{ onKeepMine }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Keep mine</button>
+    </div>
+  </sc-if>
 
   <!-- ===================== INTAKE ===================== -->
   <sc-if value="{{ isIntake }}" hint-placeholder-val="{{ true }}">
@@ -85,6 +126,7 @@
         <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c-emerald);margin-bottom:8px">Step 1 · Idea</div>
         <h1 style="font-family:var(--font-display);font-weight:600;font-size:34px;line-height:1.1;color:var(--c-navy);margin:0 0 6px">What’s the video?</h1>
         <p style="margin:0;font-size:15px;color:var(--fg-muted);max-width:620px">Describe the idea and attach any reference documents. Next come a few quick questions to sharpen it, then a recommended video type, then the script.</p>
+        <sc-if value="{{ showShareNote }}" hint-placeholder-val="{{ false }}"><p style="margin:8px 0 0;font-size:12px;color:var(--fg-muted);max-width:620px">Signed in as {{ authEmail }}. The video team can see your drafts as you work, and you submit when the script is ready.</p></sc-if>
       </div>
 
       <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px">
@@ -437,6 +479,12 @@
             <button onClick="{{ onExportDocx }}" style="display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:var(--radius-sm);background:var(--c-emerald);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M7 10l5 5 5-5"></path><path d="M12 15V3"></path></svg>
               Download script (.docx)
+            </button>
+            </sc-if>
+            <sc-if value="{{ showSubmitNav }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ onGoSubmit }}" style="display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:var(--radius-sm);background:var(--c-navy);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer">
+              {{ submitNavLabel }}
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
             </button>
             </sc-if>
           </div>
@@ -919,6 +967,286 @@
   </main>
   </sc-if>
 
+  <!-- ===================== SUBMIT ===================== -->
+  <sc-if value="{{ isSubmit }}" hint-placeholder-val="{{ false }}">
+  <main data-screen-label="Submit" style="flex:1;overflow:auto;padding:40px 28px 80px">
+    <div style="max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:22px">
+      <div>
+        <button onClick="{{ onBackToScript }}" style="display:inline-flex;align-items:center;gap:6px;padding:0;background:none;border:none;color:var(--fg-muted);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:8px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 18l-6-6 6-6"></path></svg>
+          Script
+        </button>
+        <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c-emerald);margin-bottom:8px">{{ submitEyebrow }}</div>
+        <h1 style="font-family:var(--font-display);font-weight:600;font-size:34px;line-height:1.1;color:var(--c-navy);margin:0 0 6px">Send it to the video team</h1>
+        <p style="margin:0;font-size:15px;color:var(--fg-muted);max-width:640px">Check the summary, add anything the team should know, and submit. You can keep editing afterwards; the team sees every change.</p>
+      </div>
+
+      <sc-if value="{{ submitStatusShow }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;border-radius:var(--radius-md);background:var(--c-white);border:1px solid var(--border-hairline)">
+          <span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:{{ submitStatusBg }};color:{{ submitStatusColor }}">{{ submitStatusLabel }}</span>
+          <span style="flex:1;min-width:200px;font-size:13px;color:var(--c-navy)">{{ submitStatusLine }}</span>
+        </div>
+      </sc-if>
+
+      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px">
+        <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px">Summary</div>
+        <div style="display:grid;grid-template-columns:160px 1fr;gap:8px 16px;font-size:14px">
+          <sc-for list="{{ submitSummary }}" as="r" hint-placeholder-count="4">
+            <span style="color:var(--fg-muted)">{{ r.label }}</span><span style="color:var(--c-navy)">{{ r.value }}</span>
+          </sc-for>
+        </div>
+      </section>
+
+      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px">Needed by</label>
+            <input type="date" value="{{ sfNeededBy }}" onChange="{{ onSfNeededBy }}" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+          </div>
+          <div>
+            <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px">Where will it be used?</label>
+            <input type="text" value="{{ sfWhereRun }}" onChange="{{ onSfWhereRun }}" placeholder="e.g. Customer event keynote, LinkedIn" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+          </div>
+        </div>
+        <div>
+          <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px">Anything else the team should know?</label>
+          <textarea value="{{ sfNotes }}" onChange="{{ onSfNotes }}" placeholder="Deadlines, approvals, people to involve, footage you already have…" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;min-height:90px;line-height:1.5"></textarea>
+        </div>
+      </section>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div style="font-size:13px;color:var(--fg-muted)">{{ submitHint }}</div>
+        <button onClick="{{ onSubmitScript }}" disabled="{{ submitBusy }}" style="display:flex;align-items:center;gap:10px;padding:14px 26px;border-radius:var(--radius-md);background:var(--c-emerald);border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--shadow-2);opacity:{{ submitBtnOpacity }}">{{ submitBtnLabel }}</button>
+      </div>
+
+      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px;display:flex;flex-direction:column;gap:12px">
+        <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px;margin:0">Messages with the video team</div>
+        <sc-for list="{{ myMessages }}" as="m" hint-placeholder-count="2">
+          <div style="padding:10px 12px;border-radius:var(--radius-md);background:{{ m.bg }};border:1px solid var(--border-hairline)">
+            <div style="font-size:11px;color:var(--fg-muted);margin-bottom:3px">{{ m.who }} · {{ m.when }}</div>
+            <div style="font-size:14px;line-height:1.5;color:var(--c-navy);white-space:pre-wrap">{{ m.text }}</div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ noMyMessages }}" hint-placeholder-val="{{ true }}"><div style="font-size:13px;color:var(--fg-subtle)">No messages yet. The team will reply here.</div></sc-if>
+        <div style="display:flex;gap:8px;align-items:flex-end">
+          <textarea value="{{ msgDraft }}" onChange="{{ onMsgDraft }}" placeholder="Write to the video team…" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;min-height:60px;line-height:1.5;flex:1"></textarea>
+          <button onClick="{{ onSendMyMessage }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;padding:10px 16px">Send</button>
+        </div>
+      </section>
+    </div>
+  </main>
+  </sc-if>
+
+  <!-- ===================== STUDIO (video team) ===================== -->
+  <sc-if value="{{ isStudio }}" hint-placeholder-val="{{ false }}">
+  <main data-screen-label="Studio" style="flex:1;overflow:auto;padding:28px 28px 60px">
+    <div style="max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--c-violet);margin-bottom:6px">Video team</div>
+          <h1 style="font-family:var(--font-display);font-weight:600;font-size:32px;line-height:1.1;color:var(--c-navy);margin:0">Studio</h1>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{ studioTabs }}" as="tb" hint-placeholder-count="3">
+            <button onClick="{{ tb.onClick }}" style="padding:8px 16px;border-radius:var(--radius-pill);background:{{ tb.bg }};border:1px solid {{ tb.border }};color:{{ tb.color }};font-size:13px;font-weight:700;cursor:pointer">{{ tb.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <sc-if value="{{ studioScriptsTab }}" hint-placeholder-val="{{ true }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;align-items:start">
+        <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:16px;display:flex;flex-direction:column;gap:12px;max-width:440px;width:100%">
+          <input type="text" value="{{ studioSearch }}" onChange="{{ onStudioSearch }}" placeholder="Search title, person, idea…" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+          <div style="display:flex;flex-wrap:wrap;gap:6px">
+            <sc-for list="{{ statusFilters }}" as="f" hint-placeholder-count="4">
+              <button onClick="{{ f.onClick }}" style="padding:4px 10px;border-radius:999px;background:{{ f.bg }};border:1px solid {{ f.border }};color:{{ f.color }};font-size:12px;font-weight:600;cursor:pointer">{{ f.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;max-height:68vh;overflow:auto">
+            <sc-for list="{{ studioRows }}" as="r" hint-placeholder-count="4">
+              <button onClick="{{ r.onOpen }}" style="display:block;width:100%;padding:10px 12px;border-radius:var(--radius-md);background:{{ r.bg }};border:1px solid {{ r.border }};cursor:pointer;text-align:left">
+                <span style="display:block;font-size:14px;font-weight:700;color:var(--c-navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.title }}</span>
+                <span style="display:block;margin-top:2px;font-size:12px;color:var(--fg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.sub }}</span>
+                <span style="display:flex;align-items:center;gap:8px;margin-top:6px;font-size:11px;color:var(--fg-subtle)">
+                  <span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:{{ r.statusBg }};color:{{ r.statusColor }}">{{ r.statusLabel }}</span>{{ r.when }}
+                </span>
+              </button>
+            </sc-for>
+            <sc-if value="{{ studioEmpty }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--fg-subtle);text-align:center;padding:20px">No scripts here.</div></sc-if>
+          </div>
+        </section>
+
+        <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px;display:flex;flex-direction:column;gap:20px;min-width:0;grid-column:span 2">
+          <sc-if value="{{ noStudioSel }}" hint-placeholder-val="{{ true }}"><div style="font-size:14px;color:var(--fg-muted);padding:30px 0;text-align:center">Pick a script on the left.</div></sc-if>
+          <sc-if value="{{ hasStudioSel }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap">
+              <div style="min-width:0">
+                <div style="font-family:var(--font-display);font-weight:600;font-size:24px;line-height:1.2;color:var(--c-navy)">{{ sd.title }}</div>
+                <div style="margin-top:4px;font-size:13px;color:var(--fg-muted)">{{ sd.byline }}</div>
+              </div>
+              <button onClick="{{ onStudioEdit }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;padding:10px 16px;font-size:13px">Open in editor</button>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px">Status</label>
+                <select value="{{ sd.status }}" onChange="{{ onSdStatus }}" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none">
+                  <sc-for list="{{ statusOptions }}" as="o"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px">Assigned to</label>
+                <select value="{{ sd.assignedTo }}" onChange="{{ onSdAssign }}" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none">
+                  <sc-for list="{{ assignOptions }}" as="o"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+                </select>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px">Our due date</label>
+                <input type="date" value="{{ sd.teamDue }}" onChange="{{ onSdDue }}" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px">Scheduler case ID</label>
+                <input type="text" value="{{ sd.caseId }}" onChange="{{ onSdCase }}" placeholder="e.g. V-1234" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px">From the requester</div>
+              <div style="display:grid;grid-template-columns:160px 1fr;gap:6px 16px;font-size:14px">
+                <sc-for list="{{ sd.facts }}" as="r" hint-placeholder-count="4">
+                  <span style="color:var(--fg-muted)">{{ r.label }}</span><span style="color:var(--c-navy);white-space:pre-wrap">{{ r.value }}</span>
+                </sc-for>
+              </div>
+            </div>
+
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px">Questions and answers</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <sc-for list="{{ sd.qa }}" as="q" hint-placeholder-count="3">
+                  <div style="padding:10px 12px;border-radius:var(--radius-md);background:var(--c-grey-50);border:1px solid var(--border-hairline)">
+                    <div style="font-size:13px;font-weight:600;color:var(--c-navy)">{{ q.q }}</div>
+                    <div style="margin-top:3px;font-size:13px;line-height:1.5;color:{{ q.color }};white-space:pre-wrap">{{ q.a }}</div>
+                  </div>
+                </sc-for>
+                <sc-if value="{{ sd.noQa }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--fg-subtle)">No questions answered.</div></sc-if>
+              </div>
+            </div>
+
+            <sc-if value="{{ sd.hasRefs }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px">Reference documents</div>
+              <sc-for list="{{ sd.refs }}" as="rf" hint-placeholder-count="1">
+                <div style="padding:10px 12px;margin-bottom:8px;border-radius:var(--radius-md);background:var(--c-grey-50);border:1px solid var(--border-hairline)">
+                  <div style="font-size:13px;font-weight:600;color:var(--c-navy)">{{ rf.name }}</div>
+                  <div style="margin-top:3px;font-size:12px;line-height:1.5;color:var(--fg-muted);white-space:pre-wrap">{{ rf.brief }}</div>
+                </div>
+              </sc-for>
+            </div>
+            </sc-if>
+
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+                <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px;margin:0">Script</div>
+                <select value="{{ sd.versionSel }}" onChange="{{ onSdVersion }}" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;width:auto;padding:6px 10px;font-size:13px">
+                  <sc-for list="{{ sd.versionOptions }}" as="o"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+                </select>
+              </div>
+              <sc-if value="{{ sd.loading }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--fg-subtle)">Loading…</div></sc-if>
+              <sc-for list="{{ sd.sections }}" as="sec" hint-placeholder-count="3">
+                <div style="padding:10px 0;border-top:1px solid var(--divider)">
+                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c-emerald)">{{ sec.label }}<sc-if value="{{ sec.changed }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:rgba(255,200,54,0.22);color:#8A6A00;letter-spacing:0;text-transform:none">changed since this version</span></sc-if></div>
+                  <div style="margin-top:4px;font-size:14px;line-height:1.55;color:var(--c-navy);white-space:pre-wrap">{{ sec.text }}</div>
+                </div>
+              </sc-for>
+              <sc-if value="{{ sd.noSections }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--fg-subtle)">No script yet.</div></sc-if>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px;margin:0">Messages and notes</div>
+              <sc-for list="{{ sd.messages }}" as="m" hint-placeholder-count="2">
+                <div style="padding:10px 12px;border-radius:var(--radius-md);background:{{ m.bg }};border:1px solid {{ m.border }}">
+                  <div style="font-size:11px;color:var(--fg-muted);margin-bottom:3px">{{ m.who }} · {{ m.when }}{{ m.tag }}</div>
+                  <div style="font-size:14px;line-height:1.5;color:var(--c-navy);white-space:pre-wrap">{{ m.text }}</div>
+                </div>
+              </sc-for>
+              <textarea value="{{ msgDraft }}" onChange="{{ onMsgDraft }}" placeholder="{{ sd.msgPlaceholder }}" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;min-height:60px;line-height:1.5"></textarea>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+                <button onClick="{{ onToggleInternal }}" role="checkbox" aria-checked="{{ msgInternal }}" style="display:flex;align-items:center;gap:8px;padding:0;background:none;border:none;cursor:pointer;font-size:13px;color:var(--c-navy)">
+                  <span style="width:18px;height:18px;border-radius:5px;border:1.5px solid {{ internalBorder }};background:{{ internalBg }};display:grid;place-items:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ internalCheck }}"><path d="M20 6 9 17l-5-5"></path></svg></span>
+                  Internal note (team only)
+                </button>
+                <button onClick="{{ onSendStudioMessage }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;padding:9px 16px">{{ sendLabel }}</button>
+              </div>
+            </div>
+          </sc-if>
+        </section>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ studioTeamTab }}" hint-placeholder-val="{{ false }}">
+      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px;display:flex;flex-direction:column;gap:14px;max-width:640px">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px">Team</div>
+          <p style="margin:0;font-size:13px;line-height:1.5;color:var(--fg-muted)">Team members see every script, edit any of them, and manage the brand pack and this list. They need an address at your organization’s domain.</p>
+        </div>
+        <sc-for list="{{ teamRows }}" as="t" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;border-radius:var(--radius-md);background:var(--c-grey-50);border:1px solid var(--border-hairline)">
+            <span style="font-size:14px;color:var(--c-navy)">{{ t.email }}<span style="color:var(--fg-subtle)">{{ t.note }}</span></span>
+            <sc-if value="{{ t.canRemove }}" hint-placeholder-val="{{ true }}"><button onClick="{{ t.onRemove }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
+          </div>
+        </sc-for>
+        <div style="display:flex;gap:8px">
+          <input type="email" value="{{ teamAddInput }}" onChange="{{ onTeamAddInput }}" onKeyDown="{{ onTeamAddKey }}" placeholder="name@company.com" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;flex:1"/>
+          <button onClick="{{ onTeamAdd }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;padding:10px 16px">Add</button>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ studioBrandTab }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px;display:flex;flex-direction:column;gap:14px;max-width:760px">
+            <div>
+              <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Brand pack</label>
+              <p style="margin:0;font-size:12px;color:var(--fg-muted);line-height:1.5">Everyone who signs in gets this name, voice guide, logo and colors. It's stored in Firebase, never in the code. {{ bpUpdated }}</p>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Company name</label>
+              <input type="text" value="{{ bpName }}" onChange="{{ onBpName }}" placeholder="e.g. Acme" style="width:100%;padding:12px 14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div><div style="font-size:13px;font-weight:700;color:var(--c-navy)">Voice guide</div><div style="font-size:12px;color:var(--fg-muted)">{{ bpVoiceStatus }}</div></div>
+              <span style="display:flex;gap:8px;flex-wrap:wrap">
+                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload .md / .txt<input type="file" accept=".md,.txt,text/plain,text/markdown" onChange="{{ onBpVoiceFile }}" style="display:none"/></label>
+                <button onClick="{{ onBpVoiceFromAbove }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Use the voice document above</button>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="font-size:13px;font-weight:700;color:var(--c-navy)">Logo</div>
+                <sc-if value="{{ bpHasLogo }}" hint-placeholder-val="{{ false }}"><img src="{{ bpLogo }}" alt="" style="height:26px;width:auto;max-width:150px;padding:4px 8px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);background:#fff"/></sc-if>
+                <sc-if value="{{ bpNoLogo }}" hint-placeholder-val="{{ true }}"><span style="font-size:12px;color:var(--fg-muted)">None, so the default logo shows</span></sc-if>
+              </div>
+              <span style="display:flex;gap:8px">
+                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload SVG / PNG<input type="file" accept=".svg,.png,.jpg,.jpeg,.webp,image/svg+xml,image/png,image/jpeg,image/webp" onChange="{{ onBpLogoFile }}" style="display:none"/></label>
+                <sc-if value="{{ bpHasLogo }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onBpLogoClear }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div><div style="font-size:13px;font-weight:700;color:var(--c-navy)">Colors <span style="font-weight:400;color:var(--fg-muted)">· optional CSS</span></div><div style="font-size:12px;color:var(--fg-muted)">{{ bpThemeStatus }}</div></div>
+              <span style="display:flex;gap:8px">
+                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload .css<input type="file" accept=".css,text/css" onChange="{{ onBpThemeFile }}" style="display:none"/></label>
+                <sc-if value="{{ bpHasTheme }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onBpThemeClear }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <button onClick="{{ onSaveBrandPack }}" disabled="{{ bpBusy }}" style="padding:10px 18px;border-radius:var(--radius-sm);background:var(--c-emerald);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ bpBtnOpacity }}">{{ bpSaveLabel }}</button>
+              <span style="font-size:12px;color:var(--fg-muted)">Everyone gets it on their next sign-in or reload.</span>
+            </div>
+          </div>
+      </sc-if>
+    </div>
+  </main>
+  </sc-if>
+
   <!-- ===================== SIGN-IN GATE (only when firebase-config.js is filled in) ===================== -->
   <sc-if value="{{ showGate }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed;inset:0;z-index:70;background:var(--bg-app);display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto">
@@ -1075,47 +1403,6 @@
               </span>
             </button>
           </div>
-          <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
-          <div style="border-top:1px solid var(--divider);padding-top:18px;display:flex;flex-direction:column;gap:14px">
-            <div>
-              <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Brand pack <span style="font-weight:400;color:var(--fg-muted)">· admin</span></label>
-              <p style="margin:0;font-size:12px;color:var(--fg-muted);line-height:1.5">Everyone who signs in gets this name, voice guide, logo and colors. It's stored in Firebase, never in the code. {{ bpUpdated }}</p>
-            </div>
-            <div>
-              <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Company name</label>
-              <input type="text" value="{{ bpName }}" onChange="{{ onBpName }}" placeholder="e.g. Acme" style="width:100%;padding:12px 14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-              <div><div style="font-size:13px;font-weight:700;color:var(--c-navy)">Voice guide</div><div style="font-size:12px;color:var(--fg-muted)">{{ bpVoiceStatus }}</div></div>
-              <span style="display:flex;gap:8px;flex-wrap:wrap">
-                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload .md / .txt<input type="file" accept=".md,.txt,text/plain,text/markdown" onChange="{{ onBpVoiceFile }}" style="display:none"/></label>
-                <button onClick="{{ onBpVoiceFromAbove }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Use the voice document above</button>
-              </span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-              <div style="display:flex;align-items:center;gap:12px">
-                <div style="font-size:13px;font-weight:700;color:var(--c-navy)">Logo</div>
-                <sc-if value="{{ bpHasLogo }}" hint-placeholder-val="{{ false }}"><img src="{{ bpLogo }}" alt="" style="height:26px;width:auto;max-width:150px;padding:4px 8px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);background:#fff"/></sc-if>
-                <sc-if value="{{ bpNoLogo }}" hint-placeholder-val="{{ true }}"><span style="font-size:12px;color:var(--fg-muted)">None, so the default logo shows</span></sc-if>
-              </div>
-              <span style="display:flex;gap:8px">
-                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload SVG / PNG<input type="file" accept=".svg,.png,.jpg,.jpeg,.webp,image/svg+xml,image/png,image/jpeg,image/webp" onChange="{{ onBpLogoFile }}" style="display:none"/></label>
-                <sc-if value="{{ bpHasLogo }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onBpLogoClear }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
-              </span>
-            </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-              <div><div style="font-size:13px;font-weight:700;color:var(--c-navy)">Colors <span style="font-weight:400;color:var(--fg-muted)">· optional CSS</span></div><div style="font-size:12px;color:var(--fg-muted)">{{ bpThemeStatus }}</div></div>
-              <span style="display:flex;gap:8px">
-                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload .css<input type="file" accept=".css,text/css" onChange="{{ onBpThemeFile }}" style="display:none"/></label>
-                <sc-if value="{{ bpHasTheme }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onBpThemeClear }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
-              </span>
-            </div>
-            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-              <button onClick="{{ onSaveBrandPack }}" disabled="{{ bpBusy }}" style="padding:10px 18px;border-radius:var(--radius-sm);background:var(--c-emerald);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ bpBtnOpacity }}">{{ bpSaveLabel }}</button>
-              <span style="font-size:12px;color:var(--fg-muted)">Saves the brand pack for everyone, separately from the Save button below.</span>
-            </div>
-          </div>
-          </sc-if>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--border-hairline);background:var(--c-grey-50)">
           <button onClick="{{ onCloseSettings }}" style="padding:10px 18px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
@@ -1230,6 +1517,10 @@ class Component extends DCLogic {
 
   state = {
     view:'intake', settingsOpen:false, toast:null, advanced:false, dAdvanced:false,
+    projectsReady:false, cloudMine:[], cloudDoc:null, myMsgs:[], msgDraft:'', msgInternal:false, remoteChange:null, teamEdit:null,
+    submitForm:{neededBy:'', whereRun:'', notes:''}, submitBusy:false, notifs:[], notifSeenAt:0, notifOpen:false,
+    studioTab:'scripts', studioFilter:'active', studioSearch:'', studioSel:null, studioContent:null, studioLoading:false, studioMsgs:[], studioVersions:[], studioVersionSel:'current',
+    teamScripts:[], teamEmails:[], teamAddInput:'',
     authState:'boot', authEmail:'', authInput:'', authBusy:false, authError:null, cloudOk:false, isAdmin:false, quota:null, orgBrand:null, logoSrc:'assets/logo.svg',
     bpName:'', bpVoice:'', bpLogo:'', bpTheme:'', bpBusy:false,
     title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', busySince:0, dKeyShow:false, qAsked:false, qBusy:false, qError:null, pickKey:'',
@@ -1280,8 +1571,9 @@ class Component extends DCLogic {
     let lib=this._lib(); const old=this.lsGet('vsg_project',null); let currentId=this.lsGet('vsg_current',null);
     if(Object.keys(lib).length===0 && old){ try{ const d=JSON.parse(old); const id=this.uid('proj'); lib[id]={id, title:(d.idea?String(d.idea).slice(0,72):'Untitled video'), updatedAt:Date.now(), data:d}; this.lsSet('vsg_projects',JSON.stringify(lib)); currentId=id; }catch(e){} }
     if(!currentId || !lib[currentId]){ currentId=Object.keys(lib).sort((a,b)=>(lib[b].updatedAt||0)-(lib[a].updatedAt||0))[0]||null; }
-    if(!currentId){ currentId=this.uid('proj'); }
+    if(!currentId){ currentId=this.newProjectId(); }
     this.setState({projectId:currentId});
+    this._revs={}; this._sent={}; Object.values(lib).forEach(x=>{ this._revs[x.id]=x.rev||0; this._sent[x.id]=x.sentHash||''; });
     if(lib[currentId]&&lib[currentId].data){ this.loadProjectData(lib[currentId].data); }
     this.lsSet('vsg_current',currentId); this._refreshSaved(lib);
     this.initCloud();
@@ -1436,7 +1728,7 @@ class Component extends DCLogic {
   }
   // Generations capture the video they started in; a reply that lands after the user switched videos is dropped instead of being written into (and saved over) the other one.
   stillOn(pid){ return this.state.projectId===pid; }
-  idleFlags(){ return { generating:false, genError:null, regenAllBusy:false, pickBusy:false, conceptBusy:false, qBusy:false, scenesGenerating:false, scenesRegenBusy:false, allShotsBusy:false }; }
+  idleFlags(){ return { generating:false, genError:null, regenAllBusy:false, pickBusy:false, conceptBusy:false, qBusy:false, submitBusy:false, scenesGenerating:false, scenesRegenBusy:false, allShotsBusy:false }; }
   patchScene(sceneId, fn){ const i=this.sceneIndexById(sceneId); if(i<0) return false; const scenes=this.state.scenes.slice(); scenes[i]=fn(scenes[i]); this.setState({scenes}); return true; }
   patchShot(sceneId, shotId, fn){ return this.patchScene(sceneId, sc=>({...sc, shots:(sc.shots||[]).map(sh=>sh.shot_id===shotId?fn(sh):sh)})); }
 
@@ -2023,12 +2315,23 @@ class Component extends DCLogic {
   // Anything that switches the open video must flushPersist() first so the pending save lands on the video it belongs to.
   persist(){ clearTimeout(this._saveT); this._saveT=setTimeout(()=>this.persistNow(), 400); }
   flushPersist(){ if(this._saveT){ clearTimeout(this._saveT); this.persistNow(); } }
-  persistNow(){ this._saveT=null; let id=this.state.projectId; if(!id){ id=this.uid('proj'); this.setState({projectId:id}); } const lib=this._lib(); lib[id]={ id, title:this.projectTitle(), updatedAt:Date.now(), data:this.projectData() };
+  persistNow(){ this._saveT=null; let id=this.state.projectId; if(!id){ id=this.newProjectId(); this.setState({projectId:id}); }
+    // Someone else's script, opened from the Studio, saves only to the shared copy.
+    if(this.state.teamEdit){ this.queueCloudSave(); return; }
+    const lib=this._lib(); lib[id]={ id, title:this.projectTitle(), updatedAt:Date.now(), rev:(this._revs||{})[id]||0, sentHash:(this._sent||{})[id]||'', data:this.projectData() };
     if(!this.lsSet('vsg_projects', JSON.stringify(lib)) && Date.now()-(this._fullWarnAt||0)>30000){ this._fullWarnAt=Date.now(); this.showToast('Browser storage is full — changes aren’t being saved. Export this video, or delete old videos / reference files.'); }
-    this.lsSet('vsg_current', id); this._refreshSaved(lib); }
-  openProject(id){ this.flushPersist(); const lib=this._lib(); const p=lib[id]; if(!p) return; this.setState({projectId:id, projectsMenuOpen:false}, ()=>{ this.loadProjectData(p.data||{}); this.lsSet('vsg_current',id); }); }
+    this.lsSet('vsg_current', id); this._refreshSaved(lib); this.queueCloudSave(); }
+  openProject(id){ if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const lib=this._lib(); const p=lib[id];
+    if(!p){ this.openFromCloud(id); return; }
+    this._revs=this._revs||{}; this._revs[id]=p.rev||0; this._sent=this._sent||{}; this._sent[id]=p.sentHash||'';
+    this.setState({projectId:id, projectsMenuOpen:false, remoteChange:null, cloudDoc:null, myMsgs:[]}, ()=>{ this.loadProjectData(p.data||{}); this.lsSet('vsg_current',id); this.watchCurrent(); this.queueCloudSave(); }); }
   deleteProject(id){
-    this.flushPersist(); const lib=this._lib(); const entry=lib[id]; if(!entry) return; const wasCurrent=id===this.state.projectId;
+    this.flushPersist(); const lib=this._lib(); const entry=lib[id];
+    const shared=(this.state.cloudMine||[]).find(x=>x.id===id);
+    if(shared && shared.status && shared.status!=='drafting'){ this.showToast('Submitted scripts stay with the video team, so they can’t be deleted.'); return; }
+    if(shared) this.deleteShared(id);
+    if(!entry){ return; }
+    const wasCurrent=id===this.state.projectId;
     delete lib[id]; this.lsSet('vsg_projects',JSON.stringify(lib)); this._autoNewId=null;
     if(wasCurrent){ const nid=Object.keys(lib).sort((a,b)=>(lib[b].updatedAt||0)-(lib[a].updatedAt||0))[0]; if(nid) this.openProject(nid); else { this.newProject(); this._autoNewId=this.state.projectId; } } else { this._refreshSaved(lib); }
     this.showToast('Deleted “'+(entry.title||'Untitled video')+'”', {label:'Undo', fn:()=>this.undoDelete(entry, wasCurrent)});
@@ -2060,8 +2363,8 @@ class Component extends DCLogic {
       // An import becomes its own video rather than overwriting the one that's open.
       this.flushPersist(); this.setState({projectId:this.uid('proj'), projectsMenuOpen:false}); this.loadProjectData(d); this.persistNow(); this.showToast('Imported as a new video'); }; r.readAsText(f); }; inp.click(); }
   // The brief steps reopen where they were left; scenes and shots need advanced mode, so without it they open the script.
-  viewFor(v, hasSections){ if(['intake','questions','type','concept'].includes(v)) return v; if(!hasSections) return 'intake'; if((v==='scenes'||v==='shots') && !this.state.advanced) return 'workspace'; return v||'workspace'; }
-  newProject(){ this.flushPersist(); const id=this.uid('proj'); this.setState({ projectId:id, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
+  viewFor(v, hasSections){ if(v==='studio') v='workspace'; if(['intake','questions','type','concept'].includes(v)) return v; if(!hasSections) return 'intake'; if((v==='scenes'||v==='shots') && !this.state.advanced) return 'workspace'; return v||'workspace'; }
+  newProject(){ if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const id=this.newProjectId(); this._revs=this._revs||{}; this._revs[id]=0; if(this._unsubCur){ this._unsubCur(); this._unsubCur=null; } this.setState({ projectId:id, remoteChange:null, cloudDoc:null, myMsgs:[], submitForm:{neededBy:'', whereRun:'', notes:''}, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
   downloadText(name, text, mime){ this.downloadBlob(name, new Blob([text],{type:mime||'text/plain'})); }
   _fallbackCopy(text){ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ document.execCommand('copy'); this.showToast('Copied to clipboard'); }catch(e){ this.showToast('Copy failed'); } ta.remove(); }
   copyText(text){ try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(()=>this.showToast('Copied to clipboard'),()=>this._fallbackCopy(text)); return; } }catch(e){} this._fallbackCopy(text); }
@@ -2253,10 +2556,10 @@ class Component extends DCLogic {
     this.setState({authState:'checking'});
     try{
       const base='https://www.gstatic.com/firebasejs/'+this.FIREBASE_SDK+'/';
-      const [appM, authM, fnM]=await Promise.all([import(base+'firebase-app.js'), import(base+'firebase-auth.js'), import(base+'firebase-functions.js')]);
+      const [appM, authM, fnM, fsM]=await Promise.all([import(base+'firebase-app.js'), import(base+'firebase-auth.js'), import(base+'firebase-functions.js'), import(base+'firebase-firestore.js')]);
       const app=appM.initializeApp(cfg);
-      this._fb={ authM, fnM, auth:authM.getAuth(app), fns:fnM.getFunctions(app, mod.functionsRegion||'us-central1') };
-      if(mod.useEmulators){ authM.connectAuthEmulator(this._fb.auth, 'http://127.0.0.1:9099', {disableWarnings:true}); fnM.connectFunctionsEmulator(this._fb.fns, '127.0.0.1', 5001); }
+      this._fb={ authM, fnM, fsM, auth:authM.getAuth(app), fns:fnM.getFunctions(app, mod.functionsRegion||'us-central1'), db:fsM.getFirestore(app) };
+      if(mod.useEmulators){ authM.connectAuthEmulator(this._fb.auth, 'http://127.0.0.1:9099', {disableWarnings:true}); fnM.connectFunctionsEmulator(this._fb.fns, '127.0.0.1', 5001); fsM.connectFirestoreEmulator(this._fb.db, '127.0.0.1', 8085); }
     }catch(e){ this.setState({authState:'signedOut', authError:'Couldn’t load sign-in. Check your connection and reload the page.'}); return; }
     const {authM, auth}=this._fb;
     // Arriving from the emailed link: finish signing in. Opened in another browser, the address has to be typed again.
@@ -2271,6 +2574,7 @@ class Component extends DCLogic {
   cloudMessage(e){ const m=String((e&&e.message)||e||''); return (!m||m==='internal')?'the server didn’t answer. Try again in a moment.':m; }
   async onAuthUser(u){
     if(!u){
+      this.stopShared();
       this.setState({cloudOk:false, isAdmin:false, quota:null});
       if(this.state.orgBrand) this.clearOrgBrand();
       if(!this._linkPending && !['sent','confirm'].includes(this.state.authState)) this.setState({authState:'signedOut'});
@@ -2289,6 +2593,7 @@ class Component extends DCLogic {
       this.lsSet('vsg_org_brand', JSON.stringify({email:this.state.authEmail, brand:r.brand||{}}));
       this.applyOrgBrand(r.brand||{});
       this.setState({authState:'signedIn', cloudOk:true, isAdmin:!!r.isAdmin, quota:{limit:r.dailyLimit||0, used:r.usedToday||0}});
+      this.startShared();
       // Nobody has to pick an engine: someone who never chose, or chose Gemini without a key, gets the team engine.
       if(this.state.provider!=='cloud' && (this.lsGet('vsg_provider',null)==null || (this.state.provider==='gemini' && !this.state.geminiKey))) this.setState({provider:'cloud', dProvider:'cloud'});
     }catch(e){
@@ -2358,6 +2663,7 @@ class Component extends DCLogic {
   authSubmit(){ if(this.state.authState==='confirm') this.finishSignIn(this.state.authInput); else this.sendSignInLink(); }
   useDifferentEmail(){ if(this._fb && this._fb.auth.currentUser) this._fb.authM.signOut(this._fb.auth); try{ localStorage.removeItem('vsg_signin_email'); }catch(e){} this.setState({authState:'signedOut', authError:null, authInput:'', authEmail:''}); }
   async signOutCloud(){
+    this.flushPersist(); this.stopShared();
     try{ if(this._fb) await this._fb.authM.signOut(this._fb.auth); }catch(e){}
     this.clearOrgBrand();
     this.setState({settingsOpen:false, authState:'signedOut', authEmail:'', authInput:'', cloudOk:false, isAdmin:false, quota:null});
@@ -2403,6 +2709,312 @@ class Component extends DCLogic {
       this.setState({bpBusy:false}); this.showToast('Brand pack saved. Everyone gets it on their next sign-in or reload.');
     }catch(e){ this.setState({bpBusy:false}); this.showToast('Couldn’t save the brand pack: '+this.cloudMessage(e)); }
   }
+
+  // ---------- shared scripts, Submit, Studio and notifications (Firestore) ----------
+  // Signed in, every video with an idea is mirrored to scripts/{id} (summary) and scripts/{id}/content/main (the
+  // script itself). The owner and the video team both edit it; `rev` counts content changes, and a save whose
+  // starting rev is stale stops and asks rather than overwrite the other person's work.
+  STATUSES = [
+    {id:'drafting', label:'Drafting', color:'#4A4F5A', bg:'rgba(111,116,128,0.14)'},
+    {id:'submitted', label:'Submitted', color:'#0E7E84', bg:'rgba(16,165,172,0.14)'},
+    {id:'in_review', label:'In review', color:'#334190', bg:'rgba(95,103,185,0.16)'},
+    {id:'in_production', label:'In production', color:'#7A5C00', bg:'rgba(255,200,54,0.26)'},
+    {id:'returned', label:'Sent back', color:'#C4471A', bg:'rgba(247,105,35,0.14)'},
+    {id:'done', label:'Done', color:'#0B6B3A', bg:'rgba(30,150,90,0.16)'}
+  ];
+  statusOf(id){ return this.STATUSES.find(x=>x.id===id)||this.STATUSES[0]; }
+  newProjectId(){ return 'v_'+Date.now().toString(36)+Math.random().toString(36).slice(2,10); }
+  canShare(){ return !!(this._fb && this._fb.db && this.state.authState==='signedIn' && this.state.cloudOk); }
+  me(){ const u=this._fb&&this._fb.auth&&this._fb.auth.currentUser; return u?{uid:u.uid, email:String(u.email||'').toLowerCase()}:null; }
+  ms(v){ return v&&v.toMillis?v.toMillis():(typeof v==='number'?v:0); }
+  editingNow(){ const a=typeof document!=='undefined'?document.activeElement:null; return !!(a && (a.tagName==='TEXTAREA' || (a.tagName==='INPUT' && !['button','checkbox','date'].includes(a.type)))); }
+  // What goes to the shared copy: the project, with reference text capped so the document stays well under Firestore's 1 MB.
+  projectDataForCloud(){
+    const d=this.projectData(); delete d.view;
+    let cap=40000; const trim=()=>{ d.references=(this.state.references||[]).map(r=>({id:r.id, name:r.name, brief:r.brief||'', text:String(r.text||'').slice(0,cap)})); };
+    trim(); while(JSON.stringify(d).length>800000 && cap>0){ cap=cap>5000?5000:0; trim(); }
+    return d;
+  }
+  cloudKey(){ return JSON.stringify(this.projectDataForCloud()); }
+  hashOf(str){ let h=2166136261>>>0; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return h.toString(36)+'.'+str.length; }
+  // What was last uploaded, as a fingerprint stored with the local copy, so a reload doesn't re-send an unchanged script.
+  markSent(id){ this._sent=this._sent||{}; this._sent[id]=this.hashOf(this.cloudKey()); }
+  metaOf(id, d){ return { id, ownerUid:d.ownerUid, ownerEmail:d.ownerEmail||'', title:d.title||'Untitled video', typeId:d.typeId||'', typeLabel:d.typeLabel||'', speaker:d.speaker||'', idea:d.idea||'', status:d.status||'drafting', rev:d.rev||0,
+    updatedAt:this.ms(d.updatedAt), updatedBy:d.updatedBy||'', updatedByTeam:!!d.updatedByTeam, submittedAt:this.ms(d.submittedAt), neededBy:d.neededBy||'', whereRun:d.whereRun||'', submitNotes:d.submitNotes||'',
+    editedSinceSubmit:!!d.editedSinceSubmit, assignedTo:d.assignedTo||'', teamDue:d.teamDue||'', caseId:d.caseId||'', createdAt:this.ms(d.createdAt) }; }
+  startShared(){
+    const me=this.me(); if(!me || !this.canShare()) return;
+    if(this._sharedFor===me.uid+(this.state.isAdmin?':t':'')) return;
+    this.stopShared(); this._sharedFor=me.uid+(this.state.isAdmin?':t':'');
+    const {fsM, db}=this._fb; const un=this._unsubs=[];
+    un.push(fsM.onSnapshot(fsM.query(fsM.collection(db,'scripts'), fsM.where('ownerUid','==',me.uid)), snap=>{
+      this.setState({cloudMine:snap.docs.map(x=>this.metaOf(x.id, x.data()))});
+    }, ()=>{}));
+    un.push(fsM.onSnapshot(fsM.doc(db,'users',me.uid), snap=>{ this.setState({notifSeenAt:snap.exists()?this.ms(snap.data().notifSeenAt):0}); }, ()=>{}));
+    const evQ=this.state.isAdmin?fsM.query(fsM.collection(db,'events'), fsM.orderBy('at','desc'), fsM.limit(80)):fsM.query(fsM.collection(db,'events'), fsM.where('ownerUid','==',me.uid));
+    un.push(fsM.onSnapshot(evQ, snap=>{ this.setState({notifs:snap.docs.map(x=>({id:x.id, ...x.data(), at:this.ms(x.data().at)||Date.now()}))}); }, ()=>{}));
+    if(this.state.isAdmin){
+      un.push(fsM.onSnapshot(fsM.query(fsM.collection(db,'scripts'), fsM.orderBy('updatedAt','desc'), fsM.limit(300)), snap=>{
+        this.setState({teamScripts:snap.docs.map(x=>this.metaOf(x.id, x.data()))});
+      }, ()=>{}));
+      un.push(fsM.onSnapshot(fsM.doc(db,'config','team'), snap=>{ this.setState({teamEmails:snap.exists()?(snap.data().emails||[]):[]}); }, ()=>{}));
+    }
+    this.watchCurrent();
+    this.queueCloudSave();
+  }
+  stopShared(){
+    (this._unsubs||[]).forEach(f=>{ try{ f(); }catch(e){} }); this._unsubs=[];
+    ['_unsubCur','_unsubMyMsgs','_unsubSdMsgs','_unsubSdVers'].forEach(k=>{ if(this[k]){ try{ this[k](); }catch(e){} this[k]=null; } });
+    clearTimeout(this._cloudT); this._cloudT=null; this._sharedFor=null;
+    if(this.state.teamEdit) this.leaveTeamEdit(true);
+    this.setState({cloudMine:[], cloudDoc:null, myMsgs:[], notifs:[], teamScripts:[], teamEmails:[], remoteChange:null, studioSel:null, studioContent:null, notifOpen:false, view:this.state.view==='studio'||this.state.view==='submit'?'intake':this.state.view});
+  }
+  queueCloudSave(){
+    if(!this.canShare()) return;
+    if(!this.state.teamEdit && !(this.state.idea||'').trim()) return;
+    clearTimeout(this._cloudT); this._cloudT=setTimeout(()=>this.cloudSave(), 1500);
+  }
+  async cloudSave(){
+    this._cloudT=null;
+    if(!this.canShare()) return;
+    const id=this.state.projectId; if(!id) return;
+    if(this.state.remoteChange && this.state.remoteChange.id===id) return;   // waiting on the person to choose
+    if(!this.state.teamEdit && !(this.state.idea||'').trim()) return;
+    if(this._saving){ this._saveAgain=true; return; }
+    const key=this.cloudKey(), hash=this.hashOf(key); this._sent=this._sent||{};
+    if(this._sent[id]===hash) return;                                         // nothing new to send
+    this._saving=true;
+    const {fsM, db}=this._fb; const me=this.me(); this._revs=this._revs||{};
+    const ref=fsM.doc(db,'scripts',id), cref=fsM.doc(db,'scripts',id,'content','main');
+    const expected=this._revs[id]||0, data=JSON.parse(key), teamEdit=!!this.state.teamEdit, type=this.currentType();
+    const about={ title:this.projectTitle(), typeId:this.state.selectedTypeId||'', typeLabel:type?type.label:'', speaker:this.speakerAnswer(), idea:String(this.state.idea||'').slice(0,500) };
+    let res=null;
+    try{
+      res=await fsM.runTransaction(db, async tx=>{
+        const snap=await tx.get(ref); const cur=snap.exists()?snap.data():null;
+        if(cur && (cur.rev||0)!==expected) return {conflict:cur};
+        if(!cur && teamEdit) return {gone:true};
+        const rev=expected+1, mine=!cur || cur.ownerUid===me.uid;
+        const meta={ ...about, rev, updatedAt:fsM.serverTimestamp(), updatedBy:me.email, updatedByTeam:!mine };
+        if(!cur){ Object.assign(meta, {ownerUid:me.uid, ownerEmail:me.email, status:'drafting', createdAt:fsM.serverTimestamp()}); tx.set(ref, meta); }
+        else { if(mine && cur.status && cur.status!=='drafting') meta.editedSinceSubmit=true; tx.update(ref, meta); }
+        tx.set(cref, {rev, data});
+        return {rev, cur, created:!cur, mine};
+      });
+    }catch(e){ this._saving=false; if(!this._shareWarned){ this._shareWarned=true; this.showToast('Couldn’t save to the shared copy: '+this.cloudMessage(e)); } return; }
+    this._saving=false; this._shareWarned=false;
+    // A conflict on a save the person has since overtaken (they chose Keep mine or loaded the other version) is stale.
+    if(res.conflict){ if((this._revs[id]||0)!==expected) this._saveAgain=true; else if(this.state.projectId===id) this.setState({remoteChange:{id, by:res.conflict.updatedBy||'Someone', rev:res.conflict.rev||0}}); }
+    else if(res.gone){ this.showToast('This script was deleted by its owner.'); }
+    else if(res.rev){
+      this._revs[id]=res.rev; this._sent[id]=hash;
+      if(!teamEdit){ const lib=this._lib(); if(lib[id]){ lib[id].rev=res.rev; lib[id].sentHash=hash; this.lsSet('vsg_projects', JSON.stringify(lib)); } }
+      if(res.created && this.state.projectId===id) this.watchCurrent();
+      // One notification per editing session, not per keystroke.
+      this._told=this._told||{};
+      if(!res.mine && !this._told['team:'+id]){ this._told['team:'+id]=1; this.addEvent(this.metaOf(id, res.cur), 'teamEdit', ''); }
+      if(res.mine && res.cur && res.cur.status && res.cur.status!=='drafting' && !this._told['edit:'+id]){ this._told['edit:'+id]=1; this.addEvent(this.metaOf(id, res.cur), 'edited', ''); }
+    }
+    if(this._saveAgain){ this._saveAgain=false; this.queueCloudSave(); }
+  }
+  watchCurrent(){
+    ['_unsubCur','_unsubMyMsgs'].forEach(k=>{ if(this[k]){ try{ this[k](); }catch(e){} this[k]=null; } });
+    if(!this.canShare()) return;
+    const id=this.state.projectId; if(!id) return;
+    const {fsM, db}=this._fb;
+    this._unsubCur=fsM.onSnapshot(fsM.doc(db,'scripts',id), snap=>{
+      if(this.state.projectId!==id) return;
+      if(!snap.exists()){ this.setState({cloudDoc:null}); return; }
+      const d=snap.data(); const meta=this.metaOf(id, d);
+      const patch={cloudDoc:meta};
+      if(!this._sfLoaded || this._sfLoaded!==id){ this._sfLoaded=id; patch.submitForm={neededBy:meta.neededBy, whereRun:meta.whereRun, notes:meta.submitNotes}; }
+      this.setState(patch);
+      if(snap.metadata.hasPendingWrites) return;
+      this._revs=this._revs||{};
+      if((d.rev||0)>(this._revs[id]||0)){
+        const busy=this._saveT||this._cloudT||this._saving||this.editingNow();
+        if(busy) this.setState({remoteChange:{id, by:d.updatedBy||'Someone', rev:d.rev||0}});
+        else this.loadRemote(true);
+      }
+    }, ()=>{});
+    const team=!!this.state.teamEdit;
+    const mq=team?fsM.collection(db,'scripts',id,'messages'):fsM.query(fsM.collection(db,'scripts',id,'messages'), fsM.where('internal','==',false));
+    this._unsubMyMsgs=fsM.onSnapshot(mq, snap=>{ if(this.state.projectId!==id) return; this.setState({myMsgs:snap.docs.map(x=>({id:x.id, ...x.data(), at:this.ms(x.data().at)||Date.now()})).sort((a,b)=>a.at-b.at)}); }, ()=>{});
+  }
+  // Take the shared copy. quiet: it arrived while nobody was typing, so it's applied without asking.
+  async loadRemote(quiet){
+    const id=this.state.projectId; if(!this.canShare()||!id) return;
+    for(let i=0; this._saving && i<100; i++) await new Promise(r=>setTimeout(r,100));
+    const {fsM, db}=this._fb;
+    try{
+      const [m, c]=await Promise.all([fsM.getDoc(fsM.doc(db,'scripts',id)), fsM.getDoc(fsM.doc(db,'scripts',id,'content','main'))]);
+      if(this.state.projectId!==id || !m.exists() || !c.exists()) return;
+      const view=this.state.view; this._revs[id]=m.data().rev||0;
+      this.loadProjectData(c.data().data||{});
+      this.setState({view:(view==='studio'?'workspace':view), remoteChange:null});
+      this.markSent(id);
+      if(!this.state.teamEdit){ const lib=this._lib(); lib[id]={ id, title:this.projectTitle(), updatedAt:Date.now(), rev:this._revs[id], sentHash:this._sent[id], data:this.projectData() }; this.lsSet('vsg_projects', JSON.stringify(lib)); this._refreshSaved(lib); }
+      if(quiet) this.showToast(m.data().updatedByTeam?'Updated with the video team’s changes.':'Updated with the latest changes.');
+    }catch(e){ this.showToast('Couldn’t load the latest version: '+this.cloudMessage(e)); }
+  }
+  async keepMine(){
+    const id=this.state.projectId; const rc=this.state.remoteChange; if(!rc) return;
+    for(let i=0; this._saving && i<100; i++) await new Promise(r=>setTimeout(r,100));   // let a save already under way finish first
+    this._revs[id]=rc.rev||0; this.setState({remoteChange:null}); if(this._sent) this._sent[id]='';
+    await this.cloudSave();
+  }
+  async openFromCloud(id){
+    if(!this.canShare()) return;
+    const {fsM, db}=this._fb;
+    try{
+      const [m, c]=await Promise.all([fsM.getDoc(fsM.doc(db,'scripts',id)), fsM.getDoc(fsM.doc(db,'scripts',id,'content','main'))]);
+      if(!m.exists()||!c.exists()){ this.showToast('That script isn’t available.'); return; }
+      this._revs=this._revs||{}; this._revs[id]=m.data().rev||0;
+      this.setState({projectId:id, projectsMenuOpen:false, remoteChange:null, cloudDoc:null, myMsgs:[]});
+      this.loadProjectData(c.data().data||{});
+      this.markSent(id); this.lsSet('vsg_current', id); this.persistNow(); this.watchCurrent();
+    }catch(e){ this.showToast('Couldn’t open it: '+this.cloudMessage(e)); }
+  }
+  async deleteShared(id){
+    if(!this.canShare()) return;
+    const {fsM, db}=this._fb;
+    try{ await fsM.deleteDoc(fsM.doc(db,'scripts',id,'content','main')); await fsM.deleteDoc(fsM.doc(db,'scripts',id)); if(this._sent) this._sent[id]=''; }catch(e){}
+  }
+  async addEvent(meta, type, text){
+    const me=this.me(); if(!me || !this.canShare() || !meta) return;
+    const {fsM, db}=this._fb;
+    try{ await fsM.addDoc(fsM.collection(db,'events'), {scriptId:meta.id, title:meta.title||'Untitled video', ownerUid:meta.ownerUid, ownerEmail:meta.ownerEmail||'', actorEmail:me.email, actorIsTeam:!!this.state.isAdmin && meta.ownerUid!==me.uid, type, text:String(text||'').slice(0,200), at:fsM.serverTimestamp()}); }catch(e){}
+  }
+  async saveVersion(kind){
+    const me=this.me(); const id=this.state.projectId; if(!me||!this.canShare()||!id) return;
+    const {fsM, db}=this._fb;
+    try{ await fsM.addDoc(fsM.collection(db,'scripts',id,'versions'), {kind, at:fsM.serverTimestamp(), by:me.email, byTeam:!!this.state.teamEdit, title:this.projectTitle(), typeId:this.state.selectedTypeId||'', sections:this.state.sections.map(s=>({id:s.id, label:s.label, text:s.text||''})), rev:(this._revs||{})[id]||0});
+      if(kind==='manual') this.showToast('Version saved'); }
+    catch(e){ this.showToast('Couldn’t save a version: '+this.cloudMessage(e)); }
+  }
+  // ----- Submit (the requester's last step) -----
+  goSubmit(){ if(!this.canShare()){ this.showToast('Sign in to submit.'); return; } this.flushPersist(); this.setState({view:'submit'}, ()=>this.persist()); }
+  async submitScript(){
+    if(!this.canShare() || this.state.submitBusy) return;
+    if(!this.state.sections.some(s=>(s.text||'').trim())){ this.showToast('Write the script first.'); return; }
+    this.setState({submitBusy:true});
+    this.flushPersist(); clearTimeout(this._cloudT); await this.cloudSave();
+    const id=this.state.projectId; const {fsM, db}=this._fb; const f=this.state.submitForm||{};
+    try{
+      const was=(this.state.cloudDoc||{}).status||'drafting';
+      await fsM.updateDoc(fsM.doc(db,'scripts',id), {status:'submitted', submittedAt:fsM.serverTimestamp(), neededBy:f.neededBy||'', whereRun:String(f.whereRun||'').slice(0,300), submitNotes:String(f.notes||'').slice(0,4000), editedSinceSubmit:false});
+      const resub=was!=='drafting';
+      await this.saveVersion(resub?'resubmitted':'submitted');
+      const meta=this.state.cloudDoc||this.metaOf(id, {ownerUid:this.me().uid, ownerEmail:this.me().email, title:this.projectTitle()});
+      await this.addEvent({...meta, title:this.projectTitle()}, resub?'resubmitted':'submitted', f.neededBy?('Needed by '+f.neededBy):'');
+      if(this._told) delete this._told['edit:'+id];
+      this.setState({submitBusy:false}); this.showToast(resub?'Resubmitted. The video team can see your changes.':'Submitted to the video team.');
+    }catch(e){ this.setState({submitBusy:false}); this.showToast('Couldn’t submit: '+this.cloudMessage(e)); }
+  }
+  async sendMessage(scriptMeta, internal){
+    const me=this.me(); const text=String(this.state.msgDraft||'').trim();
+    if(!me || !text || !scriptMeta || !this.canShare()) return;
+    const {fsM, db}=this._fb;
+    const team=!!this.state.isAdmin && scriptMeta.ownerUid!==me.uid;
+    try{
+      await fsM.addDoc(fsM.collection(db,'scripts',scriptMeta.id,'messages'), {text:text.slice(0,4000), authorEmail:me.email, authorIsTeam:team, internal:!!(team && internal), at:fsM.serverTimestamp()});
+      if(!(team && internal)) await this.addEvent(scriptMeta, 'message', text);
+      this.setState({msgDraft:''});
+    }catch(e){ this.showToast('Couldn’t send: '+this.cloudMessage(e)); }
+  }
+  // ----- notifications -----
+  relevantNotifs(){
+    const me=this.me(); if(!me) return [];
+    const team=!!this.state.isAdmin;
+    return (this.state.notifs||[]).filter(e=>e.actorEmail!==me.email && (team ? (!e.actorIsTeam || e.ownerUid===me.uid) : e.actorIsTeam)).sort((a,b)=>b.at-a.at).slice(0,40);
+  }
+  notifText(e){
+    const who=e.actorIsTeam?'The video team':(e.actorEmail||'Someone'), t='“'+(e.title||'Untitled video')+'”';
+    if(e.type==='submitted') return who+' submitted '+t+(e.text?' ('+e.text+')':'');
+    if(e.type==='resubmitted') return who+' resubmitted '+t;
+    if(e.type==='edited') return who+' changed '+t+' after submitting';
+    if(e.type==='teamEdit') return 'The video team edited '+t;
+    if(e.type==='status') return t+' is now '+this.statusOf(e.text).label;
+    if(e.type==='message') return who+' wrote about '+t+': '+(e.text.length>90?e.text.slice(0,90)+'…':e.text);
+    return who+' updated '+t;
+  }
+  async markAllRead(){
+    const me=this.me(); if(!me||!this.canShare()) return;
+    const {fsM, db}=this._fb; this.setState({notifSeenAt:Date.now()});
+    try{ await fsM.setDoc(fsM.doc(db,'users',me.uid), {notifSeenAt:fsM.serverTimestamp()}, {merge:true}); }catch(e){}
+  }
+  openNotif(e){
+    this.setState({notifOpen:false});
+    const me=this.me();
+    if(this.state.isAdmin && e.ownerUid!==(me&&me.uid)){ this.openStudio(); this.selectStudio(e.scriptId); return; }
+    this.openProject(e.scriptId); this.setState({view:'submit'});
+  }
+  // ----- Studio -----
+  openStudio(){ if(!this.state.isAdmin) return; this.flushPersist(); this.setState({view:'studio', notifOpen:false, projectsMenuOpen:false}); }
+  selectStudio(id){
+    ['_unsubSdMsgs','_unsubSdVers'].forEach(k=>{ if(this[k]){ try{ this[k](); }catch(e){} this[k]=null; } });
+    this.setState({studioSel:id, studioContent:null, studioLoading:true, studioMsgs:[], studioVersions:[], studioVersionSel:'current', msgDraft:'', msgInternal:false});
+    if(!id||!this.canShare()) return;
+    const {fsM, db}=this._fb;
+    fsM.getDoc(fsM.doc(db,'scripts',id,'content','main')).then(c=>{ if(this.state.studioSel===id) this.setState({studioContent:c.exists()?(c.data().data||{}):{}, studioLoading:false}); }).catch(()=>{ if(this.state.studioSel===id) this.setState({studioLoading:false}); });
+    this._unsubSdMsgs=fsM.onSnapshot(fsM.collection(db,'scripts',id,'messages'), snap=>{ if(this.state.studioSel===id) this.setState({studioMsgs:snap.docs.map(x=>({id:x.id, ...x.data(), at:this.ms(x.data().at)||Date.now()})).sort((a,b)=>a.at-b.at)}); }, ()=>{});
+    this._unsubSdVers=fsM.onSnapshot(fsM.query(fsM.collection(db,'scripts',id,'versions'), fsM.orderBy('at','desc')), snap=>{ if(this.state.studioSel===id) this.setState({studioVersions:snap.docs.map(x=>({id:x.id, ...x.data(), at:this.ms(x.data().at)||Date.now()}))}); }, ()=>{});
+  }
+  async updateScriptMeta(id, patch, eventType, eventText){
+    if(!this.canShare()) return;
+    const {fsM, db}=this._fb;
+    try{ await fsM.updateDoc(fsM.doc(db,'scripts',id), patch); if(eventType){ const m=(this.state.teamScripts||[]).find(x=>x.id===id); if(m) await this.addEvent(m, eventType, eventText); } }
+    catch(e){ this.showToast('Couldn’t update: '+this.cloudMessage(e)); }
+  }
+  // Inputs (due date, case ID) save shortly after the last keystroke.
+  queueMeta(id, patch){ this._metaPatch={...(this._metaPatch||{}), ...patch}; clearTimeout(this._metaT); this._metaT=setTimeout(()=>{ const p=this._metaPatch; this._metaPatch=null; this.updateScriptMeta(id, p); }, 700); }
+  async teamOpen(id){
+    if(!this.state.isAdmin||!this.canShare()) return;
+    const meta=(this.state.teamScripts||[]).find(x=>x.id===id); const me=this.me();
+    if(meta && meta.ownerUid===me.uid){ this.openProject(id); this.setState({view:'workspace'}); return; }
+    this.flushPersist();
+    const {fsM, db}=this._fb;
+    try{
+      const [m, c]=await Promise.all([fsM.getDoc(fsM.doc(db,'scripts',id)), fsM.getDoc(fsM.doc(db,'scripts',id,'content','main'))]);
+      if(!m.exists()||!c.exists()){ this.showToast('That script isn’t available.'); return; }
+      this._returnTo=this.state.projectId; this._revs=this._revs||{}; this._revs[id]=m.data().rev||0;
+      this.setState({teamEdit:{id, ownerEmail:m.data().ownerEmail||'', title:m.data().title||''}, projectId:id, remoteChange:null, cloudDoc:null, myMsgs:[]});
+      this.loadProjectData(c.data().data||{});
+      this.setState({view:'workspace'}); this.markSent(id); this.watchCurrent();
+    }catch(e){ this.showToast('Couldn’t open it: '+this.cloudMessage(e)); }
+  }
+  leaveTeamEdit(silent){
+    if(!this.state.teamEdit) return;
+    // Edits made in the last moments go up now; cloudSave captures the script before it switches below.
+    const pending=!!(this._cloudT||this._saveT); clearTimeout(this._cloudT); this._cloudT=null; clearTimeout(this._saveT); this._saveT=null;
+    if(pending) this.cloudSave();
+    const back=this._returnTo; this._returnTo=null;
+    this.setState({teamEdit:null, remoteChange:null});
+    if(silent) return;
+    const lib=this._lib();
+    if(back && lib[back]){ this._revs[back]=lib[back].rev||0; this._sent[back]=lib[back].sentHash||''; this.setState({projectId:back}); this.loadProjectData(lib[back].data||{}); }
+    else this.newProject();
+  }
+  async backToStudio(){
+    const sel=this.state.projectId; clearTimeout(this._cloudT); this._cloudT=null; clearTimeout(this._saveT); this._saveT=null; await this.cloudSave();
+    this.leaveTeamEdit(); this.watchCurrent();
+    this.setState({view:'studio'}); this.selectStudio(sel);
+  }
+  async setTeamEmails(list){
+    if(!this.canShare()) return;
+    const {fsM, db}=this._fb;
+    try{ await fsM.updateDoc(fsM.doc(db,'config','team'), {emails:list}); }catch(e){ this.showToast('Couldn’t update the team: '+this.cloudMessage(e)); }
+  }
+  addTeamMember(){
+    const email=String(this.state.teamAddInput||'').trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ this.showToast('Enter a full email address.'); return; }
+    const mine=(this.me()||{}).email||''; const dom=mine.split('@')[1];
+    if(dom && email.split('@')[1]!==dom){ this.showToast('Team members need an @'+dom+' address.'); return; }
+    const list=(this.state.teamEmails||[]).map(e=>String(e).toLowerCase());
+    if(list.includes(email)){ this.setState({teamAddInput:''}); return; }
+    this.setTeamEmails(list.concat([email])); this.setState({teamAddInput:''});
+  }
+  initBpForm(){ const ob=this.state.orgBrand||{}; this.setState({bpName:ob.name||'', bpVoice:ob.voiceDoc||'', bpLogo:ob.logo||'', bpTheme:ob.themeCss||''}); }
 
   // ---------- settings ----------
   openSettings(){ const ob=this.state.orgBrand||{}; this.setState({bpName:ob.name||'', bpVoice:ob.voiceDoc||'', bpLogo:ob.logo||'', bpTheme:ob.themeCss||'', settingsOpen:true, dProvider:this.state.provider, dKey:this.state.geminiKey, dModel:this.state.geminiModel, dModelCustom:false, dTemp:this.state.geminiTemp, dThinking:this.state.geminiThinking, dVoice:(this.state.voiceDoc||this.state.voiceDefault), dBrand:this.state.brand, dAdvanced:this.state.advanced, dEndpoint:this.state.foundryEndpoint, dFModel:this.state.foundryModel, dFoundryThink:this.state.foundryThink, dFoundryStatus:'', dFoundryOk:false}); }
@@ -2481,7 +3093,7 @@ class Component extends DCLogic {
   renderVals(){
     const st=this.state; const showCoaching=this.props.showCoaching!==false; const type=this.currentType();
     const isExec=type&&type.id==='executive';
-    const stepOf={intake:1, questions:2, type:3, concept:3, workspace:4, scenes:5, shots:6}; const step=stepOf[st.view]||1;
+    const shareOn=this.canShare() && !st.teamEdit; const stepOf={intake:1, questions:2, type:3, concept:3, workspace:4, scenes:5, shots:6, submit:st.advanced?7:5, studio:0}; const step=stepOf[st.view]||0;
     const hasIdea=!!(st.idea||'').trim(), hasScript=st.sections.some(s=>(s.text||'').trim());
     const mkStep=(n,label,active,enabled,onClick,title)=>({ n, label, title, onClick:enabled?onClick:(()=>this.showToast(title||'Not available yet')), pillBg:active?'rgba(16,165,172,0.10)':'transparent', pillBorder:active?'rgba(16,165,172,0.35)':'var(--border-hairline)', numBg:active?'var(--c-emerald)':(enabled?'var(--c-grey-200)':'var(--c-grey-100)'), numColor:active?'#fff':'var(--c-grey-700)', labelColor:active?'var(--c-navy)':'var(--fg-muted)', cursor:enabled?'pointer':'not-allowed', opacity:enabled?'1':'0.5' });
     const steps=[
@@ -2493,6 +3105,7 @@ class Component extends DCLogic {
     if(st.advanced) steps.push(
       mkStep(5,'Scenes',step===5,this.canStep2()||isExec,()=>this.goScenes(), isExec?'Executive videos carry no b-roll':'Generate a script first'),
       mkStep(6,'Shots',step===6,this.canStep3(),()=>this.goShots(),'Generate scenes first'));
+    if(shareOn) steps.push(mkStep(st.advanced?7:5,'Submit',step===(st.advanced?7:5),hasScript,()=>this.goSubmit(),'Write the script first'));
     const qs=st.questions||[], qi=st.qIndex||0, qCur=(qi<qs.length)?qs[qi]:null, nAns=this.answeredQA().length;
 
     const types=this.TYPES.map(t=>{ const sel=st.selectedTypeId===t.id; return { id:t.id, label:t.label, desc:t.desc, runtime:t.runtime, onSelect:()=>this.setType(t.id), hasDraft:!sel && !!(st.sectionsByType||{})[t.id], bg:sel?'rgba(16,165,172,0.06)':'var(--c-white)', border:sel?'var(--c-emerald)':'var(--border-hairline)', dot:sel?'var(--c-emerald)':'var(--c-grey-300)', dotFill:sel?'var(--c-emerald)':'transparent', checkOpacity:sel?'1':'0' }; });
@@ -2527,6 +3140,77 @@ class Component extends DCLogic {
     const longHolds=st.scenes.filter(s=>(s.shots||[]).length && this.clipSeconds(s,(s.shots||[]).length)>(st.targetShotSeconds||4)*1.5).length;
 
     return {
+      // shared: banners, bell, submit, studio
+      showBell:this.canShare(), notifOpen:st.notifOpen, onToggleNotifs:()=>this.setState({notifOpen:!st.notifOpen, projectsMenuOpen:false}), onMarkAllRead:()=>this.markAllRead(),
+      ...(()=>{ const list=this.relevantNotifs(); const unread=list.filter(e=>e.at>(st.notifSeenAt||0)).length;
+        return { hasUnread:unread>0, unreadCount:unread>9?'9+':String(unread), noNotifs:!list.length,
+          notifs:list.map(e=>({ text:this.notifText(e), when:this.relTime(e.at), bg:e.at>(st.notifSeenAt||0)?'rgba(16,165,172,0.07)':'transparent', onOpen:()=>this.openNotif(e) })) }; })(),
+      isTeam:!!st.isAdmin && this.canShare(), onOpenStudio:()=>this.openStudio(), studioBtnBg:st.view==='studio'?'var(--c-violet)':'transparent', studioBtnColor:st.view==='studio'?'#fff':'var(--c-violet)',
+      teamEditOn:!!st.teamEdit, teamEditOwner:(st.teamEdit||{}).ownerEmail||'someone', onSaveVersion:()=>this.saveVersion('manual'), onBackToStudio:()=>this.backToStudio(),
+      remoteChangeOn:!!(st.remoteChange && st.remoteChange.id===st.projectId), remoteChangeText:st.remoteChange?((st.remoteChange.by||'Someone')+' changed this script while you were editing. Load their version, or keep yours and overwrite theirs.'):'',
+      onLoadRemote:()=>this.loadRemote(false), onKeepMine:()=>this.keepMine(),
+      showShareNote:this.canShare() && !st.teamEdit, authEmail:st.authEmail,
+      showSubmitNav:this.canShare() && !st.teamEdit, onGoSubmit:()=>this.goSubmit(), submitNavLabel:(st.cloudDoc&&st.cloudDoc.status!=='drafting')?'Submission':'Next: submit',
+      isSubmit:st.view==='submit', isStudio:st.view==='studio', onBackToScript:()=>this.setState({view:'workspace'},()=>this.persist()),
+      ...(()=>{ const cd=st.cloudDoc; const t=type; const sv=cd?this.statusOf(cd.status):null; const sent=!!(cd && cd.status!=='drafting');
+        const words=st.sections.reduce((a,x)=>a+this.countWords(x.text),0); const secs=t?words/t.wpm*60:0; const concept=this.conceptBlock();
+        const rows=[{label:'Title', value:this.projectTitle()}, {label:'Video type', value:t?t.label:'Not chosen'}, {label:'Delivered by', value:this.speakerAnswer()||'Not said'}, {label:'Length', value:words?(words+' words, about '+this.mmss(secs)):'No script yet'}];
+        if(concept) rows.push({label:'Concept', value:concept});
+        return { submitEyebrow:'Step '+(st.advanced?7:5)+' · Submit', submitSummary:rows, submitStatusShow:sent, submitStatusLabel:sv?sv.label:'', submitStatusBg:sv?sv.bg:'', submitStatusColor:sv?sv.color:'',
+          submitStatusLine:sent?(('Submitted '+this.relTime(cd.submittedAt))+(cd.editedSinceSubmit?'. You’ve changed it since; resubmit to flag your changes to the team.':'. The team will reply below.')):'',
+          submitBtnLabel:st.submitBusy?'Submitting…':(sent?(cd.editedSinceSubmit?'Resubmit with my changes':'Resubmit'):'Submit to the video team'), submitBusy:st.submitBusy, submitBtnOpacity:st.submitBusy?'0.6':'1',
+          submitHint:sent?'The team already has it. Resubmit if you want them to look again.':'They’ll see it right away, with your answers and any reference documents.' }; })(),
+      sfNeededBy:(st.submitForm||{}).neededBy||'', sfWhereRun:(st.submitForm||{}).whereRun||'', sfNotes:(st.submitForm||{}).notes||'',
+      onSfNeededBy:(e)=>this.setState({submitForm:{...st.submitForm, neededBy:e.target.value}}), onSfWhereRun:(e)=>this.setState({submitForm:{...st.submitForm, whereRun:e.target.value}}), onSfNotes:(e)=>this.setState({submitForm:{...st.submitForm, notes:e.target.value}}),
+      onSubmitScript:()=>this.submitScript(),
+      msgDraft:st.msgDraft, onMsgDraft:(e)=>this.setState({msgDraft:e.target.value}),
+      myMessages:(st.myMsgs||[]).map(m=>({ who:m.authorIsTeam?'Video team':(m.authorEmail===(this.me()||{}).email?'You':m.authorEmail), when:this.relTime(m.at), text:m.text, bg:m.authorIsTeam?'rgba(95,103,185,0.07)':'var(--c-grey-50)' })),
+      noMyMessages:!(st.myMsgs||[]).length, onSendMyMessage:()=>this.sendMessage(st.cloudDoc||(st.projectId?{id:st.projectId, ownerUid:(this.me()||{}).uid, ownerEmail:(this.me()||{}).email, title:this.projectTitle()}:null), false),
+      ...(()=>{ const tabs=[['scripts','Scripts'],['team','Team'],['brand','Brand']];
+        const all=st.teamScripts||[]; const q=String(st.studioSearch||'').trim().toLowerCase();
+        const fdefs=[['active','Active',x=>x.status!=='done'&&x.status!=='drafting'],['drafting','Drafting',x=>x.status==='drafting'],['done','Done',x=>x.status==='done'],['all','All',()=>true]];
+        const fcur=(fdefs.find(f=>f[0]===st.studioFilter)||fdefs[0])[2];
+        const rows=all.filter(fcur).filter(x=>!q || [x.title,x.ownerEmail,x.idea,x.typeLabel,x.caseId].join(' ').toLowerCase().includes(q));
+        const sel=all.find(x=>x.id===st.studioSel)||null; const c=st.studioContent;
+        const typeDef=sel?this.TYPES.find(t=>t.id===sel.typeId):null;
+        const ver=st.studioVersionSel!=='current'?(st.studioVersions||[]).find(v=>v.id===st.studioVersionSel):null;
+        const curSecs=(c&&c.sections)||[]; const label=id=>{ const d=typeDef&&typeDef.sections.find(s=>s.id===id); return d?d.label:id; };
+        const shown=ver?(ver.sections||[]):curSecs.map(s=>({id:s.id, label:label(s.id), text:s.text||''}));
+        const curMap={}; curSecs.forEach(s=>curMap[s.id]=s.text||'');
+        const qa=((c&&c.questions)||[]).map(x=>{ const ans=!x.skipped && String(x.answer||'').trim(); return {q:x.q, a:ans?x.answer.trim():'Skipped', color:ans?'var(--c-navy)':'var(--fg-subtle)'}; });
+        const facts=[]; if(sel){ facts.push({label:'Idea', value:(c&&c.idea)||sel.idea||''}); facts.push({label:'Video type', value:sel.typeLabel||'Not chosen'}); if(c&&c.pickResult) facts.push({label:'Recommended', value:c.pickResult.typeLabel+'. '+(c.pickResult.rationale||'')}); facts.push({label:'Delivered by', value:sel.speaker||'Not said'});
+          if(c && c.typeId==='overview'){ const cc=(c.customConcept||'').trim()||(((c.concepts||[]).find(x=>x.id===c.selectedConceptId))||{}).logline||''; if(cc) facts.push({label:'Concept', value:cc}); }
+          if(sel.submittedAt) facts.push({label:'Submitted', value:new Date(sel.submittedAt).toLocaleString()+(sel.editedSinceSubmit?' · changed since':'')}); if(sel.neededBy) facts.push({label:'Needed by', value:sel.neededBy}); if(sel.whereRun) facts.push({label:'Where it’s used', value:sel.whereRun}); if(sel.submitNotes) facts.push({label:'Notes', value:sel.submitNotes}); }
+        const me=this.me()||{};
+        return {
+          studioTabs:tabs.map(([id,lab])=>({ label:lab, onClick:()=>{ this.setState({studioTab:id}); if(id==='brand') this.initBpForm(); }, bg:st.studioTab===id?'var(--c-navy)':'var(--c-white)', border:st.studioTab===id?'var(--c-navy)':'var(--border-hairline)', color:st.studioTab===id?'#fff':'var(--c-navy)' })),
+          studioScriptsTab:st.studioTab==='scripts', studioTeamTab:st.studioTab==='team', studioBrandTab:st.studioTab==='brand',
+          studioSearch:st.studioSearch, onStudioSearch:(e)=>this.setState({studioSearch:e.target.value}),
+          statusFilters:fdefs.map(([id,lab,fn])=>({ label:lab+' '+all.filter(fn).length, onClick:()=>this.setState({studioFilter:id}), bg:st.studioFilter===id?'rgba(95,103,185,0.14)':'transparent', border:st.studioFilter===id?'rgba(95,103,185,0.45)':'var(--border-hairline)', color:st.studioFilter===id?'var(--c-violet)':'var(--fg-muted)' })),
+          studioRows:rows.map(x=>{ const sv=this.statusOf(x.status); return { title:x.title, sub:x.ownerEmail+(x.typeLabel?' · '+x.typeLabel:'')+(x.assignedTo?' · '+x.assignedTo.split('@')[0]:''), statusLabel:sv.label, statusBg:sv.bg, statusColor:sv.color,
+            when:(x.neededBy?'needed '+x.neededBy+' · ':'')+'updated '+this.relTime(x.updatedAt), bg:x.id===st.studioSel?'rgba(95,103,185,0.08)':'var(--c-white)', border:x.id===st.studioSel?'rgba(95,103,185,0.45)':'var(--border-hairline)', onOpen:()=>this.selectStudio(x.id) }; }),
+          studioEmpty:!rows.length, noStudioSel:!sel, hasStudioSel:!!sel,
+          sd:sel?{ title:sel.title, byline:sel.ownerEmail+' · started '+this.relTime(sel.createdAt)+' · updated '+this.relTime(sel.updatedAt)+(sel.updatedBy?' by '+sel.updatedBy:''),
+            status:sel.status, assignedTo:sel.assignedTo, teamDue:sel.teamDue, caseId:sel.caseId, facts, qa, noQa:!qa.length,
+            refs:((c&&c.references)||[]).map(r=>({name:r.name, brief:(r.brief||String(r.text||'').slice(0,600)+((r.text||'').length>600?'…':''))})), hasRefs:!!((c&&c.references)||[]).length,
+            loading:st.studioLoading, versionSel:st.studioVersionSel,
+            versionOptions:[{id:'current', label:'Current'}].concat((st.studioVersions||[]).map(v=>({id:v.id, label:({submitted:'Submitted',resubmitted:'Resubmitted',manual:'Saved'}[v.kind]||'Version')+' · '+(v.byTeam?'team':'requester')+' · '+this.relTime(v.at)}))),
+            sections:shown.map(s=>({label:s.label||label(s.id), text:s.text||'', changed:!!ver && (curMap[s.id]||'')!==(s.text||'')})), noSections:!st.studioLoading && !shown.some(s=>(s.text||'').trim()),
+            messages:(st.studioMsgs||[]).map(m=>({ who:m.authorEmail===me.email?'You':m.authorEmail, when:this.relTime(m.at), tag:m.internal?' · internal note':'', text:m.text,
+              bg:m.internal?'rgba(255,200,54,0.12)':(m.authorIsTeam?'rgba(95,103,185,0.07)':'var(--c-grey-50)'), border:m.internal?'rgba(255,200,54,0.5)':'var(--border-hairline)' })),
+            msgPlaceholder:st.msgInternal?'A note only the team will see…':'Write to '+sel.ownerEmail+'…' }:{facts:[], qa:[], refs:[], sections:[], messages:[], versionOptions:[]},
+          statusOptions:this.STATUSES.map(x=>({id:x.id, label:x.label})),
+          assignOptions:[{id:'', label:'Nobody yet'}].concat((st.teamEmails||[]).map(e=>({id:e, label:e}))),
+          onSdStatus:(e)=>{ const v=e.target.value; if(sel && v!==sel.status) this.updateScriptMeta(sel.id, {status:v, statusAt:this._fb.fsM.serverTimestamp(), statusBy:me.email}, 'status', v); },
+          onSdAssign:(e)=>{ if(sel) this.updateScriptMeta(sel.id, {assignedTo:e.target.value}); },
+          onSdDue:(e)=>{ if(sel) this.queueMeta(sel.id, {teamDue:e.target.value}); }, onSdCase:(e)=>{ if(sel) this.queueMeta(sel.id, {caseId:String(e.target.value).slice(0,60)}); },
+          onSdVersion:(e)=>this.setState({studioVersionSel:e.target.value}), onStudioEdit:()=>{ if(sel) this.teamOpen(sel.id); },
+          msgInternal:st.msgInternal, onToggleInternal:()=>this.setState({msgInternal:!st.msgInternal}), internalBorder:st.msgInternal?'var(--c-gold)':'var(--border-strong)', internalBg:st.msgInternal?'var(--c-gold)':'var(--c-white)', internalCheck:st.msgInternal?'1':'0',
+          sendLabel:st.msgInternal?'Add note':'Send', onSendStudioMessage:()=>{ if(sel) this.sendMessage(sel, st.msgInternal); },
+          teamRows:(st.teamEmails||[]).map(e=>({ email:e, note:e===me.email?' (you)':'', canRemove:e!==me.email, onRemove:()=>this.setTeamEmails((st.teamEmails||[]).filter(x=>x!==e)) })),
+          teamAddInput:st.teamAddInput, onTeamAddInput:(e)=>this.setState({teamAddInput:e.target.value}), onTeamAdd:()=>this.addTeamMember(), onTeamAddKey:(e)=>{ if(e.key==='Enter'){ e.preventDefault(); this.addTeamMember(); } }
+        }; })(),
+
       // sign-in gate
       logoSrc:st.logoSrc||'assets/logo.svg',
       showGate:['boot','checking','signedOut','sent','confirm','denied'].includes(st.authState),
@@ -2544,9 +3228,13 @@ class Component extends DCLogic {
       hasToastAction:!!st.toastAction, toastActionLabel:(st.toastAction||{}).label||'', onToastAction:()=>{ const a=st.toastAction; clearTimeout(this._tt); this.setState({toast:null, toastAction:null}); if(a&&a.fn) a.fn(); },
       onOpenSettings:()=>this.openSettings(), onCloseSettings:()=>this.setState({settingsOpen:false}), stop:(e)=>e.stopPropagation(),
       onBackdropDown:(e)=>{ const t=e.target; this._sdown=!!(t&&t.getAttribute&&t.getAttribute('data-sc-backdrop')); }, onBackdropClick:(e)=>{ const t=e.target; const onBd=!!(t&&t.getAttribute&&t.getAttribute('data-sc-backdrop')); if(this._sdown&&onBd) this.setState({settingsOpen:false}); this._sdown=false; },
-      onNew:()=>this.newProject(), onImport:()=>this.importJSON(), onExport:()=>this.exportJSON(),
-      projectsMenuOpen:st.projectsMenuOpen, onToggleProjects:()=>this.setState({projectsMenuOpen:!st.projectsMenuOpen}), onNewVideo:()=>this.newProject(), noSaved:st.savedProjects.length===0,
-      savedProjects:st.savedProjects.map(p=>({ id:p.id, title:p.title, when:this.relTime(p.updatedAt), rowBg:p.id===st.projectId?'rgba(16,165,172,0.08)':'transparent', onOpen:()=>this.openProject(p.id), onDelete:(e)=>{ if(e&&e.stopPropagation) e.stopPropagation(); this.deleteProject(p.id); } })),
+      onNew:()=>this.newProject(), onImport:()=>{ this.setState({projectsMenuOpen:false}); this.importJSON(); }, onExport:()=>{ this.setState({projectsMenuOpen:false}); this.exportJSON(); },
+      projectsMenuOpen:st.projectsMenuOpen, onToggleProjects:()=>this.setState({projectsMenuOpen:!st.projectsMenuOpen, notifOpen:false}), onNewVideo:()=>this.newProject(), noSaved:st.savedProjects.length===0 && !(st.cloudMine||[]).length,
+      savedProjects:(()=>{ const mine={}; (st.cloudMine||[]).forEach(m=>mine[m.id]=m); const local=st.savedProjects.map(p=>({...p, shared:mine[p.id]})); const ids=new Set(local.map(p=>p.id));
+        const extra=(st.cloudMine||[]).filter(m=>!ids.has(m.id)).map(m=>({id:m.id, title:m.title, updatedAt:m.updatedAt, shared:m}));
+        return local.concat(extra).sort((a,b)=>Math.max(b.updatedAt||0,(b.shared||{}).updatedAt||0)-Math.max(a.updatedAt||0,(a.shared||{}).updatedAt||0)).map(p=>{ const sv=p.shared?this.statusOf(p.shared.status):null;
+          return { id:p.id, title:p.title, when:this.relTime(Math.max(p.updatedAt||0,(p.shared||{}).updatedAt||0)), rowBg:p.id===st.projectId?'rgba(16,165,172,0.08)':'transparent', hasStatus:!!sv, statusLabel:sv?sv.label:'', statusBg:sv?sv.bg:'', statusColor:sv?sv.color:'',
+            onOpen:()=>this.openProject(p.id), onDelete:(e)=>{ if(e&&e.stopPropagation) e.stopPropagation(); this.deleteProject(p.id); } }; }); })(),
 
       // intake
       idea:st.idea, onIdea:(e)=>this.setState({idea:e.target.value},()=>this.persist()), types, hasType:!!type, typeLabel:type?type.label:'',

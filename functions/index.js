@@ -24,8 +24,24 @@ function domainOk(email) {
   const domain = ALLOWED_DOMAIN.value().trim().toLowerCase().replace(/^@/, '');
   return !!domain && /^[^@\s]+@[^@\s]+$/.test(email) && email.endsWith('@' + domain);
 }
-function isAdmin(email) {
-  return ADMIN_EMAILS.value().split(',').map(e => e.trim().toLowerCase()).filter(Boolean).includes(email);
+function adminList() { return ADMIN_EMAILS.value().split(',').map(e => e.trim().toLowerCase()).filter(Boolean); }
+// Team = the admins named at deploy plus whoever the team has added in the Studio (config/team).
+async function isTeam(email) {
+  if (adminList().includes(email)) return true;
+  const t = await db.doc('config/team').get();
+  return t.exists && (t.data().emails || []).map(e => String(e).toLowerCase()).includes(email);
+}
+// The database rules read the allowed domain and the team list from config/; keep them in step with the deploy settings.
+let configChecked = false;
+async function ensureConfig() {
+  if (configChecked) return;
+  const domain = ALLOWED_DOMAIN.value().trim().toLowerCase().replace(/^@/, '');
+  const [access, team] = await Promise.all([db.doc('config/access').get(), db.doc('config/team').get()]);
+  if (!access.exists || access.data().domain !== domain) await db.doc('config/access').set({ domain }, { merge: true });
+  const listed = team.exists ? (team.data().emails || []).map(e => String(e).toLowerCase()) : [];
+  const missing = adminList().filter(e => !listed.includes(e));
+  if (!team.exists || missing.length) await db.doc('config/team').set({ emails: listed.concat(missing) }, { merge: true });
+  configChecked = true;
 }
 // Email-link sign-in marks the address verified: the person had to open the link in that inbox.
 function requireMember(request) {
@@ -45,6 +61,7 @@ exports.checkEmail = onCall(async (request) => {
 // The brand pack, plus whether this person may edit it and how much of today's allowance is left.
 exports.getBrand = onCall(async (request) => {
   const email = requireMember(request);
+  await ensureConfig();
   const [snap, usage] = await Promise.all([
     db.doc(BRAND_DOC).get(),
     db.doc('usage/' + request.auth.uid + '_' + today()).get(),
@@ -52,7 +69,7 @@ exports.getBrand = onCall(async (request) => {
   const b = snap.exists ? snap.data() : {};
   return {
     brand: { name: b.name || '', voiceDoc: b.voiceDoc || '', logo: b.logo || '', themeCss: b.themeCss || '', updatedAt: b.updatedAt ? b.updatedAt.toMillis() : 0 },
-    isAdmin: isAdmin(email),
+    isAdmin: await isTeam(email),
     dailyLimit: DAILY_LIMIT.value(),
     usedToday: usage.exists ? (usage.data().count || 0) : 0,
   };
@@ -61,7 +78,7 @@ exports.getBrand = onCall(async (request) => {
 // Admins only. Fields left out of the request are kept; an empty string clears one.
 exports.saveBrand = onCall(async (request) => {
   const email = requireMember(request);
-  if (!isAdmin(email)) throw new HttpsError('permission-denied', 'Only an admin can change the brand pack.');
+  if (!(await isTeam(email))) throw new HttpsError('permission-denied', 'Only the team can change the brand pack.');
   const d = request.data || {};
   const patch = {};
   for (const k of ['name', 'voiceDoc', 'logo', 'themeCss']) {

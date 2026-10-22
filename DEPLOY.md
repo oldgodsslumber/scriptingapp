@@ -7,8 +7,9 @@ With it:
 - **Sign-in:** people sign in with an emailed link. Only addresses at one domain (say `example.com`) can get a link.
 - **Team engine:** everyone uses one Gemini key held on the server. Nobody needs their own key, and each person has a daily limit.
 - **Brand pack:** the company name, voice guide, logo and colors load automatically after sign-in. They're stored in Firebase, not in this repo.
+- **Submit and the Studio:** scripts are saved to Firestore as people work, and requesters submit them as a final step. The team works in the **Studio**, where they see every script (drafts too), its brief and answers, versions and messages. They can set its status, assign it, edit it in the full editor, and write internal notes. Both sides get in-app notifications.
 
-Everything protected goes through the Cloud Functions in `functions/index.js`. `firestore.rules` denies all direct database access from browsers.
+The brand pack, usage counts and the Gemini key go through the Cloud Functions in `functions/index.js`. `firestore.rules` lets each person reach only their own scripts, and the team reach all of them.
 
 ## 1. Create the Firebase project (console)
 
@@ -51,6 +52,8 @@ ADMIN_EMAILS=you@example.com
 DAILY_LIMIT=200
 ```
 
+`ADMIN_EMAILS` is the starting team. Add or remove the rest of the team in the Studio afterwards; that list lives in Firestore, so changing it needs no redeploy.
+
 Then deploy:
 
 ```sh
@@ -61,7 +64,7 @@ firebase deploy --only functions,firestore:rules
 
 1. Push to GitHub. If GitHub Pages isn't on yet, go to **Settings → Pages → Deploy from a branch → `main` / root**.
 2. Open the site, enter your email, and click the link in the email.
-3. As an admin, open **Settings → Brand pack**. Set the company name, upload the voice guide (`.md` or `.txt`), the logo (SVG or PNG; use one that reads on a white header), and optionally a colors CSS file, then click **Save brand pack**.
+3. As a team member, open **Studio → Brand**. Set the company name, upload the voice guide (`.md` or `.txt`), the logo (SVG or PNG; use one that reads on a white header), and optionally a colors CSS file, then click **Save brand pack**.
 4. Everyone who signs in after that gets the brand pack. People already signed in get it on their next reload.
 
 ## Things to check
