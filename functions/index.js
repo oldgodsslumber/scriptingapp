@@ -45,7 +45,8 @@ async function ensureConfig() {
   configChecked = true;
 }
 // A deployment can ship its starting brand pack as functions/brand-seed.json (git-ignored, uploaded with the
-// functions). It's written once, only while there's no brand pack yet; after that the Studio's Brand tab owns it.
+// functions). Each part (name, voice, logo, colors, ticket form) is filled in once, if it's still empty; `seeded`
+// remembers what was filled, so a part the team later clears or replaces in the Studio stays as they left it.
 async function seedBrand() {
   let seed; try { seed = require('./brand-seed.json'); } catch (e) { return; }
   const patch = {};
@@ -56,8 +57,12 @@ async function seedBrand() {
   if (!Object.keys(patch).length) return;
   const ref = db.doc(BRAND_DOC);
   await db.runTransaction(async (tx) => {
-    if ((await tx.get(ref)).exists) return;
-    tx.set(ref, { ...patch, updatedAt: FieldValue.serverTimestamp(), updatedBy: 'deploy' });
+    const s = await tx.get(ref); const cur = s.exists ? s.data() : {}; const done = cur.seeded || {};
+    const add = {};
+    for (const [k, v] of Object.entries(patch)) if (!done[k] && !String(cur[k] || '').trim()) add[k] = v;
+    if (!Object.keys(add).length) return;
+    const seeded = { ...done }; Object.keys(add).forEach(k => { seeded[k] = true; });
+    tx.set(ref, { ...add, seeded, updatedAt: FieldValue.serverTimestamp(), updatedBy: s.exists ? (cur.updatedBy || 'deploy') : 'deploy' }, { merge: true });
   });
 }
 // Email-link sign-in marks the address verified: the person had to open the link in that inbox.
