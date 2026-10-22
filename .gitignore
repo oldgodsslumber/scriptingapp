@@ -13,3 +13,10 @@ screenshots/
 
 # Python
 __pycache__/
+
+# Firebase: deploy-time settings (email domain, admins) and secrets stay local
+functions/node_modules/
+functions/.env*
+functions/.secret.local
+.firebase/
+*-debug.log

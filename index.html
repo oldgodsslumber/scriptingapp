@@ -24,7 +24,7 @@
   <!-- TOP BAR -->
   <header style="position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:24px;padding:14px 28px;background:var(--c-white);border-bottom:1px solid var(--border-hairline);box-shadow:var(--shadow-1)">
     <div style="display:flex;align-items:center;gap:12px;min-width:0">
-      <img src="assets/logo.svg" alt="" style="height:24px;width:auto;display:block"/>
+      <img src="{{ logoSrc }}" alt="" style="height:24px;width:auto;max-width:160px;display:block"/>
       <span style="width:1px;height:22px;background:var(--divider)"></span>
       <div style="font-family:var(--font-display);font-weight:600;font-size:17px;color:var(--c-navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ appTitle }}</div>
     </div>
@@ -919,6 +919,38 @@
   </main>
   </sc-if>
 
+  <!-- ===================== SIGN-IN GATE (only when firebase-config.js is filled in) ===================== -->
+  <sc-if value="{{ showGate }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;z-index:70;background:var(--bg-app);display:flex;align-items:center;justify-content:center;padding:24px;overflow:auto">
+      <div style="width:100%;max-width:420px;background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-3);padding:32px;display:flex;flex-direction:column;gap:16px">
+        <img src="{{ logoSrc }}" alt="" style="height:30px;width:auto;max-width:180px;align-self:flex-start"/>
+        <div>
+          <div style="font-family:var(--font-display);font-weight:600;font-size:26px;line-height:1.15;color:var(--c-navy)">{{ gateTitle }}</div>
+          <p style="margin:6px 0 0;font-size:14px;line-height:1.55;color:var(--fg-muted)">{{ gateText }}</p>
+        </div>
+        <sc-if value="{{ gateChecking }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--fg-muted)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:vsgspin 0.9s linear infinite"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg> One moment…</div>
+        </sc-if>
+        <sc-if value="{{ gateAskEmail }}" hint-placeholder-val="{{ false }}">
+          <input type="email" value="{{ authInput }}" onChange="{{ onAuthInput }}" onKeyDown="{{ onAuthKey }}" placeholder="you@company.com" autocomplete="email" autocapitalize="off" spellcheck="false" aria-label="Work email" style="width:100%;padding:12px 14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:15px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+          <button onClick="{{ onAuthSubmit }}" disabled="{{ authBusy }}" style="width:100%;padding:13px 18px;border-radius:var(--radius-md);background:var(--c-emerald);border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;opacity:{{ authBtnOpacity }}">{{ authBtnLabel }}</button>
+        </sc-if>
+        <sc-if value="{{ gateSent }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-wrap:wrap;gap:14px">
+            <button onClick="{{ onResendLink }}" style="padding:0;background:none;border:none;color:var(--c-violet);font-size:13px;font-weight:600;cursor:pointer">Send it again</button>
+            <button onClick="{{ onUseDifferent }}" style="padding:0;background:none;border:none;color:var(--c-violet);font-size:13px;font-weight:600;cursor:pointer">Use a different email</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ gateDenied }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ onUseDifferent }}" style="width:100%;padding:13px 18px;border-radius:var(--radius-md);background:var(--c-emerald);border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer">Use a different email</button>
+        </sc-if>
+        <sc-if value="{{ authError }}" hint-placeholder-val="{{ null }}">
+          <div style="padding:10px 12px;border-radius:var(--radius-md);background:rgba(247,105,35,0.08);border:1px solid rgba(247,105,35,0.3);font-size:13px;line-height:1.5;color:var(--c-orange)">{{ authError }}</div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
   <!-- ===================== SETTINGS MODAL ===================== -->
   <sc-if value="{{ settingsOpen }}" hint-placeholder-val="{{ false }}">
     <div data-sc-backdrop="1" onMouseDown="{{ onBackdropDown }}" onClick="{{ onBackdropClick }}" style="position:fixed;inset:0;z-index:60;background:rgba(0,31,95,0.35);backdrop-filter:blur(2px);display:flex;align-items:flex-start;justify-content:center;padding:48px 20px;overflow:auto">
@@ -931,14 +963,24 @@
           <button onClick="{{ onCloseSettings }}" style="display:grid;place-items:center;width:34px;height:34px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--fg-muted);cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
         </div>
         <div style="padding:24px;display:flex;flex-direction:column;gap:20px;max-height:64vh;overflow:auto">
+          <sc-if value="{{ showAccount }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px 14px;border-radius:var(--radius-md);background:var(--c-grey-50);border:1px solid var(--border-hairline)">
+            <div style="min-width:0">
+              <div style="font-size:13px;color:var(--c-navy)">Signed in as <strong>{{ authEmail }}</strong></div>
+              <sc-if value="{{ usageLine }}" hint-placeholder-val="{{ null }}"><div style="margin-top:2px;font-size:12px;color:var(--fg-muted)">{{ usageLine }}</div></sc-if>
+            </div>
+            <button onClick="{{ onSignOut }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Sign out</button>
+          </div>
+          </sc-if>
           <div>
             <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Generation engine</label>
-            <div style="display:flex;gap:8px">
-              <sc-if value="{{ showClaudeOption }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onChooseClaude }}" style="flex:1;padding:11px 12px;border-radius:var(--radius-sm);border:1.5px solid {{ claudeBorder }};background:{{ claudeBg }};color:var(--c-navy);font-size:13px;font-weight:700;cursor:pointer;text-align:left">Claude <span style="font-weight:400;color:var(--fg-muted)">· built-in, no key</span></button></sc-if>
-              <button onClick="{{ onChooseGemini }}" style="flex:1;padding:11px 12px;border-radius:var(--radius-sm);border:1.5px solid {{ geminiBorder }};background:{{ geminiBg }};color:var(--c-navy);font-size:13px;font-weight:700;cursor:pointer;text-align:left">Gemini <span style="font-weight:400;color:var(--fg-muted)">· your key</span></button>
-              <button onClick="{{ onChooseFoundry }}" style="flex:1;padding:11px 12px;border-radius:var(--radius-sm);border:1.5px solid {{ foundryBorder }};background:{{ foundryBg }};color:var(--c-navy);font-size:13px;font-weight:700;cursor:pointer;text-align:left">Local <span style="font-weight:400;color:var(--fg-muted)">· Foundry, on-device</span></button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <sc-if value="{{ showCloudOption }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onChooseCloud }}" style="flex:1 1 140px;padding:11px 12px;border-radius:var(--radius-sm);border:1.5px solid {{ cloudBorder }};background:{{ cloudBg }};color:var(--c-navy);font-size:13px;font-weight:700;cursor:pointer;text-align:left">Team <span style="font-weight:400;color:var(--fg-muted)">· no key needed</span></button></sc-if>
+              <sc-if value="{{ showClaudeOption }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onChooseClaude }}" style="flex:1 1 140px;padding:11px 12px;border-radius:var(--radius-sm);border:1.5px solid {{ claudeBorder }};background:{{ claudeBg }};color:var(--c-navy);font-size:13px;font-weight:700;cursor:pointer;text-align:left">Claude <span style="font-weight:400;color:var(--fg-muted)">· built-in, no key</span></button></sc-if>
+              <button onClick="{{ onChooseGemini }}" style="flex:1 1 140px;padding:11px 12px;border-radius:var(--radius-sm);border:1.5px solid {{ geminiBorder }};background:{{ geminiBg }};color:var(--c-navy);font-size:13px;font-weight:700;cursor:pointer;text-align:left">Gemini <span style="font-weight:400;color:var(--fg-muted)">· your key</span></button>
+              <button onClick="{{ onChooseFoundry }}" style="flex:1 1 140px;padding:11px 12px;border-radius:var(--radius-sm);border:1.5px solid {{ foundryBorder }};background:{{ foundryBg }};color:var(--c-navy);font-size:13px;font-weight:700;cursor:pointer;text-align:left">Local <span style="font-weight:400;color:var(--fg-muted)">· Foundry, on-device</span></button>
             </div>
-            <p style="margin:7px 0 0;font-size:12px;color:var(--fg-muted);line-height:1.5">Gemini runs with your own API key. Local runs fully on-device through Foundry Local (start run-proxy.command first). Claude appears here only when the page runs inside Claude, which supplies it with no key.</p>
+            <p style="margin:7px 0 0;font-size:12px;color:var(--fg-muted);line-height:1.5">{{ engineHelp }}</p>
           </div>
           <sc-if value="{{ showFoundryFields }}" hint-placeholder-val="{{ false }}">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
@@ -971,7 +1013,7 @@
           </div>
           <p style="margin:-6px 0 0;font-size:12px;color:var(--fg-muted);line-height:1.5">Runs against Foundry Local on your Mac through the local proxy, and nothing leaves the device. Double-click run-proxy.command: it starts Foundry Local, loads the model, and opens this app at http://127.0.0.1:8757/. The model can be a short name (qwen3-14b) or a full id (qwen3-14b-generic-gpu).</p>
           </sc-if>
-          <sc-if value="{{ showGeminiFields }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ showKeyField }}" hint-placeholder-val="{{ false }}">
           <div>
             <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Gemini API key</label>
             <div style="display:flex;gap:8px;align-items:center">
@@ -982,7 +1024,7 @@
             <p style="margin:7px 0 0;font-size:12px;color:var(--fg-muted);line-height:1.5">The key lives client-side, readable by anyone with this page. Fine for your own testing; add a serverless relay before any shared deploy.</p>
           </div>
           </sc-if>
-          <sc-if value="{{ showGeminiFields }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ showModelField }}" hint-placeholder-val="{{ false }}">
           <div>
             <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Model</label>
             <select value="{{ dModelSel }}" onChange="{{ onPickModel }}" style="width:100%;padding:11px 13px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none">
@@ -1008,18 +1050,20 @@
             <input type="number" step="0.1" min="0" max="2" value="{{ dTemp }}" onChange="{{ onChangeTemp }}" style="width:100%;padding:11px 13px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;font-family:var(--font-mono);color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
           </div>
           </sc-if>
+          <sc-if value="{{ showBrandField }}" hint-placeholder-val="{{ true }}">
           <div>
             <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Company name</label>
             <input type="text" value="{{ dBrand }}" onChange="{{ onChangeBrand }}" placeholder="e.g. Acme" style="width:100%;padding:11px 13px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
             <p style="margin:7px 0 0;font-size:12px;color:var(--fg-muted);line-height:1.5">The company the videos are for. It fills the video types (“Why Acme”) and every prompt. Left blank, they say “the company”.</p>
           </div>
+          </sc-if>
           <div>
             <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Voice document</label>
-            <p style="margin:0 0 8px;font-size:12px;color:var(--fg-muted);line-height:1.5">Baked into every generation as a fixed system instruction. Pre-loaded with a sample voice guide. Paste your own brand voice guide here.</p>
+            <p style="margin:0 0 8px;font-size:12px;color:var(--fg-muted);line-height:1.5">Baked into every generation as a fixed system instruction. {{ voiceHelp }}</p>
             <textarea value="{{ dVoice }}" onChange="{{ onChangeVoice }}" placeholder="Paste the voice / narration guide…" style="width:100%;min-height:150px;padding:12px 13px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:13px;line-height:1.55;color:var(--fg-default);background:var(--c-grey-50);outline:none"></textarea>
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px">
               <div style="font-size:12px;color:var(--fg-subtle)">{{ voiceStatus }}</div>
-              <button onClick="{{ onResetVoice }}" style="padding:5px 11px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:12px;font-weight:600;cursor:pointer">Reset to sample</button>
+              <button onClick="{{ onResetVoice }}" style="padding:5px 11px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:12px;font-weight:600;cursor:pointer">{{ voiceResetLabel }}</button>
             </div>
           </div>
           <div style="border-top:1px solid var(--divider);padding-top:18px">
@@ -1031,6 +1075,47 @@
               </span>
             </button>
           </div>
+          <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+          <div style="border-top:1px solid var(--divider);padding-top:18px;display:flex;flex-direction:column;gap:14px">
+            <div>
+              <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Brand pack <span style="font-weight:400;color:var(--fg-muted)">· admin</span></label>
+              <p style="margin:0;font-size:12px;color:var(--fg-muted);line-height:1.5">Everyone who signs in gets this name, voice guide, logo and colors. It's stored in Firebase, never in the code. {{ bpUpdated }}</p>
+            </div>
+            <div>
+              <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Company name</label>
+              <input type="text" value="{{ bpName }}" onChange="{{ onBpName }}" placeholder="e.g. Acme" style="width:100%;padding:12px 14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div><div style="font-size:13px;font-weight:700;color:var(--c-navy)">Voice guide</div><div style="font-size:12px;color:var(--fg-muted)">{{ bpVoiceStatus }}</div></div>
+              <span style="display:flex;gap:8px;flex-wrap:wrap">
+                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload .md / .txt<input type="file" accept=".md,.txt,text/plain,text/markdown" onChange="{{ onBpVoiceFile }}" style="display:none"/></label>
+                <button onClick="{{ onBpVoiceFromAbove }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Use the voice document above</button>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="font-size:13px;font-weight:700;color:var(--c-navy)">Logo</div>
+                <sc-if value="{{ bpHasLogo }}" hint-placeholder-val="{{ false }}"><img src="{{ bpLogo }}" alt="" style="height:26px;width:auto;max-width:150px;padding:4px 8px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);background:#fff"/></sc-if>
+                <sc-if value="{{ bpNoLogo }}" hint-placeholder-val="{{ true }}"><span style="font-size:12px;color:var(--fg-muted)">None, so the default logo shows</span></sc-if>
+              </div>
+              <span style="display:flex;gap:8px">
+                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload SVG / PNG<input type="file" accept=".svg,.png,.jpg,.jpeg,.webp,image/svg+xml,image/png,image/jpeg,image/webp" onChange="{{ onBpLogoFile }}" style="display:none"/></label>
+                <sc-if value="{{ bpHasLogo }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onBpLogoClear }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div><div style="font-size:13px;font-weight:700;color:var(--c-navy)">Colors <span style="font-weight:400;color:var(--fg-muted)">· optional CSS</span></div><div style="font-size:12px;color:var(--fg-muted)">{{ bpThemeStatus }}</div></div>
+              <span style="display:flex;gap:8px">
+                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload .css<input type="file" accept=".css,text/css" onChange="{{ onBpThemeFile }}" style="display:none"/></label>
+                <sc-if value="{{ bpHasTheme }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onBpThemeClear }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
+              </span>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <button onClick="{{ onSaveBrandPack }}" disabled="{{ bpBusy }}" style="padding:10px 18px;border-radius:var(--radius-sm);background:var(--c-emerald);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ bpBtnOpacity }}">{{ bpSaveLabel }}</button>
+              <span style="font-size:12px;color:var(--fg-muted)">Saves the brand pack for everyone, separately from the Save button below.</span>
+            </div>
+          </div>
+          </sc-if>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--border-hairline);background:var(--c-grey-50)">
           <button onClick="{{ onCloseSettings }}" style="padding:10px 18px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
@@ -1145,6 +1230,8 @@ class Component extends DCLogic {
 
   state = {
     view:'intake', settingsOpen:false, toast:null, advanced:false, dAdvanced:false,
+    authState:'boot', authEmail:'', authInput:'', authBusy:false, authError:null, cloudOk:false, isAdmin:false, quota:null, orgBrand:null, logoSrc:'assets/logo.svg',
+    bpName:'', bpVoice:'', bpLogo:'', bpTheme:'', bpBusy:false,
     title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', busySince:0, dKeyShow:false, qAsked:false, qBusy:false, qError:null, pickKey:'',
     provider:'claude', dProvider:'claude',
     geminiKey:'', geminiModel:this.GEMINI_DEFAULT, geminiTemp:0.7, geminiThinking:'medium', voiceDoc:'', voiceDefault:'', brand:'', dBrand:'',
@@ -1184,6 +1271,7 @@ class Component extends DCLogic {
     const brand=this.lsGet('vsg_brand',''); this.applyBrand(brand);
     const [voiceDefault, scenePromptTpl, shotPromptTpl]=await Promise.all([
       this.loadAsset('assets/voice-guide.md'), this.loadAsset('assets/Scene_Prompt_v5.md'), this.loadAsset('assets/Shot_Prompt_v2.md')]);
+    this._sampleVoice=voiceDefault;
     const effVoice = (voice!=null)?voice:voiceDefault;
     this.setState({ geminiKey:key, geminiModel:model, geminiTemp:isNaN(temp)?0.7:temp, geminiThinking:thinking,
       voiceDoc:(voice!=null?voice:''), voiceDefault, scenePromptTpl, shotPromptTpl, brand, dBrand:brand,
@@ -1196,6 +1284,7 @@ class Component extends DCLogic {
     this.setState({projectId:currentId});
     if(lib[currentId]&&lib[currentId].data){ this.loadProjectData(lib[currentId].data); }
     this.lsSet('vsg_current',currentId); this._refreshSaved(lib);
+    this.initCloud();
     if(!this._onHide && typeof window!=='undefined' && window.addEventListener){
       this._onHide=()=>this.flushPersist();
       window.addEventListener('pagehide', this._onHide);
@@ -1226,8 +1315,8 @@ class Component extends DCLogic {
   voiceBlock(){ const v=(this.state.voiceDoc&&this.state.voiceDoc.trim())?this.state.voiceDoc.trim():(this.state.voiceDefault||'').trim(); return v || '(No voice document set — write in a confident, plainspoken enterprise voice: short scannable sentences, sentence case, no hype, no emoji.)'; }
 
   claudeAvailable(){ return !!(typeof window!=='undefined' && window.claude && typeof window.claude.complete==='function'); }
-  hasProvider(){ if(this.state.provider==='gemini') return !!this.state.geminiKey; if(this.state.provider==='foundry') return true; return this.claudeAvailable(); }
-  requireProvider(){ if(!this.hasProvider()){ if(this.state.provider!=='gemini' && !this.claudeAvailable()) this.showToast('Built-in Claude isn’t available here — add a Gemini API key in Settings.'); this.openSettings(); return false; } return true; }
+  hasProvider(){ if(this.state.provider==='cloud') return this.state.authState==='signedIn' && this.state.cloudOk; if(this.state.provider==='gemini') return !!this.state.geminiKey; if(this.state.provider==='foundry') return true; return this.claudeAvailable(); }
+  requireProvider(){ if(!this.hasProvider()){ if(this.state.provider==='cloud') this.showToast('The team engine isn’t available right now. Try again, or pick another engine.'); else if(this.state.provider!=='gemini' && !this.claudeAvailable()) this.showToast('Built-in Claude isn’t available here — add a Gemini API key in Settings.'); this.openSettings(); return false; } return true; }
   stripThink(s){ return (s||'').replace(/<think>[\s\S]*?<\/think>/gi,'').replace(/<\/?think>/gi,'').trim(); }
   async generateFoundry(promptText, opts, signal){
     opts=opts||{};
@@ -1299,6 +1388,7 @@ class Component extends DCLogic {
   }
   quickTimeout(){ if(this.state.provider!=='foundry') return 180000; return this.state.foundryThink?600000:300000; }
   async generateOnce(promptText, opts, signal){
+    if(this.state.provider==='cloud') return await this.generateCloud(promptText, opts, signal);
     if(this.state.provider==='foundry'){
       return await this.generateFoundry(promptText, opts, signal);
     }
@@ -2152,16 +2242,180 @@ class Component extends DCLogic {
     this.setState({scriptExportOpen:false});
   }
 
+  // ---------- sign-in, brand pack and team engine (Firebase) ----------
+  // Only runs when firebase-config.js holds a config. Without one the app is open and works as a plain page.
+  FIREBASE_SDK = '13.1.0';
+  async initCloud(){
+    let mod=null;
+    try{ mod=await import(new URL('firebase-config.js', document.baseURI).href); }catch(e){}
+    const cfg=mod&&mod.firebaseConfig;
+    if(!cfg||!cfg.apiKey){ this.setState({authState:'off'}); return; }
+    this.setState({authState:'checking'});
+    try{
+      const base='https://www.gstatic.com/firebasejs/'+this.FIREBASE_SDK+'/';
+      const [appM, authM, fnM]=await Promise.all([import(base+'firebase-app.js'), import(base+'firebase-auth.js'), import(base+'firebase-functions.js')]);
+      const app=appM.initializeApp(cfg);
+      this._fb={ authM, fnM, auth:authM.getAuth(app), fns:fnM.getFunctions(app, mod.functionsRegion||'us-central1') };
+      if(mod.useEmulators){ authM.connectAuthEmulator(this._fb.auth, 'http://127.0.0.1:9099', {disableWarnings:true}); fnM.connectFunctionsEmulator(this._fb.fns, '127.0.0.1', 5001); }
+    }catch(e){ this.setState({authState:'signedOut', authError:'Couldn’t load sign-in. Check your connection and reload the page.'}); return; }
+    const {authM, auth}=this._fb;
+    // Arriving from the emailed link: finish signing in. Opened in another browser, the address has to be typed again.
+    if(authM.isSignInWithEmailLink(auth, location.href)){
+      this._linkPending=true;
+      const saved=this.lsGet('vsg_signin_email','');
+      if(saved) this.finishSignIn(saved); else this.setState({authState:'confirm', authError:null});
+    }
+    this._unsubAuth=authM.onAuthStateChanged(auth, u=>this.onAuthUser(u));
+  }
+  callFn(name, data, timeout){ const f=this._fb.fnM.httpsCallable(this._fb.fns, name, {timeout:timeout||60000}); return f(data||{}); }
+  cloudMessage(e){ const m=String((e&&e.message)||e||''); return (!m||m==='internal')?'the server didn’t answer. Try again in a moment.':m; }
+  async onAuthUser(u){
+    if(!u){
+      this.setState({cloudOk:false, isAdmin:false, quota:null});
+      if(this.state.orgBrand) this.clearOrgBrand();
+      if(!this._linkPending && !['sent','confirm'].includes(this.state.authState)) this.setState({authState:'signedOut'});
+      return;
+    }
+    const email=String(u.email||'').toLowerCase();
+    // A brand pack cached for this same person shows at once; the server still has the final say just after.
+    const cached=this.cachedBrand(email);
+    if(cached){ this.applyOrgBrand(cached); this.setState({authState:'signedIn', authEmail:email}); }
+    else this.setState({authState:'checking', authEmail:email});
+    await this.refreshBrand();
+  }
+  async refreshBrand(){
+    try{
+      const r=(await this.callFn('getBrand')).data||{};
+      this.lsSet('vsg_org_brand', JSON.stringify({email:this.state.authEmail, brand:r.brand||{}}));
+      this.applyOrgBrand(r.brand||{});
+      this.setState({authState:'signedIn', cloudOk:true, isAdmin:!!r.isAdmin, quota:{limit:r.dailyLimit||0, used:r.usedToday||0}});
+      // Nobody has to pick an engine: someone who never chose, or chose Gemini without a key, gets the team engine.
+      if(this.state.provider!=='cloud' && (this.lsGet('vsg_provider',null)==null || (this.state.provider==='gemini' && !this.state.geminiKey))) this.setState({provider:'cloud', dProvider:'cloud'});
+    }catch(e){
+      if(e&&e.code==='functions/permission-denied'){ this.clearOrgBrand(); this.setState({authState:'denied', cloudOk:false, isAdmin:false}); return; }
+      if(e&&e.code==='functions/unauthenticated'){ this.setState({authState:'signedOut', cloudOk:false}); return; }
+      // The server is unreachable: let a signed-in person in, without the team engine.
+      this.setState({authState:'signedIn', cloudOk:false});
+      this.showToast('Couldn’t load your organization’s settings: '+this.cloudMessage(e));
+    }
+  }
+  cachedBrand(email){ try{ const c=JSON.parse(this.lsGet('vsg_org_brand','')||'null'); return (c&&c.email===email)?c.brand:null; }catch(e){ return null; } }
+  // Section names carry the company name ("Why Acme"); rename the open script's sections when it changes.
+  relabelSections(){ const t=this.currentType(); if(!t) return; this.setState({sections:this.state.sections.map(s=>{ const d=t.sections.find(x=>x.id===s.id); return d?{...s, label:d.label, coaching:d.coaching}:s; })}); }
+  applyOrgBrand(b){
+    b=b||{};
+    const name=String(b.name||'').trim();
+    const patch={orgBrand:b, logoSrc:b.logo||'assets/logo.svg'};
+    if(name){ patch.brand=name; this.applyBrand(name); }
+    if(b.voiceDoc){ patch.voiceDefault=b.voiceDoc; if(!(this.state.voiceDoc||'').trim()) patch.dVoice=b.voiceDoc; }
+    this.setTheme(b.themeCss||'');
+    this.setState(patch); this.relabelSections();
+  }
+  clearOrgBrand(){
+    try{ localStorage.removeItem('vsg_org_brand'); }catch(e){}
+    const local=this.lsGet('vsg_brand',''); this.applyBrand(local);
+    this.setTheme('');
+    this.setState({orgBrand:null, logoSrc:'assets/logo.svg', brand:local, dBrand:local, voiceDefault:this._sampleVoice||'', dVoice:this.state.voiceDoc||this._sampleVoice||''});
+    this.relabelSections();
+  }
+  setTheme(css){
+    if(typeof document==='undefined' || !document.head) return;
+    let el=document.getElementById('vsg-org-theme');
+    if(!css){ if(el) el.remove(); return; }
+    if(!el){ el=document.createElement('style'); el.id='vsg-org-theme'; document.head.appendChild(el); }
+    el.textContent=css;
+  }
+  async sendSignInLink(){
+    const email=String(this.state.authInput||this.state.authEmail||'').trim().toLowerCase();
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ this.setState({authError:'Enter your full work email address.'}); return; }
+    if(this.state.authBusy || !this._fb) return;
+    this.setState({authBusy:true, authError:null});
+    try{
+      const ok=((await this.callFn('checkEmail', {email})).data||{}).ok;
+      if(!ok){ this.setState({authBusy:false, authError:'That address can’t sign in here. Use your work email.'}); return; }
+      await this._fb.authM.sendSignInLinkToEmail(this._fb.auth, email, {url:location.origin+location.pathname, handleCodeInApp:true});
+      this.lsSet('vsg_signin_email', email);
+      this.setState({authBusy:false, authState:'sent', authEmail:email});
+    }catch(e){ this.setState({authBusy:false, authError:'Couldn’t send the link: '+this.cloudMessage(e)}); }
+  }
+  async finishSignIn(email){
+    email=String(email||'').trim().toLowerCase();
+    if(!email){ this.setState({authError:'Enter the address the link was sent to.'}); return; }
+    this.setState({authBusy:true, authError:null});
+    const done=()=>{ this._linkPending=false; try{ history.replaceState(null, '', location.pathname); }catch(e){} };
+    try{
+      await this._fb.authM.signInWithEmailLink(this._fb.auth, email, location.href);
+      try{ localStorage.removeItem('vsg_signin_email'); }catch(e){}
+      done(); this.setState({authBusy:false});
+    }catch(e){
+      done();
+      const code=(e&&e.code)||'';
+      const msg=(code==='auth/invalid-action-code'||code==='auth/expired-action-code')?'That sign-in link has expired or was already used. Send yourself a new one.'
+        :(code==='auth/invalid-email'?'That isn’t the address the link was sent to.':'Couldn’t sign you in: '+this.cloudMessage(e));
+      this.setState({authBusy:false, authState:'signedOut', authError:msg, authInput:email});
+    }
+  }
+  authSubmit(){ if(this.state.authState==='confirm') this.finishSignIn(this.state.authInput); else this.sendSignInLink(); }
+  useDifferentEmail(){ if(this._fb && this._fb.auth.currentUser) this._fb.authM.signOut(this._fb.auth); try{ localStorage.removeItem('vsg_signin_email'); }catch(e){} this.setState({authState:'signedOut', authError:null, authInput:'', authEmail:''}); }
+  async signOutCloud(){
+    try{ if(this._fb) await this._fb.authM.signOut(this._fb.auth); }catch(e){}
+    this.clearOrgBrand();
+    this.setState({settingsOpen:false, authState:'signedOut', authEmail:'', authInput:'', cloudOk:false, isAdmin:false, quota:null});
+  }
+  // Gemini through the Cloud Function: the shared key stays on the server, and the person's daily allowance applies.
+  async generateCloud(promptText, opts, signal){
+    if(!this._fb || !this.state.cloudOk) throw new Error('The team engine isn’t available. Sign in again, or pick another engine in Settings.');
+    const model=this.normalizeGeminiModel(this.state.geminiModel);
+    const call=this.callFn('generate', {prompt:promptText, model, thinking:this.state.geminiThinking||'', json:!!opts.json, schema:opts.schema||null, temperature:this.state.geminiTemp}, 560000);
+    const stopped=new Promise((_, reject)=>{ if(signal){ if(signal.aborted) reject(new Error('Stopped.')); else signal.addEventListener('abort', ()=>reject(new Error('Stopped.')), {once:true}); } });
+    let r;
+    try{ r=await Promise.race([call, stopped]); }
+    catch(e){ if(signal && signal.aborted) throw e; throw new Error(this.cloudMessage(e)); }
+    const d=(r&&r.data)||{};
+    if(this.state.quota) this.setState({quota:{...this.state.quota, used:(this.state.quota.used||0)+1}});
+    if(opts.json && d.finishReason==='MAX_TOKENS') throw new Error('Gemini hit its output limit before finishing the JSON — try again, or lower the thinking level in Settings.');
+    if(!d.text) throw new Error('Gemini returned no text ('+(d.blockReason?'prompt blocked: '+d.blockReason:'finish reason: '+(d.finishReason||'unknown'))+').');
+    return /^gemma/i.test(model)?this.stripThink(d.text):d.text;
+  }
+  // ----- brand pack editing (admins) -----
+  readFileAs(file, how){ return new Promise((res, rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=()=>rej(fr.error); if(how==='url') fr.readAsDataURL(file); else fr.readAsText(file); }); }
+  async onBpFile(e, kind){
+    const f=e.target.files&&e.target.files[0]; e.target.value=''; if(!f) return;
+    try{
+      if(kind==='logo'){
+        if(!/\.(svg|png|jpe?g|webp)$/i.test(f.name)){ this.showToast('Use an SVG, PNG, JPEG or WebP image.'); return; }
+        if(f.size>280000){ this.showToast('That image is too large. Keep logos under 280 KB.'); return; }
+        let url=await this.readFileAs(f, 'url');
+        if(/\.svg$/i.test(f.name)) url=url.replace(/^data:[^;,]*/, 'data:image/svg+xml');
+        this.setState({bpLogo:url});
+      }else{
+        const t=String(await this.readFileAs(f, 'text'));
+        if(kind==='voice') this.setState({bpVoice:t.trim()}); else this.setState({bpTheme:t});
+      }
+    }catch(err){ this.showToast('Couldn’t read that file.'); }
+  }
+  async saveBrandPack(){
+    if(this.state.bpBusy) return;
+    this.setState({bpBusy:true});
+    try{
+      await this.callFn('saveBrand', {name:(this.state.bpName||'').trim(), voiceDoc:this.state.bpVoice||'', logo:this.state.bpLogo||'', themeCss:this.state.bpTheme||''});
+      await this.refreshBrand();
+      this.setState({bpBusy:false}); this.showToast('Brand pack saved. Everyone gets it on their next sign-in or reload.');
+    }catch(e){ this.setState({bpBusy:false}); this.showToast('Couldn’t save the brand pack: '+this.cloudMessage(e)); }
+  }
+
   // ---------- settings ----------
-  openSettings(){ this.setState({settingsOpen:true, dProvider:this.state.provider, dKey:this.state.geminiKey, dModel:this.state.geminiModel, dModelCustom:false, dTemp:this.state.geminiTemp, dThinking:this.state.geminiThinking, dVoice:(this.state.voiceDoc||this.state.voiceDefault), dBrand:this.state.brand, dAdvanced:this.state.advanced, dEndpoint:this.state.foundryEndpoint, dFModel:this.state.foundryModel, dFoundryThink:this.state.foundryThink, dFoundryStatus:'', dFoundryOk:false}); }
+  openSettings(){ const ob=this.state.orgBrand||{}; this.setState({bpName:ob.name||'', bpVoice:ob.voiceDoc||'', bpLogo:ob.logo||'', bpTheme:ob.themeCss||'', settingsOpen:true, dProvider:this.state.provider, dKey:this.state.geminiKey, dModel:this.state.geminiModel, dModelCustom:false, dTemp:this.state.geminiTemp, dThinking:this.state.geminiThinking, dVoice:(this.state.voiceDoc||this.state.voiceDefault), dBrand:this.state.brand, dAdvanced:this.state.advanced, dEndpoint:this.state.foundryEndpoint, dFModel:this.state.foundryModel, dFoundryThink:this.state.foundryThink, dFoundryStatus:'', dFoundryOk:false}); }
   saveSettings(){ const temp=parseFloat(this.state.dTemp); const t=isNaN(temp)?0.7:this.clamp(temp,0,2); const fEnd=(this.state.dEndpoint||'http://localhost:8757/v1').trim(); const fMod=(this.state.dFModel||'qwen3-14b').trim();
     const model=this.normalizeGeminiModel(this.state.dModel), key=(this.state.dKey||'').trim(), thinking=this.state.dThinking||'';
     // A voice doc identical to the shipped default is stored as "use the default", so later edits to voice-guide.md still reach this browser.
     const voice=this.state.dVoice||''; const voiceDoc=(voice.trim()===(this.state.voiceDefault||'').trim())?'':voice;
     this.lsSet('vsg_provider',this.state.dProvider); this.lsSet('vsg_gemini_key',key); this.lsSet('vsg_gemini_model',model); this.lsSet('vsg_gemini_thinking',thinking); this.lsSet('vsg_gemini_temp',String(t)); this.lsSet('vsg_voice_doc',voiceDoc); this.lsSet('vsg_foundry_endpoint',fEnd); this.lsSet('vsg_foundry_model',fMod); this.lsSet('vsg_foundry_think',this.state.dFoundryThink?'1':'0'); this.lsSet('vsg_advanced',this.state.dAdvanced?'1':'0');
-    const brand=(this.state.dBrand||'').trim(); this.lsSet('vsg_brand',brand); this.applyBrand(brand);
-    this.setState({provider:this.state.dProvider, geminiKey:key, geminiModel:model, geminiThinking:thinking, geminiTemp:t, voiceDoc, brand, foundryEndpoint:fEnd, foundryModel:fMod, foundryThink:!!this.state.dFoundryThink, settingsOpen:false, advanced:!!this.state.dAdvanced});
-    if(!this.state.advanced && (this.state.view==='scenes'||this.state.view==='shots')) this.setState({view:'workspace'}, ()=>this.persist()); this.showToast('Settings saved'); }
+    const brand=(this.state.dBrand||'').trim(); this.lsSet('vsg_brand',brand);
+    const orgName=String((this.state.orgBrand||{}).name||'').trim(); const effBrand=orgName||brand; this.applyBrand(effBrand);
+    this.setState({provider:this.state.dProvider, geminiKey:key, geminiModel:model, geminiThinking:thinking, geminiTemp:t, voiceDoc, brand:effBrand, foundryEndpoint:fEnd, foundryModel:fMod, foundryThink:!!this.state.dFoundryThink, settingsOpen:false, advanced:!!this.state.dAdvanced});
+    if(!this.state.advanced && (this.state.view==='scenes'||this.state.view==='shots')) this.setState({view:'workspace'}, ()=>this.persist());
+    this.relabelSections(); this.showToast('Settings saved'); }
   // Some managed Macs and password managers block pasting into key fields; this reads the clipboard directly.
   async pasteKey(){
     try{ const t=String((navigator.clipboard && await navigator.clipboard.readText())||'').trim(); if(!t){ this.showToast('The clipboard is empty. Copy the key first.'); return; } this.setState({dKey:t}); this.showToast('Key pasted'); }
@@ -2244,7 +2498,7 @@ class Component extends DCLogic {
     const types=this.TYPES.map(t=>{ const sel=st.selectedTypeId===t.id; return { id:t.id, label:t.label, desc:t.desc, runtime:t.runtime, onSelect:()=>this.setType(t.id), hasDraft:!sel && !!(st.sectionsByType||{})[t.id], bg:sel?'rgba(16,165,172,0.06)':'var(--c-white)', border:sel?'var(--c-emerald)':'var(--border-hairline)', dot:sel?'var(--c-emerald)':'var(--c-grey-300)', dotFill:sel?'var(--c-emerald)':'transparent', checkOpacity:sel?'1':'0' }; });
     const prepList=type?type.prep.map(p=>{ const sec=type.sections.find(s=>s.id===p.feeds); return { id:p.feeds, q:p.q, feedsLabel:sec?sec.label:p.feeds, value:st.prepAnswers[p.feeds]||'', onChange:(e)=>{ const pa={...st.prepAnswers,[p.feeds]:e.target.value}; this.setState({prepAnswers:pa},()=>this.persist()); } }; }):[];
     const canGen=!!(st.idea.trim() && type);
-    const engineName=st.provider==='gemini'?this.normalizeGeminiModel(st.geminiModel):(st.provider==='foundry'?'the local model':'Claude');
+    const engineName=(st.provider==='gemini'||st.provider==='cloud')?this.normalizeGeminiModel(st.geminiModel):(st.provider==='foundry'?'the local model':'Claude');
     const dModelListed=!st.dModelCustom && this.GEMINI_MODELS.some(m=>m.id===st.dModel);
 
     // script meters
@@ -2273,6 +2527,17 @@ class Component extends DCLogic {
     const longHolds=st.scenes.filter(s=>(s.shots||[]).length && this.clipSeconds(s,(s.shots||[]).length)>(st.targetShotSeconds||4)*1.5).length;
 
     return {
+      // sign-in gate
+      logoSrc:st.logoSrc||'assets/logo.svg',
+      showGate:['boot','checking','signedOut','sent','confirm','denied'].includes(st.authState),
+      gateChecking:st.authState==='checking'||st.authState==='boot', gateAskEmail:st.authState==='signedOut'||st.authState==='confirm', gateSent:st.authState==='sent', gateDenied:st.authState==='denied',
+      gateTitle:{boot:'Loading', checking:'Signing you in', signedOut:'Sign in', sent:'Check your email', confirm:'Finish signing in', denied:'This account can’t sign in'}[st.authState]||'Sign in',
+      gateText:{boot:'', checking:'Checking your sign-in.', signedOut:'Enter your work email and we’ll send you a link to sign in. No password, nothing to set up.', sent:'We sent a sign-in link to '+st.authEmail+'. Open it in this browser to continue. If it isn’t there in a minute, check your junk folder.', confirm:'You opened the link in a different browser. Enter the email address it was sent to.', denied:(st.authEmail||'That address')+' isn’t allowed to use this app. Sign in with your work email.'}[st.authState]||'',
+      authInput:st.authInput, onAuthInput:(e)=>this.setState({authInput:e.target.value, authError:null}), onAuthKey:(e)=>{ if(e.key==='Enter'){ e.preventDefault(); this.authSubmit(); } },
+      onAuthSubmit:()=>this.authSubmit(), authBusy:st.authBusy, authBtnOpacity:st.authBusy?'0.6':'1',
+      authBtnLabel:st.authBusy?(st.authState==='confirm'?'Signing in…':'Sending…'):(st.authState==='confirm'?'Finish signing in':'Email me a sign-in link'),
+      onResendLink:()=>this.sendSignInLink(), onUseDifferent:()=>this.useDifferentEmail(), authError:st.authError,
+
       steps, appTitle:st.advanced?'Video Script & B-Roll Generator':'Video Script Generator', advanced:st.advanced, simpleMode:!st.advanced,
       isIntake:st.view==='intake', isQuestions:st.view==='questions', isTypeStep:st.view==='type', isWorkspace:st.view==='workspace', isScenes:st.view==='scenes', isShots:st.view==='shots',
       settingsOpen:st.settingsOpen, toast:st.toast, showCoaching,
@@ -2346,14 +2611,31 @@ class Component extends DCLogic {
 
       // settings
       dProvider:st.dProvider, showGeminiFields:st.dProvider==='gemini', showFoundryFields:st.dProvider==='foundry',
+      showKeyField:st.dProvider==='gemini', showModelField:st.dProvider==='gemini'||st.dProvider==='cloud',
+      showCloudOption:st.cloudOk||st.dProvider==='cloud', onChooseCloud:()=>this.setState({dProvider:'cloud'}),
+      cloudBg:st.dProvider==='cloud'?'rgba(16,165,172,0.08)':'var(--c-white)', cloudBorder:st.dProvider==='cloud'?'var(--c-emerald)':'var(--border-hairline)',
+      engineHelp:(st.cloudOk?'Team uses your organization’s shared Gemini access, with nothing to set up. ':'')+'Gemini runs with your own API key. Local runs fully on-device through Foundry Local (start run-proxy.command first).'+(this.claudeAvailable()?' Claude is built in here, with no key.':''),
+      showAccount:st.authState==='signedIn', authEmail:st.authEmail, onSignOut:()=>this.signOutCloud(),
+      usageLine:st.quota&&st.quota.limit?((st.quota.used||0)+' of '+st.quota.limit+' team generations used today'):null,
+      showBrandField:!String((st.orgBrand||{}).name||'').trim(),
+      voiceHelp:(st.orgBrand&&st.orgBrand.voiceDoc)?'Pre-loaded with your organization’s voice guide. Changes here apply to this browser only.':'Pre-loaded with a sample voice guide. Paste your own brand voice guide here.',
+      voiceResetLabel:(st.orgBrand&&st.orgBrand.voiceDoc)?'Reset to organization default':'Reset to sample',
+      isAdmin:st.isAdmin, bpName:st.bpName, onBpName:(e)=>this.setState({bpName:e.target.value}),
+      bpUpdated:(st.orgBrand&&st.orgBrand.updatedAt)?('Last saved '+this.relTime(st.orgBrand.updatedAt)+'.'):'Not saved yet.',
+      bpVoiceStatus:(st.bpVoice||'').trim()?((st.bpVoice||'').trim().length.toLocaleString()+' characters'):'None, so everyone starts from the sample guide',
+      onBpVoiceFile:(e)=>this.onBpFile(e,'voice'), onBpVoiceFromAbove:()=>this.setState({bpVoice:(st.dVoice||'').trim()}),
+      bpLogo:st.bpLogo, bpHasLogo:!!st.bpLogo, bpNoLogo:!st.bpLogo, onBpLogoFile:(e)=>this.onBpFile(e,'logo'), onBpLogoClear:()=>this.setState({bpLogo:''}),
+      bpThemeStatus:(st.bpTheme||'').trim()?((st.bpTheme||'').length.toLocaleString()+' characters of CSS'):'None, so the default colors show', bpHasTheme:!!(st.bpTheme||'').trim(),
+      onBpThemeFile:(e)=>this.onBpFile(e,'theme'), onBpThemeClear:()=>this.setState({bpTheme:''}),
+      onSaveBrandPack:()=>this.saveBrandPack(), bpBusy:st.bpBusy, bpBtnOpacity:st.bpBusy?'0.6':'1', bpSaveLabel:st.bpBusy?'Saving…':'Save brand pack',
       onChooseClaude:()=>this.setState({dProvider:'claude'}), onChooseGemini:()=>this.setState({dProvider:'gemini'}), onChooseFoundry:()=>this.setState({dProvider:'foundry'}),
       claudeBg:st.dProvider==='claude'?'rgba(16,165,172,0.08)':'var(--c-white)', claudeBorder:st.dProvider==='claude'?'var(--c-emerald)':'var(--border-hairline)',
       geminiBg:st.dProvider==='gemini'?'rgba(16,165,172,0.08)':'var(--c-white)', geminiBorder:st.dProvider==='gemini'?'var(--c-emerald)':'var(--border-hairline)',
       foundryBg:st.dProvider==='foundry'?'rgba(16,165,172,0.08)':'var(--c-white)', foundryBorder:st.dProvider==='foundry'?'var(--c-emerald)':'var(--border-hairline)',
       geminiModelOptions:this.GEMINI_MODELS.concat([{id:'__custom', label:'Custom model id…'}]), dModelSel:dModelListed?st.dModel:'__custom', showModelCustom:!dModelListed,
       onPickModel:(e)=>{ const v=e.target.value; if(v==='__custom') this.setState({dModelCustom:true}); else this.setState({dModel:v, dModelCustom:false}); },
-      showThinking:st.dProvider==='gemini' && this.usesThinkingLevel(st.dModel), dThinking:st.dThinking||'', onChangeThinking:(e)=>this.setState({dThinking:e.target.value}),
-      showTemp:st.dProvider==='foundry' || (st.dProvider==='gemini' && this.isGemma(st.dModel)),
+      showThinking:(st.dProvider==='gemini'||st.dProvider==='cloud') && this.usesThinkingLevel(st.dModel), dThinking:st.dThinking||'', onChangeThinking:(e)=>this.setState({dThinking:e.target.value}),
+      showTemp:st.dProvider==='foundry' || ((st.dProvider==='gemini'||st.dProvider==='cloud') && this.isGemma(st.dModel)),
       onCheckFoundry:()=>this.checkFoundry(), foundryCheckLabel:st.dFoundryChecking?'Checking…':'Check connection',
       dFoundryStatus:st.dFoundryStatus, hasFoundryStatus:!!st.dFoundryStatus, foundryStatusColor:st.dFoundryOk?'var(--c-emerald)':'var(--c-orange)',
       showFoundryModelPick:(st.dFoundryModels||[]).length>0,

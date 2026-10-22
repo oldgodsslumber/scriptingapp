@@ -16,6 +16,10 @@ A browser app for writing short corporate video scripts. Start with an idea and 
 
 There's no build step, server or account. Everything is saved in your browser's local storage.
 
+## Sign-in and the team engine (optional)
+
+A deployment can add Firebase, following [DEPLOY.md](DEPLOY.md). People then sign in with an emailed link; only addresses at one domain can get one. Signed-in people use a shared Gemini key held on the server, with a daily limit and nothing to set up. They also get the organization's brand pack (name, voice guide, logo and colors) automatically. Without Firebase, the app works as described below.
+
 ## Getting started
 
 1. Open the app and click **Settings**.
