@@ -17,7 +17,7 @@ const GEMINI_BASE_URL = defineString('GEMINI_BASE_URL', { default: 'https://gene
 const GEMINI_KEY = defineSecret('GEMINI_KEY');
 
 const BRAND_DOC = 'brand/main';
-const LIMITS = { name: 80, voiceDoc: 200000, logo: 400000, themeCss: 100000, prompt: 400000 };
+const LIMITS = { name: 80, voiceDoc: 200000, logo: 400000, themeCss: 100000, ticketForm: 100000, prompt: 400000 };
 
 function emailOf(auth) { return String((auth && auth.token && auth.token.email) || '').trim().toLowerCase(); }
 function domainOk(email) {
@@ -68,12 +68,26 @@ exports.getBrand = onCall(async (request) => {
   ]);
   const b = snap.exists ? snap.data() : {};
   return {
-    brand: { name: b.name || '', voiceDoc: b.voiceDoc || '', logo: b.logo || '', themeCss: b.themeCss || '', updatedAt: b.updatedAt ? b.updatedAt.toMillis() : 0 },
+    brand: { name: b.name || '', voiceDoc: b.voiceDoc || '', logo: b.logo || '', themeCss: b.themeCss || '', ticketForm: b.ticketForm || '', updatedAt: b.updatedAt ? b.updatedAt.toMillis() : 0 },
     isAdmin: await isTeam(email),
     dailyLimit: DAILY_LIMIT.value(),
     usedToday: usage.exists ? (usage.data().count || 0) : 0,
   };
 });
+
+// The ticket form: the request system's link and the fields its "new request" form has. Checked for shape only.
+function ticketFormProblem(text) {
+  let t; try { t = JSON.parse(text); } catch (e) { throw new HttpsError('invalid-argument', 'The ticket form must be JSON.'); }
+  const bad = m => { throw new HttpsError('invalid-argument', 'Ticket form: ' + m); };
+  if (!t || typeof t !== 'object' || Array.isArray(t)) bad('expected an object.');
+  if (!/^https:\/\//.test(String(t.url || ''))) bad('"url" must be an https link.');
+  if (!Array.isArray(t.fields) || !t.fields.length || t.fields.length > 60) bad('"fields" must list 1 to 60 fields.');
+  for (const f of t.fields) {
+    if (!f || typeof f.key !== 'string' || typeof f.label !== 'string') bad('every field needs a "key" and a "label".');
+    if (!['text', 'textarea', 'select', 'radio', 'multiselect', 'checkbox', 'date', 'number', 'url'].includes(f.type)) bad('field "' + f.key + '" has an unknown type.');
+    if (f.options !== undefined && !(Array.isArray(f.options) && f.options.every(o => typeof o === 'string'))) bad('the options for "' + f.key + '" must be a list of text.');
+  }
+}
 
 // Admins only. Fields left out of the request are kept; an empty string clears one.
 exports.saveBrand = onCall(async (request) => {
@@ -81,7 +95,7 @@ exports.saveBrand = onCall(async (request) => {
   if (!(await isTeam(email))) throw new HttpsError('permission-denied', 'Only the team can change the brand pack.');
   const d = request.data || {};
   const patch = {};
-  for (const k of ['name', 'voiceDoc', 'logo', 'themeCss']) {
+  for (const k of ['name', 'voiceDoc', 'logo', 'themeCss', 'ticketForm']) {
     if (d[k] === undefined) continue;
     if (typeof d[k] !== 'string') throw new HttpsError('invalid-argument', k + ' must be text.');
     if (d[k].length > LIMITS[k]) throw new HttpsError('invalid-argument', k + ' is too large.');
@@ -89,6 +103,7 @@ exports.saveBrand = onCall(async (request) => {
   }
   if (patch.logo && !/^data:image\/(svg\+xml|png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(patch.logo)) throw new HttpsError('invalid-argument', 'The logo must be an SVG, PNG, JPEG or WebP image.');
   if (patch.themeCss && /<\/?style|<script|@import\s+url\(\s*['"]?javascript:/i.test(patch.themeCss)) throw new HttpsError('invalid-argument', 'The theme must be plain CSS.');
+  if (patch.ticketForm) ticketFormProblem(patch.ticketForm);
   await db.doc(BRAND_DOC).set({ ...patch, updatedAt: FieldValue.serverTimestamp(), updatedBy: email }, { merge: true });
   return { ok: true };
 });

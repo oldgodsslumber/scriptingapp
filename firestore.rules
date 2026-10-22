@@ -36,6 +36,10 @@ service cloud.firestore {
         allow read: if isTeam() || ownsScript(id);
         allow create: if (isTeam() || ownsScript(id)) && request.resource.data.by == myEmail();
       }
+      // The kickoff brief and discovery-call notes: the team's working document, never shown to the requester.
+      match /kickoff/{k} {
+        allow read, write: if isTeam();
+      }
       match /messages/{m} {
         allow read: if isTeam() || (ownsScript(id) && resource.data.internal == false);
         allow create: if request.resource.data.authorEmail == myEmail()

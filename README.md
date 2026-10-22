@@ -18,7 +18,7 @@ There's no build step, server or account. Everything is saved in your browser's 
 
 ## Sign-in and the team engine (optional)
 
-A deployment can add Firebase, following [DEPLOY.md](DEPLOY.md). People then sign in with an emailed link; only addresses at one domain can get one. Signed-in people use a shared Gemini key held on the server, with a daily limit and nothing to set up. They also get the organization's brand pack (name, voice guide, logo and colors) automatically. Without Firebase, the app works as described below.
+A deployment can add Firebase, following [DEPLOY.md](DEPLOY.md). People then sign in with an emailed link; only addresses at one domain can get one. Signed-in people use a shared Gemini key held on the server, with a daily limit and nothing to set up. They also get the organization's brand pack (name, voice guide, logo and colors) automatically. Requesters submit to the video team, or, if a ticket form is set up, get their ticket written for them and file it with a one-click bookmark. The team works in the Studio: an inbox, a kickoff brief and discovery-call agenda for every script, messages, versions, and send-back-with-questions. Without Firebase, the app works as described below.
 
 ## Getting started
 

@@ -76,6 +76,37 @@ On a project's first deploy, one function can fail with "HTTP Error: 500, Could 
 3. As a team member, open **Studio → Brand**. Set the company name, upload the voice guide (`.md` or `.txt`), the logo (SVG or PNG; use one that reads on a white header), and optionally a colors CSS file, then click **Save brand pack**.
 4. Everyone who signs in after that gets the brand pack. People already signed in get it on their next reload.
 
+## Optional: a ticket form
+
+If requests go through a ticket system, upload its "new request" form as JSON under **Studio → Brand → Ticket form**. The last step then becomes **Ticket**: Gemini fills the form's fields from the script and answers, the requester checks them, copies them across (or drags a one-time bookmark that fills the form), pastes the case number back, and marks the video ready. Without a ticket form the last step is a plain **Submit**.
+
+```json
+{
+  "name": "Tickets", "formName": "Create a Video",
+  "url": "https://tickets.example.com/new",
+  "caseUrl": "https://tickets.example.com/case/{case}", "casePattern": "(?:^|V\\s*-?\\s*)(\\d{4,})", "caseFormat": "V-{n}", "casePlaceholder": "e.g. V-1234",
+  "formMarker": "[name^=ticket]", "dateFormat": "MM/DD/YYYY",
+  "fields": [
+    { "key": "title", "label": "Title", "type": "text", "name": "ticketTitle", "required": true, "max": 60, "source": "title" },
+    { "key": "team", "label": "Your team", "type": "select", "name": "ticketTeam", "options": ["Marketing", "Sales"], "source": "ask", "remember": true },
+    { "key": "topics", "label": "Topics", "type": "multiselect", "inputId": "topicsInput", "options": ["AI", "Cloud"], "source": "gemini", "guide": "One to three topics." },
+    { "key": "requester", "label": "Requester", "type": "text", "name": "ticketRequester", "slow": true, "source": "requester" },
+    { "key": "due", "label": "Due", "type": "date", "name": "ticketDue", "source": "neededBy" },
+    { "key": "kind", "label": "Video type", "type": "select", "name": "ticketKind", "options": ["Overview", "Explainer", "Executive"], "source": "typeMap", "map": { "overview": "Overview", "explainer": "Explainer", "executive": "Executive" } },
+    { "key": "summary", "label": "Synopsis", "type": "textarea", "name": "ticketSummary", "source": "gemini", "guide": "Three to five plain sentences." }
+  ]
+}
+```
+
+- `source` says where a field's value comes from: `title` and `gemini` (written by Gemini, following `guide`), `requester` (the sign-in email), `neededBy` (the Submit page's date), `typeMap` (the video type, through `map`), `fixed` (always `value`), `ask` (the requester picks; `remember` fills it in next time). Fields with no `source` are left for the requester.
+- Field types: `text`, `textarea`, `select`, `radio`, `multiselect`, `checkbox`, `date`, `number`, `url`.
+- The bookmark appears only when `formMarker` is set. It finds the form by that CSS selector (also inside iframes), fills fields by `name` (or `inputId` for multi-picks, which it opens with the down arrow and clicks like a person), and types the first letters of a `slow` field so its autocomplete opens.
+- The case number the requester pastes is tidied with `casePattern` and `caseFormat`, and linked with `caseUrl`.
+
+## The kickoff brief (team only)
+
+Each script in **Studio → Scripts** has a kickoff brief: audience, goal, key message, format, description, talent, distribution, dates, people, must-haves, existing material and open questions, plus an agenda for the discovery call. It's built automatically the first time the team opens a script that's ready, from the requester's answers, script, documents, details and ticket. Team edits survive a rebuild; **Update the brief from these notes** folds call notes back in. It's stored in `scripts/{id}/kickoff/main`, which the database rules let only the team read or write. Copy it or download it as a Word file.
+
 ## Things to check
 
 - **Email delivery.** Sign-in emails come from `noreply@<project>.firebaseapp.com`. Company spam filters can quarantine them, so test with your own inbox and a colleague's first. If that's a problem, set a custom sender domain under **Authentication → Templates**.
