@@ -22,3 +22,4 @@ functions/.secret.local
 *-debug.log
 .site/
 .firebaserc
+functions/brand-seed.json

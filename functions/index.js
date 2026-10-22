@@ -41,7 +41,24 @@ async function ensureConfig() {
   const listed = team.exists ? (team.data().emails || []).map(e => String(e).toLowerCase()) : [];
   const missing = adminList().filter(e => !listed.includes(e));
   if (!team.exists || missing.length) await db.doc('config/team').set({ emails: listed.concat(missing) }, { merge: true });
+  await seedBrand();
   configChecked = true;
+}
+// A deployment can ship its starting brand pack as functions/brand-seed.json (git-ignored, uploaded with the
+// functions). It's written once, only while there's no brand pack yet; after that the Studio's Brand tab owns it.
+async function seedBrand() {
+  let seed; try { seed = require('./brand-seed.json'); } catch (e) { return; }
+  const patch = {};
+  for (const k of ['name', 'voiceDoc', 'logo', 'themeCss', 'ticketForm']) {
+    if (typeof seed[k] === 'string' && seed[k] && seed[k].length <= LIMITS[k]) patch[k] = seed[k];
+  }
+  if (patch.ticketForm) { try { ticketFormProblem(patch.ticketForm); } catch (e) { delete patch.ticketForm; } }
+  if (!Object.keys(patch).length) return;
+  const ref = db.doc(BRAND_DOC);
+  await db.runTransaction(async (tx) => {
+    if ((await tx.get(ref)).exists) return;
+    tx.set(ref, { ...patch, updatedAt: FieldValue.serverTimestamp(), updatedBy: 'deploy' });
+  });
 }
 // Email-link sign-in marks the address verified: the person had to open the link in that inbox.
 function requireMember(request) {

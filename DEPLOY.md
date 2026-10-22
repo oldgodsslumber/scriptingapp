@@ -76,6 +76,8 @@ On a project's first deploy, one function can fail with "HTTP Error: 500, Could 
 3. As a team member, open **Studio → Brand**. Set the company name, upload the voice guide (`.md` or `.txt`), the logo (SVG or PNG; use one that reads on a white header), and optionally a colors CSS file, then click **Save brand pack**.
 4. Everyone who signs in after that gets the brand pack. People already signed in get it on their next reload.
 
+To start with a brand pack already in place, put it in `functions/brand-seed.json` (git ignores it) as `{"name": "…", "voiceDoc": "…", "logo": "data:image/svg+xml;base64,…", "themeCss": "…", "ticketForm": "<the ticket form JSON, as a string>"}` and deploy the functions. It's written on the first sign-in, only if there's no brand pack yet; after that the Brand tab owns it.
+
 ## Optional: a ticket form
 
 If requests go through a ticket system, upload its "new request" form as JSON under **Studio → Brand → Ticket form**. The last step then becomes **Ticket**: Gemini fills the form's fields from the script and answers, the requester checks them, copies them across (or drags a one-time bookmark that fills the form), pastes the case number back, and marks the video ready. Without a ticket form the last step is a plain **Submit**.
