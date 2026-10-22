@@ -17,6 +17,9 @@
   a{color:var(--fg-link);text-decoration:none}
   a:hover{opacity:.75}
   @keyframes vsgspin{to{transform:rotate(360deg)}}
+  [data-readonly="1"] main:not([data-screen-label="Submit"]):not([data-screen-label="Studio"]) :is(textarea,input,select,button){pointer-events:none}
+  [data-readonly="1"] main:not([data-screen-label="Submit"]):not([data-screen-label="Studio"]) :is(textarea,input,select){background:var(--c-grey-100) !important}
+  [data-readonly="1"] main:not([data-screen-label="Submit"]):not([data-screen-label="Studio"]) button{opacity:.55}
 </style>
 </helmet>
 <div data-app-root="1" style="min-height:100vh;background:var(--bg-app);color:var(--fg-default);font-family:var(--font-sans);display:flex;flex-direction:column">
@@ -96,9 +99,9 @@
         </sc-if>
       </div>
       <button onClick="{{ onNew }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer">New</button>
-      <button onClick="{{ onOpenSettings }}" style="display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:13px;font-weight:600;cursor:pointer">
+      <button onClick="{{ onOpenSettings }}" style="display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:var(--radius-sm);background:{{ settingsBtnBg }};border:1px solid {{ settingsBtnBorder }};color:{{ settingsBtnColor }};font-size:13px;font-weight:600;cursor:pointer">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        Settings
+        {{ settingsLabel }}
       </button>
     </div>
   </header>
@@ -108,6 +111,11 @@
       <span style="flex:1;min-width:240px"><strong>Editing {{ teamEditOwner }}’s script.</strong> Changes save to their copy, and they’ll see them.</span>
       <button onClick="{{ onSaveVersion }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Save a version</button>
       <button onClick="{{ onBackToStudio }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Back to Studio</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ lockedOn }}" hint-placeholder-val="{{ false }}">
+    <div role="status" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 28px;background:rgba(255,200,54,0.16);border-bottom:1px solid rgba(255,200,54,0.6);font-size:13px;color:var(--c-navy)">
+      <span style="flex:1;min-width:240px"><strong>{{ lockedName }} is editing this script right now.</strong> You can read it and send messages; editing opens up again when they’ve finished.</span>
     </div>
   </sc-if>
   <sc-if value="{{ remoteChangeOn }}" hint-placeholder-val="{{ false }}">
@@ -993,6 +1001,23 @@
           <div style="font-size:12px;line-height:1.5;color:var(--fg-muted)">{{ submitNextText }}</div>
         </div>
       </sc-if>
+      <sc-if value="{{ showTeamQs }}" hint-placeholder-val="{{ false }}">
+      <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px;display:flex;flex-direction:column;gap:14px;border-color:rgba(247,105,35,0.45)">
+        <div>
+          <div style="font-size:16px;font-weight:700;color:var(--c-navy)">{{ tqHeading }}</div>
+          <div style="margin-top:3px;font-size:13px;color:var(--fg-muted)">Answer what you can. Your answers go to the team and into your script’s brief, then it’s resubmitted.</div>
+        </div>
+        <sc-for list="{{ tqRows }}" as="q" hint-placeholder-count="2">
+          <div>
+            <div style="font-size:14px;font-weight:600;color:var(--c-navy);margin-bottom:6px">{{ q.q }}</div>
+            <textarea value="{{ q.value }}" onChange="{{ q.onChange }}" aria-label="{{ q.q }}" placeholder="Your answer" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;min-height:60px;line-height:1.5"></textarea>
+          </div>
+        </sc-for>
+        <div style="display:flex;justify-content:flex-end">
+          <button onClick="{{ onSendAnswers }}" disabled="{{ submitBusy }}" style="padding:12px 22px;border-radius:var(--radius-md);background:var(--c-emerald);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer">{{ tqSendLabel }}</button>
+        </div>
+      </section>
+      </sc-if>
       <sc-if value="{{ showMessagesTop }}" hint-placeholder-val="{{ false }}">
       <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px;display:flex;flex-direction:column;gap:12px">
         <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px;margin:0">Messages with the video team</div>
@@ -1104,9 +1129,33 @@
                 <div style="font-family:var(--font-display);font-weight:600;font-size:24px;line-height:1.2;color:var(--c-navy)">{{ sd.title }}</div>
                 <div style="margin-top:4px;font-size:13px;color:var(--fg-muted)">{{ sd.byline }}</div>
               </div>
-              <button onClick="{{ onStudioEdit }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;padding:10px 16px;font-size:13px">Open in editor</button>
+              <span style="display:flex;gap:8px;flex-wrap:wrap">
+                <sc-if value="{{ sd.canSendBack }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onOpenSendBack }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:10px 14px;font-size:13px">Send back with questions</button></sc-if>
+                <button onClick="{{ onStudioEdit }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;padding:10px 16px;font-size:13px">Open in editor</button>
+              </span>
             </div>
 
+            <sc-if value="{{ sd.lockLine }}" hint-placeholder-val="{{ null }}">
+              <div style="padding:10px 14px;border-radius:var(--radius-md);background:rgba(255,200,54,0.14);border:1px solid rgba(255,200,54,0.55);font-size:13px;color:var(--c-navy)">{{ sd.lockLine }}</div>
+            </sc-if>
+            <sc-if value="{{ sbOpen }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:16px;border-radius:var(--radius-md);background:rgba(247,105,35,0.05);border:1px solid rgba(247,105,35,0.3);display:flex;flex-direction:column;gap:10px">
+                <div style="font-size:14px;font-weight:700;color:var(--c-navy)">Send it back with questions</div>
+                <div style="font-size:12px;color:var(--fg-muted)">{{ sd.ownerName }} sees these on their status page, answers each one, and resubmits. Their answers also go into the script’s brief.</div>
+                <sc-for list="{{ sbRows }}" as="q" hint-placeholder-count="2">
+                  <div style="display:flex;gap:8px;align-items:center">
+                    <input type="text" value="{{ q.value }}" onChange="{{ q.onChange }}" placeholder="{{ q.placeholder }}" aria-label="{{ q.placeholder }}" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;flex:1"/>
+                    <sc-if value="{{ q.canRemove }}" hint-placeholder-val="{{ false }}"><button onClick="{{ q.onRemove }}" aria-label="Remove this question" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
+                  </div>
+                </sc-for>
+                <button onClick="{{ onSbAdd }}" style="padding:0;background:none;border:none;color:var(--c-violet);font-size:12px;font-weight:600;cursor:pointer;align-self:flex-start">+ Add a question</button>
+                <textarea value="{{ sbNote }}" onChange="{{ onSbNote }}" aria-label="A note to go with the questions" placeholder="A note to go with the questions (optional)" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;min-height:56px;line-height:1.5"></textarea>
+                <div style="display:flex;justify-content:flex-end;gap:8px">
+                  <button onClick="{{ onSbCancel }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Cancel</button>
+                  <button onClick="{{ onSbSend }}" disabled="{{ sbBusy }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-navy);border:1px solid var(--c-navy);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;padding:9px 16px">{{ sbSendLabel }}</button>
+                </div>
+              </div>
+            </sc-if>
             <sc-if value="{{ sd.isDraft }}" hint-placeholder-val="{{ false }}">
               <div style="padding:10px 14px;border-radius:var(--radius-md);background:rgba(111,116,128,0.08);border:1px solid var(--border-hairline);font-size:13px;color:var(--c-navy)">Not submitted yet. {{ sd.ownerName }} is still drafting, so this is a preview of what may be coming.</div>
             </sc-if>
@@ -1176,12 +1225,30 @@
                 </select>
               </div>
               <sc-if value="{{ sd.loading }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--fg-subtle)">Loading…</div></sc-if>
+<sc-if value="{{ sd.single }}" hint-placeholder-val="{{ true }}">
               <sc-for list="{{ sd.sections }}" as="sec" hint-placeholder-count="3">
                 <div style="padding:10px 0;border-top:1px solid var(--divider)">
                   <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c-emerald)">{{ sec.label }}<sc-if value="{{ sec.changed }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:rgba(255,200,54,0.22);color:#8A6A00;letter-spacing:0;text-transform:none">changed since this version</span></sc-if></div>
                   <div style="margin-top:4px;font-size:14px;line-height:1.55;color:var(--c-navy);white-space:pre-wrap">{{ sec.text }}</div>
                 </div>
               </sc-for>
+              </sc-if>
+              <sc-if value="{{ sd.compare }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;margin-bottom:8px;border-radius:var(--radius-md);background:var(--c-grey-50);border:1px solid var(--border-hairline)">
+                  <span style="font-size:12px;color:var(--fg-muted)"><span style="background:rgba(247,105,35,0.18);text-decoration:line-through">Removed</span> and <span style="background:rgba(16,165,172,0.22)">added</span> words since {{ sd.compareLabel }}.</span>
+                  <button onClick="{{ onRestoreVersion }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Restore this version</button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-muted)"><span>{{ sd.compareLabel }}</span><span>Now</span></div>
+                <sc-for list="{{ sd.compareRows }}" as="row" hint-placeholder-count="3">
+                  <div style="padding:10px 0;border-top:1px solid var(--divider)">
+                    <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ row.labelColor }}">{{ row.label }}{{ row.tag }}</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;font-size:14px;line-height:1.55;color:var(--c-navy)">
+                      <div><sc-for list="{{ row.oldSegs }}" as="g" hint-placeholder-count="3"><span style="background:{{ g.bg }};text-decoration:{{ g.deco }}">{{ g.text }}</span></sc-for></div>
+                      <div><sc-for list="{{ row.newSegs }}" as="g" hint-placeholder-count="3"><span style="background:{{ g.bg }};text-decoration:{{ g.deco }}">{{ g.text }}</span></sc-for></div>
+                    </div>
+                  </div>
+                </sc-for>
+              </sc-if>
               <sc-if value="{{ sd.noSections }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--fg-subtle)">No script yet.</div></sc-if>
             </div>
 
@@ -1309,8 +1376,8 @@
       <div onClick="{{ stop }}" style="width:100%;max-width:620px;background:var(--c-white);border-radius:var(--radius-lg);box-shadow:var(--shadow-3);overflow:hidden">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border-hairline)">
           <div>
-            <div style="font-family:var(--font-display);font-weight:600;font-size:20px;color:var(--c-navy)">Settings</div>
-            <div style="font-size:12px;color:var(--fg-muted);margin-top:2px">Stored locally in this browser.</div>
+            <div style="font-family:var(--font-display);font-weight:600;font-size:20px;color:var(--c-navy)">{{ settingsLabel }}</div>
+            <div style="font-size:12px;color:var(--fg-muted);margin-top:2px">{{ settingsSub }}</div>
           </div>
           <button onClick="{{ onCloseSettings }}" style="display:grid;place-items:center;width:34px;height:34px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--fg-muted);cursor:pointer"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
         </div>
@@ -1324,6 +1391,7 @@
             <button onClick="{{ onSignOut }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Sign out</button>
           </div>
           </sc-if>
+          <sc-if value="{{ fullSettings }}" hint-placeholder-val="{{ true }}">
           <div>
             <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Generation engine</label>
             <div style="display:flex;gap:8px;flex-wrap:wrap">
@@ -1427,10 +1495,14 @@
               </span>
             </button>
           </div>
+          </sc-if>
+          <sc-if value="{{ accountOnly }}" hint-placeholder-val="{{ false }}">
+            <p style="margin:0;font-size:13px;line-height:1.55;color:var(--fg-muted)">The video team looks after the writing assistant and your brand voice, so there’s nothing for you to set up.</p>
+          </sc-if>
         </div>
         <div style="display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:16px 24px;border-top:1px solid var(--border-hairline);background:var(--c-grey-50)">
-          <button onClick="{{ onCloseSettings }}" style="padding:10px 18px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
-          <button onClick="{{ onSaveSettings }}" style="padding:10px 20px;border-radius:var(--radius-sm);background:var(--c-navy);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer">Save</button>
+          <button onClick="{{ onCloseSettings }}" style="padding:10px 18px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:14px;font-weight:600;cursor:pointer">{{ settingsCloseLabel }}</button>
+          <sc-if value="{{ fullSettings }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onSaveSettings }}" style="padding:10px 20px;border-radius:var(--radius-sm);background:var(--c-navy);border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer">Save</button></sc-if>
         </div>
       </div>
     </div>
@@ -1541,7 +1613,7 @@ class Component extends DCLogic {
 
   state = {
     view:'intake', settingsOpen:false, toast:null, advanced:false, dAdvanced:false,
-    projectsReady:false, cloudMine:[], cloudDoc:null, myMsgs:[], msgDraft:'', msgInternal:false, remoteChange:null, teamEdit:null,
+    projectsReady:false, lockedBy:null, sbOpen:false, sbItems:['',''], sbNote:'', sbBusy:false, tqAnswers:{}, cloudMine:[], cloudDoc:null, myMsgs:[], msgDraft:'', msgInternal:false, remoteChange:null, teamEdit:null,
     submitForm:{neededBy:'', whereRun:'', notes:''}, submitBusy:false, notifs:[], notifSeenAt:0, notifOpen:false,
     studioTab:'scripts', studioFilter:'active', studioSearch:'', studioSel:null, studioContent:null, studioLoading:false, studioMsgs:[], studioVersions:[], studioVersionSel:'current',
     teamScripts:[], teamEmails:[], teamAddInput:'',
@@ -1606,7 +1678,7 @@ class Component extends DCLogic {
       document.addEventListener('mousedown', this._onDocDown);
     }
     if(!this._onHide && typeof window!=='undefined' && window.addEventListener){
-      this._onHide=()=>this.flushPersist();
+      this._onHide=(e)=>{ this.flushPersist(); if(e && e.type==='pagehide') this.releaseLock(); };
       window.addEventListener('pagehide', this._onHide);
       document.addEventListener('visibilitychange', this._onHide);
     }
@@ -1632,11 +1704,11 @@ class Component extends DCLogic {
   showToast(msg, action){ this.setState({toast:msg, toastAction:action||null}); clearTimeout(this._tt); this._tt=setTimeout(()=>this.setState({toast:null, toastAction:null}), action?7000:2600); }
   uid(p){ return p+'_'+Math.random().toString(36).slice(2,8); }
   sectionSeconds(text){ const t=this.currentType(); const wpm=t?t.wpm:130; return this.countWords(text)/wpm*60; }
-  voiceBlock(){ const v=(this.state.voiceDoc&&this.state.voiceDoc.trim())?this.state.voiceDoc.trim():(this.state.voiceDefault||'').trim(); return v || '(No voice document set — write in a confident, plainspoken enterprise voice: short scannable sentences, sentence case, no hype, no emoji.)'; }
+  voiceBlock(){ const v=(!this.restricted() && this.state.voiceDoc&&this.state.voiceDoc.trim())?this.state.voiceDoc.trim():(this.state.voiceDefault||'').trim(); return v || '(No voice document set — write in a confident, plainspoken enterprise voice: short scannable sentences, sentence case, no hype, no emoji.)'; }
 
   claudeAvailable(){ return !!(typeof window!=='undefined' && window.claude && typeof window.claude.complete==='function'); }
-  hasProvider(){ if(this.state.provider==='cloud') return this.state.authState==='signedIn' && this.state.cloudOk; if(this.state.provider==='gemini') return !!this.state.geminiKey; if(this.state.provider==='foundry') return true; return this.claudeAvailable(); }
-  requireProvider(){ if(!this.hasProvider()){ if(this.state.provider==='cloud') this.showToast('The team engine isn’t available right now. Try again, or pick another engine.'); else if(this.state.provider!=='gemini' && !this.claudeAvailable()) this.showToast('Built-in Claude isn’t available here — add a Gemini API key in Settings.'); this.openSettings(); return false; } return true; }
+  hasProvider(){ if(this.restricted()) return this.state.cloudOk; if(this.state.provider==='cloud') return this.state.authState==='signedIn' && this.state.cloudOk; if(this.state.provider==='gemini') return !!this.state.geminiKey; if(this.state.provider==='foundry') return true; return this.claudeAvailable(); }
+  requireProvider(){ if(!this.hasProvider()){ if(this.restricted()){ this.showToast('The writing assistant isn’t available right now. Try again in a moment.'); return false; } if(this.state.provider==='cloud') this.showToast('The team engine isn’t available right now. Try again, or pick another engine.'); else if(this.state.provider!=='gemini' && !this.claudeAvailable()) this.showToast('Built-in Claude isn’t available here — add a Gemini API key in Settings.'); this.openSettings(); return false; } return true; }
   stripThink(s){ return (s||'').replace(/<think>[\s\S]*?<\/think>/gi,'').replace(/<\/?think>/gi,'').trim(); }
   async generateFoundry(promptText, opts, signal){
     opts=opts||{};
@@ -1708,7 +1780,7 @@ class Component extends DCLogic {
   }
   quickTimeout(){ if(this.state.provider!=='foundry') return 180000; return this.state.foundryThink?600000:300000; }
   async generateOnce(promptText, opts, signal){
-    if(this.state.provider==='cloud') return await this.generateCloud(promptText, opts, signal);
+    if(this.state.provider==='cloud' || this.restricted()) return await this.generateCloud(promptText, opts, signal);
     if(this.state.provider==='foundry'){
       return await this.generateFoundry(promptText, opts, signal);
     }
@@ -2352,7 +2424,7 @@ class Component extends DCLogic {
     const lib=this._lib(); lib[id]={ id, title:this.projectTitle(), updatedAt:Date.now(), rev:(this._revs||{})[id]||0, sentHash:(this._sent||{})[id]||'', data:this.projectData() };
     if(!this.lsSet('vsg_projects', JSON.stringify(lib)) && Date.now()-(this._fullWarnAt||0)>30000){ this._fullWarnAt=Date.now(); this.showToast('Browser storage is full — changes aren’t being saved. Export this video, or delete old videos / reference files.'); }
     this.lsSet('vsg_current', id); this._refreshSaved(lib); this.queueCloudSave(); }
-  openProject(id){ if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const lib=this._lib(); const p=lib[id];
+  openProject(id){ if(id!==this.state.projectId) this.releaseLock(); if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const lib=this._lib(); const p=lib[id];
     if(!p){ this.openFromCloud(id); return; }
     this._revs=this._revs||{}; this._revs[id]=p.rev||0; this._sent=this._sent||{}; this._sent[id]=p.sentHash||'';
     this.setState({projectId:id, projectsMenuOpen:false, remoteChange:null, cloudDoc:null, myMsgs:[]}, ()=>{ this.loadProjectData(p.data||{}); this.lsSet('vsg_current',id); this.watchCurrent(); this.queueCloudSave(); }); }
@@ -2400,7 +2472,7 @@ class Component extends DCLogic {
       this.flushPersist(); this.setState({projectId:this.uid('proj'), projectsMenuOpen:false}); this.loadProjectData(d); this.persistNow(); this.showToast('Imported as a new video'); }; r.readAsText(f); }; inp.click(); }
   // The brief steps reopen where they were left; scenes and shots need advanced mode, so without it they open the script.
   viewFor(v, hasSections){ if(v==='studio') v='workspace'; if(['intake','questions','type','concept'].includes(v)) return v; if(!hasSections) return 'intake'; if((v==='scenes'||v==='shots') && !this.state.advanced) return 'workspace'; return v||'workspace'; }
-  newProject(){ if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const id=this.newProjectId(); this._revs=this._revs||{}; this._revs[id]=0; if(this._unsubCur){ this._unsubCur(); this._unsubCur=null; } this.setState({ projectId:id, remoteChange:null, cloudDoc:null, myMsgs:[], submitForm:{neededBy:'', whereRun:'', notes:''}, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
+  newProject(){ this.releaseLock(); if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const id=this.newProjectId(); this._revs=this._revs||{}; this._revs[id]=0; if(this._unsubCur){ this._unsubCur(); this._unsubCur=null; } this.setState({ projectId:id, remoteChange:null, cloudDoc:null, myMsgs:[], submitForm:{neededBy:'', whereRun:'', notes:''}, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
   downloadText(name, text, mime){ this.downloadBlob(name, new Blob([text],{type:mime||'text/plain'})); }
   _fallbackCopy(text){ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ document.execCommand('copy'); this.showToast('Copied to clipboard'); }catch(e){ this.showToast('Copy failed'); } ta.remove(); }
   copyText(text){ try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(()=>this.showToast('Copied to clipboard'),()=>this._fallbackCopy(text)); return; } }catch(e){} this._fallbackCopy(text); }
@@ -2622,19 +2694,21 @@ class Component extends DCLogic {
     const email=String(u.email||'').toLowerCase();
     // A brand pack cached for this same person shows at once; the server still has the final say just after.
     const cached=this.cachedBrand(email);
-    if(cached){ this.applyOrgBrand(cached); this.setState({authState:'signedIn', authEmail:email}); }
+    if(cached){ this.applyOrgBrand(cached); this.setState({authState:'signedIn', authEmail:email, isAdmin:!!this._cachedTeam}); }
     else this.setState({authState:'checking', authEmail:email});
     await this.refreshBrand();
   }
   async refreshBrand(){
     try{
       const r=(await this.callFn('getBrand')).data||{};
-      this.lsSet('vsg_org_brand', JSON.stringify({email:this.state.authEmail, brand:r.brand||{}}));
+      this.lsSet('vsg_org_brand', JSON.stringify({email:this.state.authEmail, brand:r.brand||{}, team:!!r.isAdmin}));
       this.applyOrgBrand(r.brand||{});
       this.setState({authState:'signedIn', cloudOk:true, isAdmin:!!r.isAdmin, quota:{limit:r.dailyLimit||0, used:r.usedToday||0}});
       this.startShared();
+      // Requesters always use the team engine, the brand voice and the simple flow; the team keeps its own settings.
+      if(!r.isAdmin) this.setState({provider:'cloud', dProvider:'cloud', advanced:false, dAdvanced:false});
       // Nobody has to pick an engine: someone who never chose, or chose Gemini without a key, gets the team engine.
-      if(this.state.provider!=='cloud' && (this.lsGet('vsg_provider',null)==null || (this.state.provider==='gemini' && !this.state.geminiKey))) this.setState({provider:'cloud', dProvider:'cloud'});
+      else if(this.state.provider!=='cloud' && (this.lsGet('vsg_provider',null)==null || (this.state.provider==='gemini' && !this.state.geminiKey))) this.setState({provider:'cloud', dProvider:'cloud'});
     }catch(e){
       if(e&&e.code==='functions/permission-denied'){ this.clearOrgBrand(); this.setState({authState:'denied', cloudOk:false, isAdmin:false}); return; }
       if(e&&e.code==='functions/unauthenticated'){ this.setState({authState:'signedOut', cloudOk:false}); return; }
@@ -2643,7 +2717,8 @@ class Component extends DCLogic {
       this.showToast('Couldn’t load your organization’s settings: '+this.cloudMessage(e));
     }
   }
-  cachedBrand(email){ try{ const c=JSON.parse(this.lsGet('vsg_org_brand','')||'null'); return (c&&c.email===email)?c.brand:null; }catch(e){ return null; } }
+  // The brand pack and team status cached for this same person, so the right header shows before the server answers.
+  cachedBrand(email){ try{ const c=JSON.parse(this.lsGet('vsg_org_brand','')||'null'); this._cachedTeam=!!(c&&c.email===email&&c.team); return (c&&c.email===email)?c.brand:null; }catch(e){ return null; } }
   // Section names carry the company name ("Why Acme"); rename the open script's sections when it changes.
   relabelSections(){ const t=this.currentType(); if(!t) return; this.setState({sections:this.state.sections.map(s=>{ const d=t.sections.find(x=>x.id===s.id); return d?{...s, label:d.label, coaching:d.coaching}:s; })}); }
   applyOrgBrand(b){
@@ -2702,7 +2777,7 @@ class Component extends DCLogic {
   authSubmit(){ if(this.state.authState==='confirm') this.finishSignIn(this.state.authInput); else this.sendSignInLink(); }
   useDifferentEmail(){ if(this._fb && this._fb.auth.currentUser) this._fb.authM.signOut(this._fb.auth); try{ localStorage.removeItem('vsg_signin_email'); }catch(e){} this.setState({authState:'signedOut', authError:null, authInput:'', authEmail:''}); }
   async signOutCloud(){
-    this.flushPersist(); this.stopShared();
+    this.flushPersist(); this.releaseLock(); this.stopShared();
     try{ if(this._fb) await this._fb.authM.signOut(this._fb.auth); }catch(e){}
     this.clearOrgBrand();
     this.setState({settingsOpen:false, authState:'signedOut', authEmail:'', authInput:'', cloudOk:false, isAdmin:false, quota:null});
@@ -2710,8 +2785,8 @@ class Component extends DCLogic {
   // Gemini through the Cloud Function: the shared key stays on the server, and the person's daily allowance applies.
   async generateCloud(promptText, opts, signal){
     if(!this._fb || !this.state.cloudOk) throw new Error('The team engine isn’t available. Sign in again, or pick another engine in Settings.');
-    const model=this.normalizeGeminiModel(this.state.geminiModel);
-    const call=this.callFn('generate', {prompt:promptText, model, thinking:this.state.geminiThinking||'', json:!!opts.json, schema:opts.schema||null, temperature:this.state.geminiTemp}, 560000);
+    const model=this.restricted()?this.GEMINI_DEFAULT:this.normalizeGeminiModel(this.state.geminiModel);
+    const call=this.callFn('generate', {prompt:promptText, model, thinking:this.restricted()?'medium':(this.state.geminiThinking||''), json:!!opts.json, schema:opts.schema||null, temperature:this.state.geminiTemp}, 560000);
     const stopped=new Promise((_, reject)=>{ if(signal){ if(signal.aborted) reject(new Error('Stopped.')); else signal.addEventListener('abort', ()=>reject(new Error('Stopped.')), {once:true}); } });
     let r;
     try{ r=await Promise.race([call, stopped]); }
@@ -2753,6 +2828,7 @@ class Component extends DCLogic {
   // Signed in, every video with an idea is mirrored to scripts/{id} (summary) and scripts/{id}/content/main (the
   // script itself). The owner and the video team both edit it; `rev` counts content changes, and a save whose
   // starting rev is stale stops and asks rather than overwrite the other person's work.
+  LOCK_MS = 120000;
   STATUSES = [
     {id:'drafting', label:'Drafting', color:'#4A4F5A', bg:'rgba(111,116,128,0.14)'},
     {id:'submitted', label:'Submitted', color:'#0E7E84', bg:'rgba(16,165,172,0.14)'},
@@ -2766,6 +2842,7 @@ class Component extends DCLogic {
   fmtDay(ymd){ const m=String(ymd||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return ymd||''; return new Date(+m[1], +m[2]-1, +m[3]).toLocaleDateString(undefined, {month:'short', day:'numeric', year:'numeric'}); }
   daysUntil(ymd){ const m=String(ymd||'').match(/^(\d{4})-(\d{2})-(\d{2})$/); if(!m) return null; const t=new Date(+m[1], +m[2]-1, +m[3]); const n=new Date(); n.setHours(0,0,0,0); return Math.round((t-n)/86400000); }
   newProjectId(){ return 'v_'+Date.now().toString(36)+Math.random().toString(36).slice(2,10); }
+  restricted(){ return !!this._fb && this.state.authState==='signedIn' && !this.state.isAdmin; }
   canShare(){ return !!(this._fb && this._fb.db && this.state.authState==='signedIn' && this.state.cloudOk); }
   me(){ const u=this._fb&&this._fb.auth&&this._fb.auth.currentUser; return u?{uid:u.uid, email:String(u.email||'').toLowerCase()}:null; }
   ms(v){ return v&&v.toMillis?v.toMillis():(typeof v==='number'?v:0); }
@@ -2783,7 +2860,7 @@ class Component extends DCLogic {
   markSent(id){ this._sent=this._sent||{}; this._sent[id]=this.hashOf(this.cloudKey()); }
   metaOf(id, d){ return { id, ownerUid:d.ownerUid, ownerEmail:d.ownerEmail||'', title:d.title||'Untitled video', typeId:d.typeId||'', typeLabel:d.typeLabel||'', speaker:d.speaker||'', idea:d.idea||'', status:d.status||'drafting', rev:d.rev||0,
     updatedAt:this.ms(d.updatedAt), updatedBy:d.updatedBy||'', updatedByTeam:!!d.updatedByTeam, activityAt:this.ms(d.activityAt), activityBy:d.activityBy||'', approver:d.approver||'', approvalBy:d.approvalBy||'', lastTeamMsgAt:this.ms(d.lastTeamMsgAt), lastOwnerMsgAt:this.ms(d.lastOwnerMsgAt), submittedAt:this.ms(d.submittedAt), neededBy:d.neededBy||'', whereRun:d.whereRun||'', submitNotes:d.submitNotes||'',
-    editedSinceSubmit:!!d.editedSinceSubmit, assignedTo:d.assignedTo||'', teamDue:d.teamDue||'', caseId:d.caseId||'', createdAt:this.ms(d.createdAt) }; }
+    editing:d.editing&&d.editing.email?{email:d.editing.email, at:this.ms(d.editing.at)}:null, teamQuestions:Array.isArray(d.teamQuestions)?d.teamQuestions:[], editedSinceSubmit:!!d.editedSinceSubmit, assignedTo:d.assignedTo||'', teamDue:d.teamDue||'', caseId:d.caseId||'', createdAt:this.ms(d.createdAt) }; }
   startShared(){
     const me=this.me(); if(!me || !this.canShare()) return;
     if(this._sharedFor===me.uid+(this.state.isAdmin?':t':'')) return;
@@ -2827,6 +2904,7 @@ class Component extends DCLogic {
     if(!this.canShare()) return;
     const id=this.state.projectId; if(!id) return;
     if(this._gone && this._gone.has(id)) return;
+    if(this.state.lockedBy) return;                                          // someone else is editing it
     if(this.state.remoteChange && this.state.remoteChange.id===id) return;   // waiting on the person to choose
     if(!this.state.teamEdit && !(this.state.idea||'').trim()) return;
     if(this._saving){ this._saveAgain=true; return; }
@@ -2844,7 +2922,7 @@ class Component extends DCLogic {
         if(cur && (cur.rev||0)!==expected) return {conflict:cur};
         if(!cur && (teamEdit || (this._gone && this._gone.has(id)))) return {gone:true};
         const rev=expected+1, mine=!cur || cur.ownerUid===me.uid;
-        const meta={ ...about, rev, updatedAt:fsM.serverTimestamp(), updatedBy:me.email, updatedByTeam:!mine };
+        const meta={ ...about, rev, updatedAt:fsM.serverTimestamp(), updatedBy:me.email, updatedByTeam:!mine, editing:{email:me.email, at:fsM.serverTimestamp()} };
         if(!cur){ Object.assign(meta, {ownerUid:me.uid, ownerEmail:me.email, status:'drafting', createdAt:fsM.serverTimestamp()}); tx.set(ref, meta); }
         else { if(mine && cur.status && cur.status!=='drafting') meta.editedSinceSubmit=true; tx.update(ref, meta); }
         tx.set(cref, {rev, data});
@@ -2856,7 +2934,7 @@ class Component extends DCLogic {
     if(res.conflict){ if((this._revs[id]||0)!==expected) this._saveAgain=true; else if(this.state.projectId===id) this.setState({remoteChange:{id, by:res.conflict.updatedBy||'Someone', rev:res.conflict.rev||0}}); }
     else if(res.gone){ this.showToast('This script was deleted by its owner.'); }
     else if(res.rev){
-      this._revs[id]=res.rev; this._sent[id]=hash;
+      this._revs[id]=res.rev; this._sent[id]=hash; this._lockHeld=id;
       if(!teamEdit){ const lib=this._lib(); if(lib[id]){ lib[id].rev=res.rev; lib[id].sentHash=hash; this.lsSet('vsg_projects', JSON.stringify(lib)); } }
       if(res.created && this.state.projectId===id) this.watchCurrent();
       // One notification per editing session, not per keystroke.
@@ -2875,6 +2953,7 @@ class Component extends DCLogic {
       if(this.state.projectId!==id) return;
       if(!snap.exists()){ this.setState({cloudDoc:null}); return; }
       const d=snap.data(); const meta=this.metaOf(id, d);
+      this.noteLock(meta.editing);
       const patch={cloudDoc:meta};
       if(!this._sfLoaded || this._sfLoaded!==id){ this._sfLoaded=id; patch.submitForm={neededBy:meta.neededBy, whereRun:meta.whereRun, notes:meta.submitNotes, approver:meta.approver, approvalBy:meta.approvalBy};
         // A video that's been submitted opens on its status page, not back at the start.
@@ -2944,8 +3023,108 @@ class Component extends DCLogic {
       if(kind==='manual') this.showToast('Version saved'); }
     catch(e){ this.showToast('Couldn’t save a version: '+this.cloudMessage(e)); }
   }
+  // ----- one editor at a time -----
+  // A save stamps editing={email, at}. Anyone else sees the script read-only until two minutes after that person's last
+  // save, timed from when the stamp arrived here (so clock differences between computers don't matter).
+  noteLock(ed){
+    const me=this.me();
+    if(!ed || !me || ed.email===me.email){ this._lockStamp=null; if(this.state.lockedBy) this.setState({lockedBy:null}); return; }
+    const stamp=ed.email+'@'+ed.at;
+    if(stamp!==this._lockStamp){ this._lockStamp=stamp; this._lockSeen=Date.now(); }
+    this.evalLock(ed.email);
+  }
+  evalLock(email){
+    clearTimeout(this._lockT);
+    const left=this.LOCK_MS-(Date.now()-(this._lockSeen||0));
+    if(left>0){ if(!this.state.lockedBy || this.state.lockedBy.email!==email) this.setState({lockedBy:{email}}); this._lockT=setTimeout(()=>this.evalLock(email), left+300); }
+    else if(this.state.lockedBy) this.setState({lockedBy:null});
+  }
+  releaseLock(){
+    const id=this._lockHeld; this._lockHeld=null; clearTimeout(this._lockT);
+    if(this.state.lockedBy) this.setState({lockedBy:null}); this._lockStamp=null;
+    if(!id || !this.canShare()) return;
+    const {fsM, db}=this._fb; fsM.updateDoc(fsM.doc(db,'scripts',id), {editing:null}).catch(()=>{});
+  }
+  syncReadOnly(on){
+    if(this._roOn===on || typeof document==='undefined' || typeof document.querySelector!=='function') return; this._roOn=on;
+    const root=document.querySelector('[data-app-root]'); if(root) root.setAttribute('data-readonly', on?'1':'0');
+  }
+  // Studio: someone else's recent save means they're probably still in it.
+  lockLineFor(meta){ const me=this.me(); const ed=meta&&meta.editing; if(!ed || !me || ed.email===me.email) return null; if(Date.now()-ed.at>this.LOCK_MS) return null; return this.nameOf(ed.email)+(ed.email===meta.ownerEmail?'':' (video team)')+' is editing this script right now, so it opens read-only for anyone else.'; }
+  // ----- send back with questions -----
+  openSendBack(){ this.setState({sbOpen:true, sbItems:['',''], sbNote:''}); }
+  async sendBack(){
+    const sel=(this.state.teamScripts||[]).find(x=>x.id===this.state.studioSel); const me=this.me();
+    const items=(this.state.sbItems||[]).map(x=>String(x||'').trim()).filter(Boolean);
+    if(!sel || !me || !this.canShare()) return;
+    if(!items.length){ this.showToast('Add at least one question.'); return; }
+    this.setState({sbBusy:true});
+    const {fsM, db}=this._fb; const stamp=Date.now().toString(36);
+    try{
+      await fsM.updateDoc(fsM.doc(db,'scripts',sel.id), {status:'returned', statusAt:fsM.serverTimestamp(), statusBy:me.email, teamQuestions:items.map((q,i)=>({id:'tq'+stamp+i, q, answer:''})), teamQuestionsBy:me.email,
+        activityAt:fsM.serverTimestamp(), activityBy:me.email, lastTeamMsgAt:fsM.serverTimestamp()});
+      const note=String(this.state.sbNote||'').trim();
+      await fsM.addDoc(fsM.collection(db,'scripts',sel.id,'messages'), {text:(note?note+'\n\n':'')+'Questions before we continue:\n'+items.map((q,i)=>(i+1)+'. '+q).join('\n'), authorEmail:me.email, authorIsTeam:true, internal:false, at:fsM.serverTimestamp()});
+      await this.addEvent(sel, 'returned', String(items.length));
+      this.setState({sbBusy:false, sbOpen:false, sbItems:['',''], sbNote:''}); this.showToast('Sent back to '+this.nameOf(sel.ownerEmail)+' with '+items.length+' question'+(items.length===1?'':'s')+'.');
+    }catch(e){ this.setState({sbBusy:false}); this.showToast('Couldn’t send it back: '+this.cloudMessage(e)); }
+  }
+  // The requester's answers join the brief (so a regenerated script uses them), go to the team, and resubmit.
+  async sendAnswers(){
+    const cd=this.state.cloudDoc; const me=this.me(); if(!cd || !me || !this.canShare()) return;
+    const tqs=cd.teamQuestions||[]; const ans=this.state.tqAnswers||{};
+    const answered=tqs.map(q=>({...q, answer:String(ans[q.id]||q.answer||'').trim()}));
+    if(!answered.some(q=>q.answer)){ this.showToast('Answer at least one question.'); return; }
+    const qs=(this.state.questions||[]).filter(q=>!answered.some(t=>'team_'+t.id===q.id));
+    answered.filter(q=>q.answer).forEach(q=>qs.push({id:'team_'+q.id, kind:'team', q:q.q, why:'Asked by the video team.', options:[], answer:q.answer, skipped:false}));
+    this.setState({questions:qs, qIndex:Math.max(this.state.qIndex||0, qs.length)});
+    const {fsM, db}=this._fb;
+    try{
+      await fsM.updateDoc(fsM.doc(db,'scripts',cd.id), {teamQuestions:answered});
+      this.setState({msgDraft:'Answers to your questions:\n'+answered.map((q,i)=>(i+1)+'. '+q.q+'\n'+(q.answer||'(no answer)')).join('\n\n')});
+      await this.sendMessage(cd, false);
+      this.setState({tqAnswers:{}});
+      await this.submitScript();
+    }catch(e){ this.showToast('Couldn’t send your answers: '+this.cloudMessage(e)); }
+  }
+  // ----- versions: compare and restore -----
+  diffWords(a, b){
+    const A=String(a||'').split(/\s+/).filter(Boolean), B=String(b||'').split(/\s+/).filter(Boolean);
+    if(A.length*B.length>250000) return { old:[{text:A.join(' '), cls:A.join(' ')!==B.join(' ')?'del':''}], neu:[{text:B.join(' '), cls:A.join(' ')!==B.join(' ')?'add':''}] };
+    const n=A.length, m=B.length, L=Array.from({length:n+1}, ()=>new Int32Array(m+1));
+    for(let i=n-1;i>=0;i--) for(let j=m-1;j>=0;j--) L[i][j]=A[i]===B[j]?L[i+1][j+1]+1:Math.max(L[i+1][j], L[i][j+1]);
+    const old=[], neu=[]; let i=0, j=0;
+    const push=(arr, text, cls)=>{ const last=arr[arr.length-1]; if(last && last.cls===cls) last.text+=' '+text; else arr.push({text, cls}); };
+    while(i<n && j<m){ if(A[i]===B[j]){ push(old, A[i], ''); push(neu, B[j], ''); i++; j++; } else if(L[i+1][j]>=L[i][j+1]){ push(old, A[i++], 'del'); } else { push(neu, B[j++], 'add'); } }
+    while(i<n) push(old, A[i++], 'del'); while(j<m) push(neu, B[j++], 'add');
+    return {old, neu};
+  }
+  async restoreVersion(){
+    const sel=(this.state.teamScripts||[]).find(x=>x.id===this.state.studioSel); const me=this.me();
+    const v=(this.state.studioVersions||[]).find(x=>x.id===this.state.studioVersionSel);
+    if(!sel || !v || !me || !this.canShare()) return;
+    if(this.lockLineFor(sel)){ this.showToast('Someone is editing this script right now. Try again in a couple of minutes.'); return; }
+    if(typeof window!=='undefined' && typeof window.confirm==='function' && !window.confirm('Restore the script to this version? The current script is saved as a version first, so you can switch back.')) return;
+    const {fsM, db}=this._fb; const ref=fsM.doc(db,'scripts',sel.id), cref=fsM.doc(db,'scripts',sel.id,'content','main');
+    try{
+      const cur=await fsM.getDoc(cref); const curData=cur.exists()?(cur.data().data||{}):{};
+      await fsM.addDoc(fsM.collection(db,'scripts',sel.id,'versions'), {kind:'beforeRestore', at:fsM.serverTimestamp(), by:me.email, byTeam:true, title:sel.title, typeId:curData.typeId||'', sections:(curData.sections||[]).map(x=>({id:x.id, label:x.label||x.id, text:x.text||''})), rev:sel.rev});
+      await fsM.runTransaction(db, async tx=>{
+        const m=await tx.get(ref); const c=await tx.get(cref); if(!m.exists()) throw new Error('That script is gone.');
+        const base=c.exists()?(c.data().data||{}):{}; const rev=(m.data().rev||0)+1;
+        const data={...base, typeId:v.typeId||base.typeId, sections:(v.sections||[]).map(x=>({id:x.id, text:x.text||'', locked:false, editedBy:me.email}))};
+        tx.update(ref, {rev, updatedAt:fsM.serverTimestamp(), updatedBy:me.email, updatedByTeam:true, activityAt:fsM.serverTimestamp(), activityBy:me.email});
+        tx.set(cref, {rev, data});
+      });
+      this.setState({msgDraft:this.nameOf(me.email)+' restored the version from '+this.relTime(v.at)+'. The version before it is saved, so it can be brought back.'}); await this.sendMessage(sel, false);
+      await this.addEvent(sel, 'teamEdit', 'restored an earlier version');
+      this.showToast('Restored. The previous script is saved as a version.'); this.selectStudio(sel.id);
+    }catch(e){ this.showToast('Couldn’t restore: '+this.cloudMessage(e)); }
+  }
+
   // ----- Submit (the requester's last step) -----
-  goSubmit(){ if(!this.canShare()){ this.showToast('Sign in to submit.'); return; } this.flushPersist(); this.setState({view:'submit'}, ()=>this.persist()); }
+  // Moving to the status page means they've stopped editing, so the lock is released for the team.
+  goSubmit(){ if(!this.canShare()){ this.showToast('Sign in to submit.'); return; } this.flushPersist(); this.setState({view:'submit'}, ()=>{ this.persist(); setTimeout(()=>{ if(this.state.view==='submit' && !this._cloudT && !this._saving) this.releaseLock(); }, 2000); }); }
   async submitScript(){
     if(!this.canShare() || this.state.submitBusy) return;
     if(!this.state.sections.some(s=>(s.text||'').trim())){ this.showToast('Write the script first.'); return; }
@@ -2960,6 +3139,7 @@ class Component extends DCLogic {
       const meta=this.state.cloudDoc||this.metaOf(id, {ownerUid:this.me().uid, ownerEmail:this.me().email, title:this.projectTitle()});
       await this.addEvent({...meta, title:this.projectTitle()}, resub?'resubmitted':'submitted', f.neededBy?('Needed by '+f.neededBy):'');
       if(this._told) delete this._told['edit:'+id];
+      this.releaseLock();
       this.setState({submitBusy:false}); this.showToast(resub?'Resubmitted. The video team can see your changes.':'Submitted to the video team.');
     }catch(e){ this.setState({submitBusy:false}); this.showToast('Couldn’t submit: '+this.cloudMessage(e)); }
   }
@@ -2989,6 +3169,7 @@ class Component extends DCLogic {
     if(e.type==='edited') return who+' changed '+t+' after submitting';
     if(e.type==='teamEdit') return this.nameOf(e.actorEmail)+' (video team) edited '+t+(e.text?': '+e.text:'');
     if(e.type==='status') return t+' is now '+this.statusOf(e.text).label;
+    if(e.type==='returned') return who+' sent '+t+' back with '+e.text+' question'+(e.text==='1'?'':'s');
     if(e.type==='message') return who+' wrote about '+t+': '+(e.text.length>90?e.text.slice(0,90)+'…':e.text);
     return who+' updated '+t;
   }
@@ -3011,7 +3192,7 @@ class Component extends DCLogic {
   openStudio(){ if(!this.state.isAdmin) return; this.flushPersist(); this.setState({view:'studio', notifOpen:false, projectsMenuOpen:false}); }
   selectStudio(id){
     ['_unsubSdMsgs','_unsubSdVers'].forEach(k=>{ if(this[k]){ try{ this[k](); }catch(e){} this[k]=null; } });
-    this.setState({studioSel:id, studioContent:null, studioLoading:true, studioMsgs:[], studioVersions:[], studioVersionSel:'current', msgDraft:'', msgInternal:false});
+    this.setState({sbOpen:false, studioSel:id, studioContent:null, studioLoading:true, studioMsgs:[], studioVersions:[], studioVersionSel:'current', msgDraft:'', msgInternal:false});
     if(!id||!this.canShare()) return;
     const {fsM, db}=this._fb;
     fsM.getDoc(fsM.doc(db,'scripts',id,'content','main')).then(c=>{ if(this.state.studioSel===id) this.setState({studioContent:c.exists()?(c.data().data||{}):{}, studioLoading:false}); }).catch(()=>{ if(this.state.studioSel===id) this.setState({studioLoading:false}); });
@@ -3029,6 +3210,7 @@ class Component extends DCLogic {
   queueMeta(id, patch){ this._metaPatch={...(this._metaPatch||{}), ...patch}; clearTimeout(this._metaT); this._metaT=setTimeout(()=>{ const p=this._metaPatch; this._metaPatch=null; this.updateScriptMeta(id, p); }, 700); }
   async teamOpen(id){
     if(!this.state.isAdmin||!this.canShare()) return;
+    this.releaseLock();
     const meta=(this.state.teamScripts||[]).find(x=>x.id===id); const me=this.me();
     if(meta && meta.ownerUid===me.uid){ this.openProject(id); this.setState({view:'workspace'}); return; }
     this.flushPersist();
@@ -3060,7 +3242,7 @@ class Component extends DCLogic {
     const me=this.me(); const changed=this.state.sections.filter(x=>x.editedBy===(me&&me.email) && x.handEdited).map(x=>x.label);
     if(changed.length && this.state.teamEdit){ const meta={id:sel, ownerUid:null, title:this.projectTitle()}; const m=(this.state.teamScripts||[]).find(x=>x.id===sel); const prev=this.state.msgDraft;
       this.state.msgDraft=this.nameOf(me.email)+' edited '+changed.join(', ')+'. Those sections are marked on your script page.'; await this.sendMessage(m||meta, false); this.setState({msgDraft:prev}); }
-    this.leaveTeamEdit(); this.watchCurrent();
+    this.releaseLock(); this.leaveTeamEdit(); this.watchCurrent();
     this.setState({view:'studio'}); this.selectStudio(sel);
   }
   async setTeamEmails(list){
@@ -3081,7 +3263,7 @@ class Component extends DCLogic {
 
   // ---------- settings ----------
   openSettings(){ const ob=this.state.orgBrand||{}; this.setState({bpName:ob.name||'', bpVoice:ob.voiceDoc||'', bpLogo:ob.logo||'', bpTheme:ob.themeCss||'', settingsOpen:true, dProvider:this.state.provider, dKey:this.state.geminiKey, dModel:this.state.geminiModel, dModelCustom:false, dTemp:this.state.geminiTemp, dThinking:this.state.geminiThinking, dVoice:(this.state.voiceDoc||this.state.voiceDefault), dBrand:this.state.brand, dAdvanced:this.state.advanced, dEndpoint:this.state.foundryEndpoint, dFModel:this.state.foundryModel, dFoundryThink:this.state.foundryThink, dFoundryStatus:'', dFoundryOk:false}); }
-  saveSettings(){ const temp=parseFloat(this.state.dTemp); const t=isNaN(temp)?0.7:this.clamp(temp,0,2); const fEnd=(this.state.dEndpoint||'http://localhost:8757/v1').trim(); const fMod=(this.state.dFModel||'qwen3-14b').trim();
+  saveSettings(){ if(this.restricted()){ this.setState({settingsOpen:false}); return; } const temp=parseFloat(this.state.dTemp); const t=isNaN(temp)?0.7:this.clamp(temp,0,2); const fEnd=(this.state.dEndpoint||'http://localhost:8757/v1').trim(); const fMod=(this.state.dFModel||'qwen3-14b').trim();
     const model=this.normalizeGeminiModel(this.state.dModel), key=(this.state.dKey||'').trim(), thinking=this.state.dThinking||'';
     // A voice doc identical to the shipped default is stored as "use the default", so later edits to voice-guide.md still reach this browser.
     const voice=this.state.dVoice||''; const voiceDoc=(voice.trim()===(this.state.voiceDefault||'').trim())?'':voice;
@@ -3208,6 +3390,9 @@ class Component extends DCLogic {
 
     return {
       // shared: banners, bell, submit, studio
+      ...(()=>{ const r=this.restricted(); return { fullSettings:!r, accountOnly:r, settingsLabel:r?'Account':'Settings', settingsSub:r?'Your sign-in':'Stored locally in this browser.', settingsCloseLabel:r?'Close':'Cancel',
+        settingsBtnBg:r?'transparent':'var(--c-navy)', settingsBtnBorder:r?'var(--border-hairline)':'var(--c-navy)', settingsBtnColor:r?'var(--c-navy)':'#fff' }; })(),
+      lockedOn:(()=>{ const on=!!st.lockedBy && !st.teamEditGone; this.syncReadOnly(on); return on; })(), lockedName:st.lockedBy?(this.nameOf(st.lockedBy.email)+(st.lockedBy.email===(st.cloudDoc||{}).ownerEmail?'':' (video team)')):'',
       showBell:this.canShare(), notifOpen:st.notifOpen, onToggleNotifs:()=>this.toggleNotifs(), onMarkAllRead:()=>this.markAllRead(),
       ...(()=>{ const list=this.relevantNotifs(); const unread=list.filter(e=>e.at>(st.notifSeenAt||0)).length;
         return { hasUnread:unread>0, unreadCount:unread>9?'9+':String(unread), noNotifs:!list.length,
@@ -3225,11 +3410,14 @@ class Component extends DCLogic {
         if(concept) rows.push({label:'Concept', value:concept});
         const refs=(st.references||[]).map(r=>r.name).filter(Boolean); rows.push({label:'Reference documents', value:refs.length?refs.join(', '):'None'});
         const msgs=st.myMsgs||[]; const lastTeam=[...msgs].reverse().find(m=>m.authorIsTeam); const lastMine=[...msgs].reverse().find(m=>!m.authorIsTeam);
-        const waiting=sent && lastTeam && (!lastMine || lastTeam.at>lastMine.at);
-        const line=!sent?'':(waiting?('Waiting on you: '+this.nameOf(lastTeam.authorEmail)+' from the video team asked you something below.')
+        const waiting=sent && ((lastTeam && (!lastMine || lastTeam.at>lastMine.at)) || (cd.status==='returned' && (cd.teamQuestions||[]).some(q=>!q.answer)));
+        const line=!sent?'':((cd.status==='returned' && (cd.teamQuestions||[]).some(q=>!q.answer))?('Waiting on you: the video team sent it back with '+(cd.teamQuestions||[]).filter(q=>!q.answer).length+' question'+((cd.teamQuestions||[]).filter(q=>!q.answer).length===1?'':'s')+'.'):waiting?('Waiting on you: '+this.nameOf(lastTeam.authorEmail)+' from the video team asked you something below.')
           :(cd.editedSinceSubmit?'You’ve changed it since you submitted. Resubmit to ask the team to take another look.'
           :({submitted:'Submitted '+this.relTime(cd.submittedAt)+'. The team will pick it up and reply here.', in_review:'The video team is reviewing your script.', in_production:'Your video is in production.', returned:'The team sent it back. See their message below.', done:'Done. Your video is finished.'}[cd.status]||'')));
-        return { submitEyebrow:'Step '+(st.advanced?7:5)+' · Submit', submitSummary:rows, submitStatusShow:sent, submitStatusLabel:sv?sv.label:'', submitStatusBg:sv?sv.bg:'', submitStatusColor:sv?sv.color:'',
+        const openQs=sent && cd.status==='returned' ? (cd.teamQuestions||[]).filter(q=>!q.answer) : [];
+        return { showTeamQs:openQs.length>0, tqHeading:'The video team has '+openQs.length+' question'+(openQs.length===1?'':'s')+' before they can continue',
+          tqRows:openQs.map(q=>({ q:q.q, value:(st.tqAnswers||{})[q.id]||'', onChange:(e)=>this.setState({tqAnswers:{...st.tqAnswers, [q.id]:e.target.value}}) })), tqSendLabel:st.submitBusy?'Sending…':'Send answers and resubmit', onSendAnswers:()=>this.sendAnswers(),
+          submitEyebrow:'Step '+(st.advanced?7:5)+' · Submit', submitSummary:rows, submitStatusShow:sent, submitStatusLabel:sv?sv.label:'', submitStatusBg:sv?sv.bg:'', submitStatusColor:sv?sv.color:'',
           submitStatusLine:line, submitStatusPanelBg:waiting?'rgba(255,200,54,0.12)':'var(--c-white)', submitStatusPanelBorder:waiting?'rgba(255,200,54,0.6)':'var(--border-hairline)',
           submitNextText:'Submitted → In review → In production → Done. When the team needs something, they write to you below and the bell at the top lights up. You can keep editing: the team always sees your latest version.',
           submitHeading:sent?'With the video team':'Send it to the video team',
@@ -3259,7 +3447,8 @@ class Component extends DCLogic {
         const curSecs=(c&&c.sections)||[]; const label=id=>{ const d=typeDef&&typeDef.sections.find(s=>s.id===id); return d?d.label:id; };
         const shown=ver?(ver.sections||[]):curSecs.map(s=>({id:s.id, label:label(s.id), text:s.text||''}));
         const curMap={}; curSecs.forEach(s=>curMap[s.id]=s.text||'');
-        const qa=((c&&c.questions)||[]).map(x=>{ const ans=!x.skipped && String(x.answer||'').trim(); return {q:x.q, a:ans?x.answer.trim():'Skipped', color:ans?'var(--c-navy)':'var(--fg-subtle)'}; });
+        const qa=((c&&c.questions)||[]).map(x=>{ const ans=!x.skipped && String(x.answer||'').trim(); return {q:(x.kind==='team'?'Team question: ':'')+x.q, a:ans?x.answer.trim():'Skipped', color:ans?'var(--c-navy)':'var(--fg-subtle)'}; })
+          .concat(sel?(sel.teamQuestions||[]).filter(t=>!(((c&&c.questions)||[]).some(x=>x.id==='team_'+t.id))).map(t=>({q:'Team question: '+t.q, a:t.answer||'Waiting for an answer', color:t.answer?'var(--c-navy)':'var(--c-orange)'})):[]);
         const facts=[]; if(sel){ facts.push({label:'Idea', value:(c&&c.idea)||sel.idea||''}); facts.push({label:'Video type', value:sel.typeLabel||'Not chosen'}); if(c&&c.pickResult) facts.push({label:'Recommended', value:c.pickResult.typeLabel+'. '+(c.pickResult.rationale||'')}); facts.push({label:'Delivered by', value:sel.speaker||'Not said'});
           if(c && c.typeId==='overview'){ const cc=(c.customConcept||'').trim()||(((c.concepts||[]).find(x=>x.id===c.selectedConceptId))||{}).logline||''; if(cc) facts.push({label:'Concept', value:cc}); }
           if(sel.submittedAt) facts.push({label:'Submitted', value:new Date(sel.submittedAt).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})+(sel.editedSinceSubmit?' · changed since':'')}); if(sel.neededBy){ const d=this.daysUntil(sel.neededBy); facts.push({label:'Needed by', value:this.fmtDay(sel.neededBy)+(d==null?'':d<0?' ('+(-d)+' days late)':' ('+d+' days left)')}); }
@@ -3277,11 +3466,15 @@ class Component extends DCLogic {
             whenColor:urgent?'var(--c-orange)':'var(--fg-subtle)', whenWeight:urgent?'700':'400',
             when:(x.neededBy?'needed '+this.fmtDay(x.neededBy)+left+' · ':'')+(x.teamDue?'ours '+this.fmtDay(x.teamDue)+' · ':'')+(waitingOnTeam?'new reply · ':'')+'updated '+this.relTime(Math.max(x.updatedAt,x.activityAt)), bg:x.id===st.studioSel?'rgba(95,103,185,0.08)':'var(--c-white)', border:x.id===st.studioSel?'rgba(95,103,185,0.45)':'var(--border-hairline)', onOpen:()=>this.selectStudio(x.id) }; }),
           studioEmpty:!rows.length, noStudioSel:!sel, hasStudioSel:!!sel,
-          sd:sel?{ title:sel.title, isDraft:sel.status==='drafting', ownerName:this.nameOf(sel.ownerEmail), byline:sel.ownerEmail+' · started '+this.relTime(sel.createdAt)+' · last activity '+this.relTime(Math.max(sel.updatedAt,sel.activityAt))+' by '+((sel.activityAt>sel.updatedAt?sel.activityBy:sel.updatedBy)||sel.ownerEmail),
+          sd:sel?{ title:sel.title, isDraft:sel.status==='drafting', lockLine:this.lockLineFor(sel), canSendBack:sel.status!=='drafting' && sel.status!=='done',
+            single:!ver, compare:!!ver, compareLabel:ver?(({submitted:'Submitted',resubmitted:'Resubmitted',manual:'Saved',beforeRestore:'Before restore'}[ver.kind]||'Version')+' · '+this.relTime(ver.at)):'',
+            compareRows:ver?(()=>{ const ids=[]; curSecs.forEach(x=>ids.push(x.id)); (ver.sections||[]).forEach(x=>{ if(!ids.includes(x.id)) ids.push(x.id); }); const vm={}; (ver.sections||[]).forEach(x=>vm[x.id]=x);
+              const seg=(arr)=>arr.map(g=>({ text:g.text+' ', bg:g.cls==='del'?'rgba(247,105,35,0.18)':(g.cls==='add'?'rgba(16,165,172,0.22)':'transparent'), deco:g.cls==='del'?'line-through':'none' }));
+              return ids.map(id=>{ const o=(vm[id]||{}).text||'', n=curMap[id]||''; const d=this.diffWords(o, n); const changed=o.trim()!==n.trim(); return { label:(vm[id]||{}).label||label(id), tag:changed?' · changed':'', labelColor:changed?'#7A5C00':'var(--c-emerald)', oldSegs:seg(d.old), newSegs:seg(d.neu) }; }); })():[], ownerName:this.nameOf(sel.ownerEmail), byline:sel.ownerEmail+' · started '+this.relTime(sel.createdAt)+' · last activity '+this.relTime(Math.max(sel.updatedAt,sel.activityAt))+' by '+((sel.activityAt>sel.updatedAt?sel.activityBy:sel.updatedBy)||sel.ownerEmail),
             status:sel.status, assignedTo:sel.assignedTo, teamDue:sel.teamDue, caseId:sel.caseId, facts, qa, noQa:!qa.length,
             refs:((c&&c.references)||[]).map(r=>{ const full=(st.studioRefOpen===r.id); return {name:r.name, body:full?(String(r.text||'')||r.brief||''):(r.brief||String(r.text||'').slice(0,600)+((r.text||'').length>600?'…':'')), toggleLabel:full?'Show the summary':'Show the full text', onToggle:()=>this.setState({studioRefOpen:full?null:r.id})}; }), hasRefs:!!((c&&c.references)||[]).length,
             loading:st.studioLoading, versionSel:st.studioVersionSel,
-            versionOptions:[{id:'current', label:'Current'}].concat((st.studioVersions||[]).map(v=>({id:v.id, label:({submitted:'Submitted',resubmitted:'Resubmitted',manual:'Saved'}[v.kind]||'Version')+' · '+(v.byTeam?'team':'requester')+' · '+this.relTime(v.at)}))),
+            versionOptions:[{id:'current', label:'Current'}].concat((st.studioVersions||[]).map(v=>({id:v.id, label:'Compare with: '+({submitted:'Submitted',resubmitted:'Resubmitted',manual:'Saved',beforeRestore:'Before restore'}[v.kind]||'Version')+' · '+(v.byTeam?this.nameOf(v.by):'requester')+' · '+this.relTime(v.at)}))),
             sections:shown.map(s=>({label:s.label||label(s.id), text:s.text||'', changed:!!ver && (curMap[s.id]||'')!==(s.text||'')})), noSections:!st.studioLoading && !shown.some(s=>(s.text||'').trim()),
             messages:(st.studioMsgs||[]).map(m=>({ who:m.authorEmail===me.email?'You':(m.authorIsTeam?this.nameOf(m.authorEmail)+' (video team)':m.authorEmail), when:this.relTime(m.at), tag:m.internal?' · internal note':'', text:m.text,
               bg:m.internal?'rgba(255,200,54,0.12)':(m.authorIsTeam?'rgba(95,103,185,0.07)':'var(--c-grey-50)'), border:m.internal?'rgba(255,200,54,0.5)':'var(--border-hairline)' })),
@@ -3291,7 +3484,10 @@ class Component extends DCLogic {
           onSdStatus:(e)=>{ const v=e.target.value; if(sel && v!==sel.status) this.updateScriptMeta(sel.id, {status:v, statusAt:this._fb.fsM.serverTimestamp(), statusBy:me.email}, 'status', v); },
           onSdAssign:(e)=>{ if(sel) this.updateScriptMeta(sel.id, {assignedTo:e.target.value}); },
           onSdDue:(e)=>{ if(sel) this.queueMeta(sel.id, {teamDue:e.target.value}); }, onSdCase:(e)=>{ if(sel) this.queueMeta(sel.id, {caseId:String(e.target.value).slice(0,60)}); },
-          onSdVersion:(e)=>this.setState({studioVersionSel:e.target.value}), onStudioEdit:()=>{ if(sel) this.teamOpen(sel.id); },
+          onSdVersion:(e)=>this.setState({studioVersionSel:e.target.value}), onRestoreVersion:()=>this.restoreVersion(),
+          sbOpen:st.sbOpen, onOpenSendBack:()=>this.openSendBack(), onSbCancel:()=>this.setState({sbOpen:false}), onSbAdd:()=>this.setState({sbItems:(st.sbItems||[]).concat([''])}),
+          sbRows:(st.sbItems||[]).map((v,i)=>({ value:v, placeholder:'Question '+(i+1), canRemove:(st.sbItems||[]).length>1, onChange:(e)=>{ const a=(st.sbItems||[]).slice(); a[i]=e.target.value; this.setState({sbItems:a}); }, onRemove:()=>this.setState({sbItems:(st.sbItems||[]).filter((_,k)=>k!==i)}) })),
+          sbNote:st.sbNote, onSbNote:(e)=>this.setState({sbNote:e.target.value}), onSbSend:()=>this.sendBack(), sbBusy:st.sbBusy, sbSendLabel:st.sbBusy?'Sending…':'Send back', onStudioEdit:()=>{ if(sel) this.teamOpen(sel.id); },
           msgInternal:st.msgInternal, onToggleInternal:()=>this.setState({msgInternal:!st.msgInternal}), internalBorder:st.msgInternal?'var(--c-gold)':'var(--border-strong)', internalBg:st.msgInternal?'var(--c-gold)':'var(--c-white)', internalCheck:st.msgInternal?'1':'0',
           sendLabel:st.msgInternal?'Add note':'Send', onSendStudioMessage:()=>{ if(sel) this.sendMessage(sel, st.msgInternal); },
           teamRows:(st.teamEmails||[]).map(e=>({ email:e, note:e===me.email?' (you)':'', canRemove:e!==me.email, onRemove:()=>this.setTeamEmails((st.teamEmails||[]).filter(x=>x!==e)) })),
