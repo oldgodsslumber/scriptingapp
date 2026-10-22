@@ -33,6 +33,8 @@ export const functionsRegion = 'us-central1';
 
 The web config isn't a secret: it names the project, and access is enforced on the server.
 
+To keep a deployment's config out of the repo, put it in `private/firebase-config.js` instead (git ignores `private/`) and publish with Firebase Hosting (step 4). The repo's own `firebase-config.js` can then stay `null`.
+
 ## 3. Deploy the functions and rules (command line, from the repo folder)
 
 ```sh
@@ -67,7 +69,9 @@ On a project's first deploy, one function can fail with "HTTP Error: 500, Could 
 
 ## 4. Publish and set up the brand pack
 
-1. Push to GitHub. If GitHub Pages isn't on yet, go to **Settings → Pages → Deploy from a branch → `main` / root**.
+1. Publish the site, one of two ways:
+   - **Firebase Hosting:** `firebase deploy --only hosting`. It runs `scripts/build-site.mjs` first, which copies just the app files into `.site/` and swaps in `private/firebase-config.js` if there is one. The site is at `https://<project-id>.web.app`, and sign-in works there with no extra setup. Run the same command again after every change.
+   - **GitHub Pages:** commit the config in `firebase-config.js` and push. If Pages isn't on yet, go to **Settings → Pages → Deploy from a branch → `main` / root**. Add `<username>.github.io` under **Authentication → Settings → Authorized domains**.
 2. Open the site, enter your email, and click the link in the email.
 3. As a team member, open **Studio → Brand**. Set the company name, upload the voice guide (`.md` or `.txt`), the logo (SVG or PNG; use one that reads on a white header), and optionally a colors CSS file, then click **Save brand pack**.
 4. Everyone who signs in after that gets the brand pack. People already signed in get it on their next reload.

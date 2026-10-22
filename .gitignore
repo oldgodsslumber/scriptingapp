@@ -20,3 +20,5 @@ functions/.env*
 functions/.secret.local
 .firebase/
 *-debug.log
+.site/
+.firebaserc
