@@ -1180,7 +1180,7 @@
           </sc-if>
           <li><a href="{{ ticketUrl }}" target="_blank" rel="noopener" style="color:var(--c-violet);font-weight:700">Open {{ ticketName }}</a> and start a new “{{ ticketFormName }}” request.</li>
           <sc-if value="{{ bmOn }}" hint-placeholder-val="{{ true }}">
-          <li>Click the bookmark. The form fills in over a few seconds. For the requester field, finish your name and pick yourself from the list that opens.</li>
+          <li>Click the bookmark once the form has loaded. It fills in over a few seconds, then a note in the corner says what it filled and anything to finish by hand (usually picking yourself as the requester).</li>
           </sc-if>
           <li>{{ ticketCheckStep }}</li>
           <li>Paste the case number here, then mark it ready below.
@@ -3713,7 +3713,7 @@ class Component extends DCLogic {
       if((x.options||[]).length) l+=' '+(x.type==='multiselect'?'Pick any that apply from':'Pick exactly one of')+': '+JSON.stringify(x.options)+'.';
       else if(x.max && x.source!=='title') l+=' At most '+x.max+' characters.';
       return l; }).join('\n');
-    return 'You are filling in a video request ticket for the '+this.brandAdj()+' video team, from what the requester already wrote in this app. Write plainly and concretely. Never invent names, dates or facts. When the brief doesn’t say, leave the field empty (or give the most honest choice) and list its key under "unsure".\n\n'
+    return 'You are filling in a video request ticket for the '+this.brandAdj()+' video team, from what the requester already wrote in this app. Keep it short and simple: write each field in one or two plain sentences at most, even where a field’s note below allows more, with no adjectives or marketing language, so a reviewer takes it in at a glance. Never invent names, dates or facts. When the brief doesn’t say, leave the field empty (or give the most honest choice) and list its key under "unsure". Inside a written field, leave out what the brief doesn’t say rather than writing that it’s missing or not specified.\n\n'
       +'## THE VIDEO\nTitle: '+this.projectTitle()+'\nType: '+(t?(t.label+' — '+t.desc+' Target runtime '+t.runtime+'.'):'not chosen')+'\nDelivered by: '+(this.speakerAnswer()||'not said')+'\n\n'
       +'## IDEA\n'+String(st.idea||'').trim()+'\n'+this.qaBlock()+(concept?'\n## CONCEPT\n'+concept+'\n':'')+(refs?'\n## REFERENCE DOCUMENTS\n'+refs+'\n':'')
       +'\n## DETAILS FROM THE REQUESTER\nNeeded by: '+(f.neededBy||'not given')+'\nWhere it will be used: '+(f.whereRun||'not given')+'\nApprover: '+(f.approver||'not given')+(f.approvalBy?' (approval expected by '+f.approvalBy+')':'')+'\nNotes: '+(String(f.notes||'').trim()||'none')+'\n\n'
@@ -3742,24 +3742,154 @@ class Component extends DCLogic {
   }
   copyAllTicket(){ const lines=this.ticketFields().map(f=>{ const v=this.ticketValue(f); return this.emptyVal(f, v)?null:(f.label+': '+this.ticketCopyText(f, v)); }).filter(Boolean); if(!lines.length){ this.showToast('The ticket is empty. Write it first.'); return; } this.copyText(lines.join('\n\n')); }
   // The bookmark fills the request form in the other site's own page: text boxes, dropdowns, multi-picks (opened and
-  // clicked like a person would), and the requester box last, typed slowly so its autocomplete opens.
-  FORM_FILLER = `(function(D,M){var d=document,F=d.getElementsByTagName('iframe'),i,best=0,bx=null;for(i=0;i<F.length;i++){try{var x=F[i].contentDocument;if(!x)continue;var n=x.querySelectorAll(M).length;if(n>best){best=n;bx=x}}catch(e){}}if(bx)d=bx;if(!d.querySelector(M)){alert('Open the request form first, then click this bookmark again.');return}var W=d.defaultView||window;function f(e,t){e.dispatchEvent(new (W.Event||Event)(t,{bubbles:1}))}function sv(e,v){var p=e.tagName=='TEXTAREA'?W.HTMLTextAreaElement.prototype:W.HTMLInputElement.prototype;var s=Object.getOwnPropertyDescriptor(p,'value').set;s.call(e,v)}function fillT(e,v){e.focus();sv(e,v);f(e,'input');f(e,'keyup');f(e,'change');f(e,'blur')}function passT(){D.t.forEach(function(a){var L=d.querySelectorAll('[name="'+a[0]+'"]');for(var k=0;k<L.length;k++)if(L[k].value!==a[1])fillT(L[k],a[1])})}passT();D.s.forEach(function(a){var e=d.querySelector('select[name="'+a[0]+'"]');if(!e)return;for(var i=0;i<e.options.length;i++)if(e.options[i].value==a[1]||e.options[i].text==a[1]){e.selectedIndex=i;break}f(e,'change')});D.r.forEach(function(a){var e=d.querySelector('input[type=radio][name="'+a[0]+'"][value="'+a[1]+'"]');if(e){e.checked=1;f(e,'click');f(e,'change')}});D.c.forEach(function(n){var e=d.querySelector('input[type=checkbox][name="'+n+'"]');if(e&&!e.checked){e.checked=1;f(e,'click');f(e,'change')}});function pk(I,v,cb){I.focus();I.dispatchEvent(new (W.KeyboardEvent||KeyboardEvent)('keydown',{key:'ArrowDown',keyCode:40,bubbles:1}));setTimeout(function(){var o=d.querySelectorAll('[role=option]'),m,i;for(i=0;i<o.length;i++)if(o[i].textContent.trim()===v){m=o[i];break}if(m)m.click();setTimeout(cb,200)},200)}function ac(a,cb){var e=d.querySelector('[name="'+a[0]+'"]');if(!e){cb();return}e.focus();sv(e,'');f(e,'input');var n=0,L=Math.min(3,a[1].length);function tp(){if(d.activeElement!==e)e.focus();if(n<L){sv(e,a[1].slice(0,++n));f(e,'input');f(e,'keyup');setTimeout(tp,180)}else{setTimeout(function(){var o=d.querySelectorAll('[role=option]'),m,i,V=a[1].toLowerCase();for(i=0;i<o.length;i++)if(o[i].textContent.trim().toLowerCase().indexOf(V)>-1){m=o[i];break}if(!m&&o.length)m=o[0];if(m){m.click()}else{f(e,'change');f(e,'blur')}var rf=0,rt=setInterval(function(){if(d.activeElement!==e)e.focus();rf++;if(rf>30)clearInterval(rt)},100);setTimeout(function(){cb()},200)},900)}}tp()}var q=[];D.m.forEach(function(a){var I=d.getElementById(a[0]);if(!I)return;var c=I.closest('[class*=multiselect]')||I.parentElement.parentElement;c.querySelectorAll('[class*=capsule] button').forEach(function(b){try{b.click()}catch(e){}});a[1].forEach(function(v){q.push([I,v])})});function runA(i){if(i>=(D.a||[]).length)return;ac(D.a[i],function(){runA(i+1)})}setTimeout(passT,1500);setTimeout(passT,3500);(function r(i){if(i>=q.length){setTimeout(function(){runA(0)},2500);return}pk(q[i][0],q[i][1],function(){r(i+1)})})(0)})(__P__,__M__)`;
+  // clicked like a person would), and the requester box last, typed slowly so its autocomplete opens. It waits up to
+  // ten seconds for the form to load, never guesses the requester, and finishes with a note on the page saying what it
+  // filled and what to set by hand. Written over several lines here; the line breaks are removed when the link is built.
+  FORM_FILLER = `(function(D,M){
+var TOP=window;
+if(TOP.__vsgFill){return;}
+TOP.__vsgFill=1;
+var started=Date.now();
+var missed=[], notes=[], done=0, total=D.t.length+D.s.length+D.r.length+D.c.length+D.m.length+D.a.length;
+function findDoc(){
+  var best=null, bestN=0;
+  function look(doc, depth){
+    var n=0;
+    try{ n=doc.querySelectorAll(M).length; }catch(e){ return; }
+    if(n>bestN){ bestN=n; best=doc; }
+    if(depth>2){ return; }
+    var fr=doc.getElementsByTagName('iframe');
+    for(var i=0;i<fr.length;i++){ try{ if(fr[i].contentDocument){ look(fr[i].contentDocument, depth+1); } }catch(e){} }
+  }
+  look(document, 0);
+  return best;
+}
+function banner(title, lines, good){
+  var old=document.getElementById('vsg-fill-note'); if(old){ old.remove(); }
+  var b=document.createElement('div'); b.id='vsg-fill-note';
+  b.setAttribute('style','position:fixed;top:16px;right:16px;z-index:2147483647;max-width:380px;padding:14px 16px 14px 14px;border-radius:10px;font:14px/1.45 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#1d2433;background:#fff;box-shadow:0 8px 30px rgba(0,0,0,.25);border-left:6px solid '+(good?'#10a5ac':'#f76923'));
+  var x=document.createElement('button'); x.textContent='×'; x.setAttribute('aria-label','Close');
+  x.setAttribute('style','float:right;margin:-6px -6px 0 8px;border:none;background:none;font-size:20px;line-height:1;cursor:pointer;color:#6f7480');
+  x.onclick=function(){ b.remove(); };
+  b.appendChild(x);
+  var h=document.createElement('div'); h.textContent=title; h.setAttribute('style','font-weight:700;margin-bottom:4px'); b.appendChild(h);
+  lines.forEach(function(t){ var p=document.createElement('div'); p.textContent=t; p.setAttribute('style','margin-top:4px'); b.appendChild(p); });
+  document.body.appendChild(b);
+}
+function go(){
+  var d=findDoc();
+  if(!d){
+    if(Date.now()-started<10000){ setTimeout(go, 500); return; }
+    TOP.__vsgFill=0;
+    banner('Couldn’t find the request form', ['Open a new “Create a Video” request, wait for it to finish loading, then click this bookmark again.'], false);
+    return;
+  }
+  fill(d);
+}
+function fill(d){
+  var W=d.defaultView||window;
+  function fire(e,t){ e.dispatchEvent(new (W.Event||Event)(t,{bubbles:true})); }
+  function setV(e,v){ var p=e.tagName==='TEXTAREA'?W.HTMLTextAreaElement.prototype:W.HTMLInputElement.prototype; Object.getOwnPropertyDescriptor(p,'value').set.call(e,v); }
+  function fillT(e,v){ e.focus(); setV(e,v); fire(e,'input'); fire(e,'keyup'); fire(e,'change'); fire(e,'blur'); }
+  function low(x){ return String(x==null?'':x).trim().toLowerCase(); }
+  function byName(n){ return d.querySelectorAll('[name="'+n+'"]'); }
+  function texts(){ D.t.forEach(function(a){ var L=byName(a[0]); for(var k=0;k<L.length;k++){ if(L[k].value!==a[1]){ fillT(L[k],a[1]); } } }); }
+  texts();
+  D.s.forEach(function(a){
+    var e=d.querySelector('select[name="'+a[0]+'"]'); if(!e){ missed.push(a[2]); return; }
+    var hit=-1;
+    for(var i=0;i<e.options.length;i++){ var o=e.options[i]; if(o.value===a[1]||low(o.text)===low(a[1])||low(o.value)===low(a[1])){ hit=i; break; } }
+    if(hit<0){ missed.push(a[2]+' (“'+a[1]+'” isn’t an option)'); return; }
+    e.selectedIndex=hit; fire(e,'change'); done++;
+  });
+  D.r.forEach(function(a){
+    var L=d.querySelectorAll('input[type=radio][name="'+a[0]+'"]'), hit=null;
+    for(var i=0;i<L.length;i++){ if(low(L[i].value)===low(a[1])){ hit=L[i]; } }
+    if(!hit){ missed.push(a[2]); return; }
+    hit.checked=true; fire(hit,'click'); fire(hit,'change'); done++;
+  });
+  D.c.forEach(function(a){
+    var e=d.querySelector('input[type=checkbox][name="'+a[0]+'"]'); if(!e){ missed.push(a[1]); return; }
+    if(!e.checked){ e.checked=true; fire(e,'click'); fire(e,'change'); }
+    done++;
+  });
+  function pick(I,v,cb){
+    I.focus();
+    I.dispatchEvent(new (W.KeyboardEvent||KeyboardEvent)('keydown',{key:'ArrowDown',keyCode:40,bubbles:true}));
+    var tries=0;
+    (function look(){
+      setTimeout(function(){
+        var o=d.querySelectorAll('[role=option]'), m=null;
+        for(var i=0;i<o.length;i++){ if(low(o[i].textContent)===low(v)){ m=o[i]; break; } }
+        if(m){ m.click(); setTimeout(function(){ cb(true); },200); return; }
+        if(++tries<3){ look(); return; }
+        cb(false);
+      }, tries?400:200);
+    })();
+  }
+  var q=[], multi={};
+  D.m.forEach(function(a){
+    var I=d.getElementById(a[0]);
+    if(!I){ missed.push(a[2]); return; }
+    var box=I.closest('[class*=multiselect]')||I.parentElement.parentElement;
+    box.querySelectorAll('[class*=capsule] button').forEach(function(b){ try{ b.click(); }catch(e){} });
+    multi[a[0]]={label:a[2], lost:[]};
+    a[1].forEach(function(v){ q.push([I,v,a[0]]); });
+  });
+  function requester(i, cb){
+    if(i>=D.a.length){ cb(); return; }
+    var a=D.a[i], e=d.querySelector('[name="'+a[0]+'"]');
+    if(!e){ missed.push(a[2]); requester(i+1, cb); return; }
+    e.focus(); setV(e,''); fire(e,'input');
+    var n=0, L=Math.min(3,a[1].length);
+    (function type(){
+      if(d.activeElement!==e){ e.focus(); }
+      if(n<L){ setV(e,a[1].slice(0,++n)); fire(e,'input'); fire(e,'keyup'); setTimeout(type,180); return; }
+      setTimeout(function(){
+        var o=d.querySelectorAll('[role=option]'), m=null, V=low(a[1]);
+        for(var k=0;k<o.length;k++){ if(low(o[k].textContent).indexOf(V)>-1){ m=o[k]; break; } }
+        if(m){ m.click(); done++; }
+        else { notes.push(a[2]+': finish typing your name and pick yourself from the list.'); }
+        setTimeout(function(){ requester(i+1, cb); },300);
+      },900);
+    })();
+  }
+  function finish(){
+    texts();
+    D.t.forEach(function(a){ var L=byName(a[0]); if(!L.length){ missed.push(a[2]); return; } var ok=true; for(var k=0;k<L.length;k++){ if(L[k].value!==a[1]){ ok=false; } } if(ok){ done++; } else { missed.push(a[2]); } });
+    Object.keys(multi).forEach(function(id){ var x=multi[id]; if(x.lost.length){ missed.push(x.label+' (couldn’t find: '+x.lost.join(', ')+')'); } else { done++; } });
+    TOP.__vsgFill=0;
+    var lines=[];
+    if(missed.length){ lines.push('Couldn’t fill: '+missed.join('; ')+'. Set '+(missed.length===1?'it':'them')+' by hand.'); }
+    notes.forEach(function(t){ lines.push(t); });
+    lines.push('Check every field before you submit.');
+    banner('Filled '+done+' of '+total+' fields from your script', lines, !missed.length);
+  }
+  setTimeout(texts,1500); setTimeout(texts,3500);
+  (function next(i){
+    if(i>=q.length){ setTimeout(function(){ requester(0, finish); }, 2500); return; }
+    pick(q[i][0], q[i][1], function(ok){ if(!ok){ multi[q[i][2]].lost.push(q[i][1]); } next(i+1); });
+  })(0);
+}
+go();
+})(__P__,__M__)`;
   ticketPayload(){
     const p={t:[], s:[], r:[], c:[], m:[], a:[]};
     for(const f of this.ticketFields()){
       const v=this.ticketValue(f); if(f.type!=='checkbox' && this.emptyVal(f, v)) continue;
-      if(f.type==='select' && f.name) p.s.push([f.name, String(v)]);
-      else if(f.type==='radio' && f.name) p.r.push([f.name, String(v)]);
-      else if(f.type==='checkbox' && f.name){ if(v) p.c.push(f.name); }
-      else if(f.type==='multiselect' && f.inputId) p.m.push([f.inputId, this.ticketList(f, v)]);
-      else if(f.slow && f.name) p.a.push([f.name, String(v)]);
-      else if(f.type==='date' && f.name) p.t.push([f.name, this.ticketDate(v)]);
-      else if(f.name) p.t.push([f.name, String(v)]);
+      const L=f.label;
+      if(f.type==='select' && f.name) p.s.push([f.name, String(v), L]);
+      else if(f.type==='radio' && f.name) p.r.push([f.name, String(v), L]);
+      else if(f.type==='checkbox' && f.name){ if(v) p.c.push([f.name, L]); }
+      else if(f.type==='multiselect' && f.inputId) p.m.push([f.inputId, this.ticketList(f, v), L]);
+      else if(f.slow && f.name) p.a.push([f.name, String(v), L]);
+      else if(f.type==='date' && f.name) p.t.push([f.name, this.ticketDate(v), L]);
+      else if(f.name) p.t.push([f.name, String(v), L]);
     }
     return p;
   }
   bookmarkletHref(){ const pack=this.state.ticketPack; if(!pack || !pack.formMarker) return '';
-    const src=this.FORM_FILLER.replace('__M__', ()=>JSON.stringify(pack.formMarker)).replace('__P__', ()=>JSON.stringify(this.ticketPayload()));
+    const src=this.FORM_FILLER.replace(/\s*\n\s*/g, '').replace('__M__', ()=>JSON.stringify(pack.formMarker)).replace('__P__', ()=>JSON.stringify(this.ticketPayload()));
     return 'javascript:'+src.replace(/%/g,'%25').replace(/#/g,'%23'); }
   normCase(v){ const p=this.state.ticketPack||{}; const t=String(v||'').trim(); if(!t) return ''; try{ const m=p.casePattern && t.match(new RegExp(p.casePattern,'i')); if(m && m[1] && p.caseFormat) return p.caseFormat.replace('{n}', m[1]); }catch(e){} return t.slice(0,60); }
   caseUrl(caseId){ const p=this.state.ticketPack; if(!p || !p.caseUrl || !caseId) return null; try{ if(p.casePattern && !new RegExp(p.casePattern,'i').test(caseId)) return null; }catch(e){ return null; } return p.caseUrl.replace('{case}', encodeURIComponent(caseId)); }
@@ -3782,7 +3912,7 @@ class Component extends DCLogic {
     {key:'goal', label:'Goal', guide:'What the video has to achieve, in one or two sentences.'},
     {key:'keyMessage', label:'Key message', guide:'The one thing viewers must remember.'},
     {key:'format', label:'Video type and length', guide:'The video type, target runtime and the current script length.'},
-    {key:'description', label:'Description', guide:'What the video is and how it unfolds, in three to five sentences.'},
+    {key:'description', label:'Description', guide:'What the video is and how it unfolds, in two or three short sentences.'},
     {key:'talent', label:'On camera / voice', guide:'Who delivers it: a narrator, an employee, an executive or a customer, with names if given.'},
     {key:'distribution', label:'Where it runs', guide:'Channels, events or pages, and any launch moment.'},
     {key:'timeline', label:'Dates', guide:'The needed-by date, the approval date and any other fixed dates.'},
@@ -3809,7 +3939,7 @@ class Component extends DCLogic {
   assembleKickoffPrompt(src, keep){
     const kept=this.KICKOFF_FIELDS.filter(f=>keep[f.key]).map(f=>'- '+f.label+': '+keep[f.key]).join('\n');
     const spec=this.KICKOFF_FIELDS.filter(f=>!keep[f.key]).map(f=>'- "'+f.key+'" ('+f.label+'): '+f.guide).join('\n');
-    return 'You are a video producer preparing a kickoff (discovery) call with the person who requested this '+this.brandAdj()+' video. Turn what they submitted into a working brief for the video team. Be concrete and short; use their words where they help. Never invent names, dates or facts: if something isn’t given, write "Not given" and put it on the agenda.\n\n'
+    return 'You are a video producer preparing a kickoff (discovery) call with the person who requested this '+this.brandAdj()+' video. Turn what they submitted into a working brief for the video team. Keep it simple: each field one or two short, plain sentences, or a few short phrases, with no preamble or filler. Use their words where they help. Never invent names, dates or facts: if something isn’t given, write "Not given" and put it on the agenda.\n\n'
       +src+(kept?'\n\n## ALREADY CONFIRMED BY THE TEAM (facts; don’t rewrite them)\n'+kept:'')
       +'\n\n## BRIEF FIELDS TO WRITE\n'+spec+'\n\n## AGENDA\nAlso list 4 to 8 questions for the kickoff call, most important first: the gaps, weak spots and decisions the team needs from the requester.\n\n'
       +'Return JSON only: {"fields": {"<key>": "<text>"}, "agenda": ["<question>", ...]}';
@@ -3817,7 +3947,7 @@ class Component extends DCLogic {
   assembleKickoffNotesPrompt(src, cur, agenda, notes){
     return 'You are a video producer. The team just held the kickoff call for this video. Update the brief with what the call notes add or change, and keep everything the notes don’t touch.\n\n'
       +src+'\n\n## CURRENT BRIEF\n'+cur+'\n\n## CURRENT AGENDA\n'+(agenda.length?agenda.map((q,i)=>(i+1)+'. '+q).join('\n'):'(none)')+'\n\n## CALL NOTES\n'+notes
-      +'\n\n## TASK\nReturn only the brief fields the notes change, each rewritten in full, using these keys: '+this.kickoffKeys()+'. Then list the agenda questions still open after the call (drop the ones the notes answer; add any new ones the notes raise).\n\n'
+      +'\n\n## TASK\nReturn only the brief fields the notes change, each rewritten in full and kept to one or two short sentences, using these keys: '+this.kickoffKeys()+'. Then list the agenda questions still open after the call (drop the ones the notes answer; add any new ones the notes raise).\n\n'
       +'Return JSON only: {"fields": {"<key>": "<text>"}, "agenda": ["<question>", ...]}';
   }
   kickoffOf(id){ const k=this.state.kickoff; return (k && k.id===id)?k:null; }
