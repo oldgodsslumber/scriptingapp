@@ -622,6 +622,48 @@
           </section>
         </sc-for>
       </div>
+
+      <section aria-label="Audience review" style="margin-top:24px;background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px">
+            <div style="font-family:var(--font-display);font-weight:600;font-size:19px;color:var(--c-navy)">Audience review</div>
+            <div style="font-size:13px;line-height:1.5;color:var(--fg-muted);margin-top:4px">Three AI readers hear your script the way real viewers would, with nothing but the words. Did they get the message, get lost, or stop believing it? You get their reactions and a recommendation for what to change.</div>
+          </div>
+          <button onClick="{{ onRunReview }}" disabled="{{ rvBusy }}" style="padding:10px 16px;border-radius:var(--radius-sm);background:var(--c-emerald);border:1px solid var(--c-emerald);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;opacity:{{ rvBtnOpacity }}">{{ rvBtnLabel }}</button>
+        </div>
+        <div>
+          <div role="group" aria-label="Readers" style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ rvChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onToggle }}" aria-pressed="{{ c.on }}" title="{{ c.title }}" style="padding:5px 11px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.color }};font-size:12px;font-weight:{{ c.weight }};cursor:pointer">{{ c.label }}</button></sc-for></div>
+          <div style="font-size:12px;color:var(--fg-muted);margin-top:6px">{{ rvPickNote }}</div>
+        </div>
+        <sc-if value="{{ rvBusy }}" hint-placeholder-val="{{ false }}"><div role="status" style="font-size:13px;color:var(--c-violet)">{{ rvBusyText }}</div></sc-if>
+        <sc-if value="{{ rvError }}" hint-placeholder-val="{{ null }}"><div role="alert" style="font-size:13px;color:var(--c-orange)">Couldn’t get feedback: {{ rvError }}</div></sc-if>
+        <sc-if value="{{ rv.stale }}" hint-placeholder-val="{{ false }}"><div role="status" style="padding:8px 12px;border-radius:var(--radius-sm);background:rgba(255,200,54,0.12);border:1px solid rgba(255,200,54,0.6);font-size:13px;color:var(--c-navy)">The script has changed since this feedback. Get fresh feedback to see how it lands now.</div></sc-if>
+            <sc-if value="{{ rv.has }}" hint-placeholder-val="{{ false }}">
+              <div style="border:1px solid rgba(95,103,185,0.35);border-radius:var(--radius-md);background:rgba(95,103,185,0.05);padding:16px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:14px;font-weight:700;color:var(--c-navy)">How to take it forward</span><span style="font-size:12px;color:var(--fg-muted)">{{ rv.when }}</span></div>
+                <sc-if value="{{ rv.intended }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;color:var(--fg-muted)"><b style="color:var(--c-navy)">The message you meant:</b> {{ rv.intended }}</div></sc-if>
+                <div style="font-size:14px;line-height:1.55;color:var(--c-navy);white-space:pre-wrap">{{ rv.plan }}</div>
+                <sc-if value="{{ rv.hasSteps }}" hint-placeholder-val="{{ false }}"><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:1.5;color:var(--c-navy)"><sc-for list="{{ rv.steps }}" as="st" hint-placeholder-count="2"><li>{{ st.text }}</li></sc-for></ol></sc-if>
+                <sc-if value="{{ rv.hasChanges }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Sections to change</div><sc-for list="{{ rv.changes }}" as="ch" hint-placeholder-count="2"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>{{ ch.label }}:</b> {{ ch.change }}</div></sc-for></div></sc-if>
+                <sc-if value="{{ rv.canRevise }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onRevise }}" disabled="{{ rvBusy }}" style="align-self:flex-start;padding:10px 16px;border-radius:var(--radius-sm);background:var(--c-violet);border:1px solid var(--c-violet);color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ rvBtnOpacity }}">{{ rvReviseLabel }}</button></sc-if>
+                <sc-if value="{{ rv.canUndo }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button onClick="{{ onUndoRevise }}" disabled="{{ rvBusy }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer">Undo the revision</button><span style="font-size:12px;color:var(--fg-muted)">Puts back the text the readers heard.</span></div></sc-if>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">
+                <sc-for list="{{ rv.readers }}" as="r" hint-placeholder-count="3">
+                  <div style="border:1px solid var(--border-hairline);border-radius:var(--radius-md);background:var(--c-white);padding:14px;display:flex;flex-direction:column;gap:8px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:14px;font-weight:700;color:var(--c-navy)">{{ r.label }}</span><sc-if value="{{ r.hasVerdict }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:{{ r.vBg }};color:{{ r.vColor }}">{{ r.verdictLabel }}</span></sc-if></div>
+                    <div style="font-size:12px;line-height:1.45;color:var(--fg-muted)">{{ r.desc }}</div>
+                    <sc-if value="{{ r.failed }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--c-orange)">This reader didn’t answer. Get fresh feedback to try again.</div></sc-if>
+                    <sc-if value="{{ r.takeaway }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Took away:</b> “{{ r.takeaway }}”</div></sc-if>
+                    <sc-if value="{{ r.why }}" hint-placeholder-val="{{ null }}"><div style="font-size:12px;line-height:1.45;color:{{ r.vColor }}">{{ r.why }}</div></sc-if>
+                    <sc-if value="{{ r.lost }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Got lost:</b> {{ r.lost }}</div></sc-if>
+                    <sc-if value="{{ r.inauthentic }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Didn’t ring true:</b> {{ r.inauthentic }}</div></sc-if>
+                    <sc-if value="{{ r.reaction }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.55;color:var(--fg-default);font-style:italic;white-space:pre-wrap">{{ r.reaction }}</div></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+      </section>
     </div>
   </main>
   </sc-if>
@@ -1338,6 +1380,36 @@
             </div>
 
 
+            <sc-if value="{{ sdRv.has }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="font-size:14px;font-weight:700;color:var(--c-navy)">Audience review <span style="font-weight:400;color:var(--fg-muted)">· what the requester saw</span></div>
+              <sc-if value="{{ sdRv.stale }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#8A6A00">The script has changed since this review.</div></sc-if>
+            <sc-if value="{{ sdRv.has }}" hint-placeholder-val="{{ false }}">
+              <div style="border:1px solid rgba(95,103,185,0.35);border-radius:var(--radius-md);background:rgba(95,103,185,0.05);padding:16px;display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:14px;font-weight:700;color:var(--c-navy)">How to take it forward</span><span style="font-size:12px;color:var(--fg-muted)">{{ sdRv.when }}</span></div>
+                <sc-if value="{{ sdRv.intended }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;color:var(--fg-muted)"><b style="color:var(--c-navy)">The message you meant:</b> {{ sdRv.intended }}</div></sc-if>
+                <div style="font-size:14px;line-height:1.55;color:var(--c-navy);white-space:pre-wrap">{{ sdRv.plan }}</div>
+                <sc-if value="{{ sdRv.hasSteps }}" hint-placeholder-val="{{ false }}"><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:1.5;color:var(--c-navy)"><sc-for list="{{ sdRv.steps }}" as="st" hint-placeholder-count="2"><li>{{ st.text }}</li></sc-for></ol></sc-if>
+                <sc-if value="{{ sdRv.hasChanges }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Sections to change</div><sc-for list="{{ sdRv.changes }}" as="ch" hint-placeholder-count="2"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>{{ ch.label }}:</b> {{ ch.change }}</div></sc-for></div></sc-if>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">
+                <sc-for list="{{ sdRv.readers }}" as="r" hint-placeholder-count="3">
+                  <div style="border:1px solid var(--border-hairline);border-radius:var(--radius-md);background:var(--c-white);padding:14px;display:flex;flex-direction:column;gap:8px">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:14px;font-weight:700;color:var(--c-navy)">{{ r.label }}</span><sc-if value="{{ r.hasVerdict }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:{{ r.vBg }};color:{{ r.vColor }}">{{ r.verdictLabel }}</span></sc-if></div>
+                    <div style="font-size:12px;line-height:1.45;color:var(--fg-muted)">{{ r.desc }}</div>
+                    <sc-if value="{{ r.failed }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--c-orange)">This reader didn’t answer. Get fresh feedback to try again.</div></sc-if>
+                    <sc-if value="{{ r.takeaway }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Took away:</b> “{{ r.takeaway }}”</div></sc-if>
+                    <sc-if value="{{ r.why }}" hint-placeholder-val="{{ null }}"><div style="font-size:12px;line-height:1.45;color:{{ r.vColor }}">{{ r.why }}</div></sc-if>
+                    <sc-if value="{{ r.lost }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Got lost:</b> {{ r.lost }}</div></sc-if>
+                    <sc-if value="{{ r.inauthentic }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Didn’t ring true:</b> {{ r.inauthentic }}</div></sc-if>
+                    <sc-if value="{{ r.reaction }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.55;color:var(--fg-default);font-style:italic;white-space:pre-wrap">{{ r.reaction }}</div></sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            </div>
+            </sc-if>
+
             <section aria-label="Call notes" style="border:1px solid rgba(95,103,185,0.35);border-radius:var(--radius-lg);background:rgba(95,103,185,0.04);padding:18px;display:flex;flex-direction:column;gap:12px">
               <div>
                 <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:4px">Call notes</label>
@@ -1790,7 +1862,7 @@ class Component extends DCLogic {
     studioTab:'scripts', studioFilter:'active', studioSearch:'', studioSel:null, studioContent:null, studioLoading:false, studioMsgs:[], studioVersions:[], studioVersionSel:'current',
     teamScripts:[], teamEmails:[], teamAddInput:'',
     authState:'boot', authEmail:'', authInput:'', authBusy:false, authError:null, cloudOk:false, isAdmin:false, quota:null, orgBrand:null, logoSrc:'assets/logo.svg',
-    showHeads:true, signInOrg:'', signInDomain:'',
+    showHeads:true, signInOrg:'', signInDomain:'', review:null, reviewPick:[], reviewBusy:null, reviewError:null,
     bpName:'', bpVoice:'', bpLogo:'', bpTheme:'', bpBusy:false, tkText:'', tkDraft:'', tkBusy:false,
     ticketPack:null, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null,
     kickoff:null, kbDraft:null, kbBusy:null, kbError:null,
@@ -2044,9 +2116,9 @@ class Component extends DCLogic {
     const shape='{"sections": { '+toWrite.map(s=>'"'+s.id+'": "narration text"').join(', ')+' }}';
     return 'You are a scriptwriter for '+this.brandAdj()+' videos. Write a '+type.label+' video script.\n\n## VOICE GUIDE (follow strictly)\n'+this.voiceBlock()+'\n\n'+this.SPOKEN_RULES+'\n\n'+this.videoBlock(type)+this.conceptSection()+this.sourceSection(12000)+lockedBlock+'\n## SECTIONS TO WRITE\nWrite the spoken words for each section, in order. Respect each target word count closely — counts are enforced against real produced scripts.\n'+secLines+'\n\n## OUTPUT\nReturn ONLY valid JSON, no markdown fences, exactly this shape:\n'+shape+'\nEach value is plain spoken text — no labels, no stage directions.';
   }
-  assembleSectionPrompt(type,sec){
+  assembleSectionPrompt(type,sec,note){
     const others=this.state.sections.filter(s=>s.id!==sec.id&&s.text).map(s=>s.label+': '+s.text).join('\n');
-    return 'You are a scriptwriter for '+this.brandAdj()+' videos. Rewrite ONE section of a '+type.label+' script.\n\n## VOICE GUIDE (follow strictly)\n'+this.voiceBlock()+'\n\n'+this.SPOKEN_RULES+'\n\n'+this.videoBlock(type)+this.conceptSection()+this.sourceSection(6000)+'\n'+(others?('## THE REST OF THE SCRIPT (for continuity; do not rewrite or repeat it)\n'+others+'\n\n'):'')+'## SECTION TO WRITE\n'+sec.label+' — '+sec.coaching+'\nTarget words: '+sec.band[0]+'–'+sec.band[1]+' (aim for '+sec.sweet+').\nProducer prep answer: '+this.prepFor(sec)+'\n\n## OUTPUT\nReturn ONLY the spoken words for this section as plain text — no labels, no quotes, no JSON.';
+    return 'You are a scriptwriter for '+this.brandAdj()+' videos. Rewrite ONE section of a '+type.label+' script.\n\n## VOICE GUIDE (follow strictly)\n'+this.voiceBlock()+'\n\n'+this.SPOKEN_RULES+'\n\n'+this.videoBlock(type)+this.conceptSection()+this.sourceSection(6000)+'\n'+(others?('## THE REST OF THE SCRIPT (for continuity; do not rewrite or repeat it)\n'+others+'\n\n'):'')+'## SECTION TO WRITE\n'+sec.label+' — '+sec.coaching+'\nTarget words: '+sec.band[0]+'–'+sec.band[1]+' (aim for '+sec.sweet+').\nProducer prep answer: '+this.prepFor(sec)+(note?('\n## CURRENT VERSION OF THIS SECTION\n'+String(sec.text||'').trim()+'\n\n## REVISION NOTE (from audience feedback: apply it, and keep what already works)\n'+note+'\n'):'')+'\n\n## OUTPUT\nReturn ONLY the spoken words for this section as plain text — no labels, no quotes, no JSON.';
   }
   // Gemini response schema for the script call, so the reply has exactly these section keys.
   scriptSchema(sections){ const props={}; sections.forEach(s=>props[s.id]={type:'STRING'}); return {type:'OBJECT', properties:{sections:{type:'OBJECT', properties:props, required:sections.map(s=>s.id)}}, required:['sections']}; }
@@ -2391,13 +2463,13 @@ class Component extends DCLogic {
   async regenAll(){ if(this.state.generating || this.state.regenAllBusy || !this.requireProvider()) return;
     const mine=this.state.sections.filter(x=>!x.locked && (x.handEdited || x.editedBy));
     if(mine.length && !this._regenOk){ this.askConfirm('Replace your edits?', 'Regenerate all will replace '+mine.length+' section'+(mine.length===1?'':'s')+' you edited by hand ('+mine.map(x=>x.label).join(', ')+'). Lock a section to keep it.', 'Replace them', ()=>{ this._regenOk=true; this.regenAll().finally(()=>{ this._regenOk=false; }); }); return; } const pid=this.state.projectId; this.setState({regenAllBusy:true}); await this.generateScript(); if(this.stillOn(pid)) this.setState({regenAllBusy:false}); }
-  async regenSection(idx){
+  async regenSection(idx, note){
     const type=this.currentType(); const sec=this.state.sections[idx]; if(!sec||sec.locked||sec.regenBusy) return;
     if(!this.requireProvider()) return;
     const pid=this.state.projectId, sid=sec.id;
     const mark=(patch)=>this.setState({sections:this.state.sections.map(s=>s.id===sid?{...s, ...patch}:s)});
     mark({regenBusy:true});
-    try{ const raw=await this.generate(this.assembleSectionPrompt(type,sec)); if(!this.stillOn(pid)) return; const text=this.cleanSectionText(raw, sec); if(!text) throw new Error('the model returned no text'); this.markScenesStaleForSection(sec.label); const meR=this.me(); mark(this.state.teamEdit&&meR?{text, regenBusy:false, editedBy:meR.email, handEdited:true}:{text, regenBusy:false, editedBy:''}); this.persist(); }
+    try{ const raw=await this.generate(this.assembleSectionPrompt(type,sec,note)); if(!this.stillOn(pid)) return; const text=this.cleanSectionText(raw, sec); if(!text) throw new Error('the model returned no text'); this.markScenesStaleForSection(sec.label); const meR=this.me(); mark(this.state.teamEdit&&meR?{text, regenBusy:false, editedBy:meR.email, handEdited:true}:{text, regenBusy:false, editedBy:''}); this.persist(); }
     catch(e){ if(!this.stillOn(pid)) return; mark({regenBusy:false}); this.showToast('Regenerate failed: '+(e.message||e)); }
   }
   toggleLock(idx){ const n=this.state.sections.slice(); n[idx]={...n[idx], locked:!n[idx].locked}; this.setState({sections:n}, ()=>this.persist()); }
@@ -2606,7 +2678,7 @@ class Component extends DCLogic {
 
   // ---------- persistence ----------
   projectTitle(){ const named=(this.state.title||'').trim(); if(named) return named; const i=(this.state.idea||'').trim(); if(!i) return 'Untitled script'; const t=i.split(/[.!?\n]/)[0].trim(); return t.length>72?t.slice(0,72)+'…':t; }
-  projectData(){ const tk=this.state.ticket||{}; return { version:5, submitForm:{neededBy:'', whereRun:'', notes:'', approver:'', approvalBy:'', ...(this.state.submitForm||{})}, ticket:{values:tk.values||{}, edited:tk.edited||{}, notes:tk.notes||{}, unsure:tk.unsure||[], srcKey:tk.srcKey||'', at:tk.at||0}, idea:this.state.idea, title:this.state.title||'', titleManual:!!this.state.titleManual, questions:(this.state.questions||[]).map(q=>({id:q.id, kind:q.kind||'', q:q.q, why:q.why, options:q.options, answer:q.answer, skipped:!!q.skipped})), qIndex:this.state.qIndex, qRead:this.state.qRead, qKey:this.state.qKey, qAsked:!!this.state.qAsked, pickKey:this.state.pickKey||'', pickResult:this.state.pickResult||null, typeId:this.state.selectedTypeId, prepAnswers:this.state.prepAnswers, references:this.state.references, concepts:this.state.concepts, selectedConceptId:this.state.selectedConceptId, customConcept:this.state.customConcept, conceptSeen:this.state.conceptSeen, conceptKey:this.state.conceptKey||'', view:this.state.view, industry:this.state.industry, targetShotSeconds:this.state.targetShotSeconds, sections:this.state.sections.map(s=>({id:s.id,text:s.text,locked:!!s.locked,editedBy:s.editedBy||''})), sectionsByType:this.state.sectionsByType||{}, scenes:this.state.scenes, personas:this.state.personas }; }
+  projectData(){ const tk=this.state.ticket||{}; return { version:5, submitForm:{neededBy:'', whereRun:'', notes:'', approver:'', approvalBy:'', ...(this.state.submitForm||{})}, ticket:{values:tk.values||{}, edited:tk.edited||{}, notes:tk.notes||{}, unsure:tk.unsure||[], srcKey:tk.srcKey||'', at:tk.at||0}, review:this.state.review||null, reviewPick:this.state.reviewPick||[], idea:this.state.idea, title:this.state.title||'', titleManual:!!this.state.titleManual, questions:(this.state.questions||[]).map(q=>({id:q.id, kind:q.kind||'', q:q.q, why:q.why, options:q.options, answer:q.answer, skipped:!!q.skipped})), qIndex:this.state.qIndex, qRead:this.state.qRead, qKey:this.state.qKey, qAsked:!!this.state.qAsked, pickKey:this.state.pickKey||'', pickResult:this.state.pickResult||null, typeId:this.state.selectedTypeId, prepAnswers:this.state.prepAnswers, references:this.state.references, concepts:this.state.concepts, selectedConceptId:this.state.selectedConceptId, customConcept:this.state.customConcept, conceptSeen:this.state.conceptSeen, conceptKey:this.state.conceptKey||'', view:this.state.view, industry:this.state.industry, targetShotSeconds:this.state.targetShotSeconds, sections:this.state.sections.map(s=>({id:s.id,text:s.text,locked:!!s.locked,editedBy:s.editedBy||''})), sectionsByType:this.state.sectionsByType||{}, scenes:this.state.scenes, personas:this.state.personas }; }
   // Videos saved in this browser belong to whoever is signed in. Before any sign-in exists they live in the shared
   // key; the first person to sign in on this browser takes them over, and after that nothing carries across accounts.
   libKey(){ return this._scope?('vsg_projects:'+this._scope):'vsg_projects'; }
@@ -2685,7 +2757,7 @@ class Component extends DCLogic {
     if(!references.length && d.referenceText){ references=[{id:this.uid('ref'), name:d.referenceFileName||'reference', text:d.referenceText}]; }
     // A failed summary gets another try each time the video is opened (it was usually a network blip).
     references=references.map(r=>({...r, briefFailed:false, briefBusy:false}));
-    this.setState({ idea:d.idea||'', selectedTypeId:d.typeId||null, prepAnswers:d.prepAnswers||{}, references, sectionsByType, refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:d.concepts||[], selectedConceptId:d.selectedConceptId||null, customConcept:d.customConcept||'', conceptSeen:d.conceptSeen||[], conceptKey:d.conceptKey||'', conceptBusy:false, conceptError:null, sections, industry:d.industry||'', targetShotSeconds:d.targetShotSeconds||4, scenes:(d.scenes||[]).map(s=>({...s, scene_id:s.scene_id||this.uid('s'), regenBusy:false, shotsGenerating:false, shots:(s.shots||[]).map(sh=>({...sh, shot_id:sh.shot_id||this.uid('sh'), regenBusy:false, videoBusy:false}))})), personas:d.personas||[], view:this.viewFor(d.view, sections.length>0), submitForm:{neededBy:'', whereRun:'', notes:'', approver:'', approvalBy:'', ...(d.submitForm||{})}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0, ...(d.ticket||{})}, ticketBusy:false, ticketError:null, caseDraft:null, title:d.title||'', titleManual:!!d.titleManual, questions:(Array.isArray(d.questions)?d.questions:[]).map(q=>q&&q.kind==='speaker'?{...q, q:this.speakerQuestion().q, why:this.speakerQuestion().why, options:(q.options||[]).length>=4?q.options:this.speakerQuestion().options}:q), qIndex:(d.qIndex!=null?d.qIndex:(d.questions||[]).length), qRead:d.qRead||'', qKey:d.qKey||'', qAsked:!!d.qAsked, qError:null, pickKey:d.pickKey||'', ...this.idleFlags(), pickResult:d.pickResult||null, pickError:null, scenesError:null, expanded:{} });
+    this.setState({ idea:d.idea||'', selectedTypeId:d.typeId||null, prepAnswers:d.prepAnswers||{}, references, sectionsByType, refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:d.concepts||[], selectedConceptId:d.selectedConceptId||null, customConcept:d.customConcept||'', conceptSeen:d.conceptSeen||[], conceptKey:d.conceptKey||'', conceptBusy:false, conceptError:null, sections, industry:d.industry||'', targetShotSeconds:d.targetShotSeconds||4, scenes:(d.scenes||[]).map(s=>({...s, scene_id:s.scene_id||this.uid('s'), regenBusy:false, shotsGenerating:false, shots:(s.shots||[]).map(sh=>({...sh, shot_id:sh.shot_id||this.uid('sh'), regenBusy:false, videoBusy:false}))})), personas:d.personas||[], view:this.viewFor(d.view, sections.length>0), submitForm:{neededBy:'', whereRun:'', notes:'', approver:'', approvalBy:'', ...(d.submitForm||{})}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0, ...(d.ticket||{})}, ticketBusy:false, ticketError:null, caseDraft:null, review:d.review||null, reviewPick:Array.isArray(d.reviewPick)?d.reviewPick:[], reviewBusy:null, reviewError:null, title:d.title||'', titleManual:!!d.titleManual, questions:(Array.isArray(d.questions)?d.questions:[]).map(q=>q&&q.kind==='speaker'?{...q, q:this.speakerQuestion().q, why:this.speakerQuestion().why, options:(q.options||[]).length>=4?q.options:this.speakerQuestion().options}:q), qIndex:(d.qIndex!=null?d.qIndex:(d.questions||[]).length), qRead:d.qRead||'', qKey:d.qKey||'', qAsked:!!d.qAsked, qError:null, pickKey:d.pickKey||'', ...this.idleFlags(), pickResult:d.pickResult||null, pickError:null, scenesError:null, expanded:{} });
   }
   exportJSON(){ const blob=new Blob([JSON.stringify(this.projectData(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(this.projectTitle().replace(/[^a-z0-9]+/gi,'-').toLowerCase()||'video-script')+'.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
   importJSON(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ let d; try{ d=JSON.parse(r.result); }catch(err){ d=null; } if(!d||typeof d!=='object'||Array.isArray(d)){ this.showToast('Invalid project file'); return; }
@@ -2693,7 +2765,7 @@ class Component extends DCLogic {
       this.flushPersist(); this.setState({projectId:this.uid('proj'), projectsMenuOpen:false}); this.loadProjectData(d); this.persistNow(); this.showToast('Imported as a new video'); }; r.readAsText(f); }; inp.click(); }
   // The brief steps reopen where they were left; scenes and shots need advanced mode, so without it they open the script.
   viewFor(v, hasSections){ if(v==='studio') v='workspace'; if(['intake','questions','type','concept'].includes(v)) return v; if(!hasSections) return 'intake'; if((v==='scenes'||v==='shots') && !this.state.advanced) return 'workspace'; return v||'workspace'; }
-  newProject(){ this.releaseLock(); if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const id=this.newProjectId(); this._revs=this._revs||{}; this._revs[id]=0; if(this._unsubCur){ this._unsubCur(); this._unsubCur=null; } this.setState({ projectId:id, remoteChange:null, cloudDoc:null, myMsgs:[], submitForm:{neededBy:'', whereRun:'', notes:''}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
+  newProject(){ this.releaseLock(); if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const id=this.newProjectId(); this._revs=this._revs||{}; this._revs[id]=0; if(this._unsubCur){ this._unsubCur(); this._unsubCur=null; } this.setState({ projectId:id, remoteChange:null, cloudDoc:null, myMsgs:[], submitForm:{neededBy:'', whereRun:'', notes:''}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null, review:null, reviewPick:[], reviewBusy:null, reviewError:null, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
   downloadText(name, text, mime){ this.downloadBlob(name, new Blob([text],{type:mime||'text/plain'})); }
   _fallbackCopy(text){ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ document.execCommand('copy'); this.showToast('Copied to clipboard'); }catch(e){ this.showToast('Copy failed'); } ta.remove(); }
   copyText(text){ try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(()=>this.showToast('Copied to clipboard'),()=>this._fallbackCopy(text)); return; } }catch(e){} this._fallbackCopy(text); }
@@ -3234,7 +3306,7 @@ class Component extends DCLogic {
     this._unsubMyMsgs=fsM.onSnapshot(mq, snap=>{ if(this.state.projectId!==id) return; this.setState({myMsgs:snap.docs.map(x=>({id:x.id, ...x.data(), at:this.ms(x.data().at)||Date.now()})).sort((a,b)=>a.at-b.at)}); }, ()=>{});
   }
   // ----- merging two people's edits -----
-  fieldLabel(k){ return ({title:'the title', idea:'the idea', typeId:'the video type', customConcept:'the concept', selectedConceptId:'the concept', references:'the reference documents', submitForm:'the submission details', ticket:'the ticket'}[k])||k; }
+  fieldLabel(k){ return ({title:'the title', idea:'the idea', typeId:'the video type', customConcept:'the concept', selectedConceptId:'the concept', references:'the reference documents', submitForm:'the submission details', ticket:'the ticket', review:'the audience review', reviewPick:'the review readers'}[k])||k; }
   sectionLabelIn(data, id){ const t=this.TYPES.find(x=>x.id===(data&&data.typeId)); const d=t&&t.sections.find(x=>x.id===id); return d?d.label:id; }
   // Three-way merge: what changed on only one side is kept; only the same field or section changed on both sides is a conflict.
   mergeData(base, local, remote){
@@ -3469,6 +3541,112 @@ class Component extends DCLogic {
       await this.addEvent(sel, 'teamEdit', 'restored an earlier version');
       this.showToast('Restored. The previous script is saved as a version.'); this.selectStudio(sel.id);
     }catch(e){ this.showToast('Couldn’t restore: '+this.cloudMessage(e)); }
+  }
+
+  // ---------- audience review: AI readers react to the script ----------
+  // Each reader hears only the narration (no brief, no intended message), so whether they got the point is a fair test.
+  // A summary then compares their takeaways with what the requester meant and recommends changes, which can be applied.
+  REVIEW_READERS = [
+    {id:'target', label:'Your target viewer'},
+    {id:'newcomer', label:'The newcomer', desc:'Smart and curious, but outside this industry and new to {brand}. You don’t know the jargon, and each step has to make sense on its own.'},
+    {id:'skeptic', label:'The skeptic', desc:'An experienced buyer who has sat through plenty of vendor pitches. You discount hype, look for proof, and notice when something sounds like marketing.'},
+    {id:'scroller', label:'The busy scroller', desc:'Watching on your phone between meetings, half paying attention. If the opening doesn’t hook you, you move on.'},
+    {id:'exec', label:'The executive', desc:'A senior leader with two minutes to spare. You want the business outcome and why it matters now, not the details.'},
+    {id:'colleague', label:'The colleague', desc:'Someone who works at {brand} and knows its products well. You notice anything inaccurate, off-tone, or unlike how {brand} talks.'},
+    {id:'partner', label:'The partner', desc:'Someone at a partner firm who would retell this story to their own clients. You need to be able to repeat the point in your own words.'},
+    {id:'customer', label:'The existing customer', desc:'Someone who already uses {brand}. You want to know what is new or relevant for you, and you notice claims that don’t match your experience.'}
+  ];
+  reviewAudience(){ const a=this.answeredQA().find(q=>/audience|who (will|is going to) (watch|see)|who is (it|this|the video) for/i.test(q.q)); return a?String(a.answer).trim():''; }
+  reviewReader(id){
+    const r=this.REVIEW_READERS.find(x=>x.id===id); if(!r) return null;
+    const name=(this.state.brand||'').trim();
+    let desc=r.desc||'';
+    if(id==='target'){ const a=this.reviewAudience(); desc=a?('One of the people this video is made for: '+a.replace(/[.\s]+$/,'')+'.'):('A typical viewer this video is aimed at. The topic: '+String(this.state.idea||'').trim().slice(0,240)); }
+    return {id, label:id==='colleague'&&name?('The '+name+' colleague'):r.label, desc:desc.replace(/\{brand\}/g, name||'the company')};
+  }
+  reviewSrcKeyOf(sections, typeId){ return this.hashOf(this.stable({t:typeId||'', s:(sections||[]).map(x=>String(x.text||''))})); }
+  assembleReaderPrompt(r){
+    const t=this.currentType(); const where=String((this.state.submitForm||{}).whereRun||'').trim(); const sp=this.speakerAnswer();
+    const script=(this.state.sections||[]).map(x=>String(x.text||'').trim()).filter(Boolean).join('\n\n');
+    return 'You are a viewer giving honest, first-person feedback on a short video before it is made. Stay in character the whole time: '+r.desc+'\n\n'
+      +'You will watch a '+(t?(t.label.toLowerCase()+' video of about '+t.runtime):'short video')+(where?(', shown '+where):'')+'.'+(sp?(' It is delivered by '+sp.replace(/[.\s]+$/,'').toLowerCase()+'.'):'')+' This narration is everything you get; you have not seen any brief and don’t know what the makers intended.\n\n'
+      +'## THE NARRATION\n'+script+'\n\n## TASK\nReact as this viewer would, not as a copywriter. Be specific; when you point at something, quote the narration’s exact words.\n'
+      +'Return JSON only: {"takeaway": "one sentence, in your own words: what this video wants you to remember", "lost": "the exact line where you got lost or confused, and why; or an empty string", "inauthentic": "the exact line that felt like marketing speak or hard to believe, and why; or an empty string", "reaction": "3 to 5 sentences of your honest overall reaction, in the first person"}';
+  }
+  assembleReviewSummaryPrompt(readers){
+    const t=this.currentType();
+    const script=(this.state.sections||[]).map(x=>'['+x.id+'] '+x.label+':\n'+String(x.text||'').trim()).join('\n\n');
+    return 'You are a video producer reviewing audience feedback on a draft '+this.brandAdj()+' '+(t?t.label+' ':'')+'script, to decide how to take it forward.\n\n'
+      +'## WHAT THE REQUESTER WANTED\nIdea: '+String(this.state.idea||'').trim()+'\n'+this.qaBlock()+'\n## THE SCRIPT (section ids in brackets)\n'+script+'\n\n'
+      +'## AUDIENCE FEEDBACK\n'+readers.map(r=>'### '+r.id+': '+r.label+' ('+r.desc+')\nTook away: '+(r.takeaway||'(nothing)')+'\nGot lost at: '+(r.lost||'nowhere')+'\nDidn’t ring true: '+(r.inauthentic||'nothing')+'\nReaction: '+(r.reaction||'')).join('\n\n')+'\n\n'
+      +'## TASK\n1. "intended": the key message the requester meant, in one sentence, from their idea and answers.\n'
+      +'2. "verdicts": for each reader (use the id before the colon), whether their takeaway matches it: "got", "partly" or "missed", with one short reason.\n'
+      +'3. "nextSteps": 2 or 3 concrete next steps, most important first, each pointing at a line or section.\n'
+      +'4. "plan": one short paragraph recommending how to change the script.\n'
+      +'5. "changes": the sections that should change (section ids from the brackets; at most 4; only where the feedback justifies it), each with a specific instruction a scriptwriter can follow. Keep what works; don’t rewrite for its own sake. If the script already works, return an empty list and say so in the plan.\n\n'
+      +'Return JSON only: {"intended": "", "verdicts": [{"id": "", "verdict": "got|partly|missed", "why": ""}], "nextSteps": [""], "plan": "", "changes": [{"section": "", "change": ""}]}';
+  }
+  async runReview(){
+    const st=this.state; if(st.reviewBusy) return;
+    if(!(st.sections||[]).some(x=>(x.text||'').trim())){ this.showToast('Write the script first.'); return; }
+    if(!this.requireProvider()) return;
+    let picked=(st.reviewPick||[]).filter(id=>this.REVIEW_READERS.some(r=>r.id===id)).slice(0,3);
+    // Always three readers: the ones picked, and the rest chosen at random.
+    const pool=this.REVIEW_READERS.map(r=>r.id).filter(id=>!picked.includes(id)); for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i], pool[j]]=[pool[j], pool[i]]; } picked=picked.concat(pool).slice(0,3);
+    const readers=picked.map(id=>this.reviewReader(id)); const pid=st.projectId; const key=this.reviewSrcKeyOf(st.sections, st.selectedTypeId);
+    const opts={json:true, quick:true, timeoutMs:this.quickTimeout()};
+    this.setState({reviewBusy:'readers', reviewError:null, reviewPick:picked}, ()=>this.persist());
+    const res=await Promise.allSettled(readers.map(r=>this.generate(this.assembleReaderPrompt(r), opts).then(o=>this.parseJSON(o)||{})));
+    if(!this.stillOn(pid)) return;
+    const txt=(x, n)=>String(x==null?'':x).trim().slice(0, n||1200);
+    const out=readers.map((r, i)=>{ const v=res[i].status==='fulfilled'?res[i].value:null; return v?{...r, takeaway:txt(v.takeaway,400), lost:txt(v.lost), inauthentic:txt(v.inauthentic), reaction:txt(v.reaction,2000)}:{...r, failed:true}; });
+    const ok=out.filter(r=>!r.failed);
+    if(!ok.length){ const e=res.find(x=>x.status==='rejected'); this.setState({reviewBusy:null, reviewError:String((e && e.reason && e.reason.message) || 'None of the readers answered.')}); return; }
+    this.setState({reviewBusy:'summary'});
+    let sum={}, sumFailed=false;
+    try{ sum=this.parseJSON(await this.generate(this.assembleReviewSummaryPrompt(ok), opts))||{}; }catch(e){ sumFailed=true; }
+    if(!this.stillOn(pid)) return;
+    const verdicts={}; (Array.isArray(sum.verdicts)?sum.verdicts:[]).forEach(v=>{ if(v && v.id) verdicts[v.id]={verdict:['got','partly','missed'].includes(v.verdict)?v.verdict:'', why:txt(v.why,300)}; });
+    const ids=(this.state.sections||[]).map(x=>x.id);
+    const changes=(Array.isArray(sum.changes)?sum.changes:[]).filter(c=>c && ids.includes(c.section) && String(c.change||'').trim()).slice(0,4).map(c=>({section:c.section, change:txt(c.change,600)}));
+    const review={at:Date.now(), srcKey:key, readers:out.map(r=>({...r, verdict:(verdicts[r.id]||{}).verdict||'', why:(verdicts[r.id]||{}).why||''})), intended:txt(sum.intended,400),
+      nextSteps:(Array.isArray(sum.nextSteps)?sum.nextSteps:[]).map(x=>txt(x,400)).filter(Boolean).slice(0,3), plan:sumFailed?'The summary didn’t come back, so there is no recommendation this time. The readers’ reactions are below.':txt(sum.plan,1500), changes};
+    this.setState({review, reviewBusy:null}, ()=>this.persist());
+  }
+  // Rewrites only the sections the summary named, each with its instruction. The previous text is one click away.
+  async reviseFromReview(){
+    const rv=this.state.review; if(!rv || !(rv.changes||[]).length || this.state.reviewBusy) return;
+    const targets=rv.changes.map(c=>({c, idx:this.state.sections.findIndex(x=>x.id===c.section)})).filter(x=>x.idx>=0);
+    const locked=targets.filter(x=>this.state.sections[x.idx].locked), todo=targets.filter(x=>!this.state.sections[x.idx].locked);
+    if(!todo.length){ this.showToast('The sections to change are locked. Unlock them first.'); return; }
+    const hand=todo.filter(x=>this.state.sections[x.idx].handEdited);
+    if(hand.length && !this._reviseOk){ this.askConfirm('Rewrite sections you edited?', 'This rewrites '+hand.map(x=>this.state.sections[x.idx].label).join(', ')+', which you changed by hand. You can undo it right after.', 'Revise', ()=>{ this._reviseOk=true; this.reviseFromReview().finally(()=>{ this._reviseOk=false; }); }); return; }
+    if(!this.requireProvider()) return;
+    const before=this.state.sections.map(x=>({id:x.id, text:x.text, handEdited:!!x.handEdited, editedBy:x.editedBy||''})); const pid=this.state.projectId;
+    if(this.canShare()) this.saveVersion('beforeRevise');
+    this.setState({reviewBusy:'revise'});
+    await Promise.all(todo.map(x=>this.regenSection(x.idx, x.c.change)));
+    if(!this.stillOn(pid)) return;
+    // The text before the revision stays with the review, so it can be undone until the next review.
+    this.setState({reviewBusy:null, review:{...this.state.review, revisedAt:Date.now(), before}}, ()=>this.persist());
+    this.showToast('Revised '+todo.length+' section'+(todo.length===1?'':'s')+(locked.length?(' (skipped '+locked.length+' locked)'):'')+'. Get fresh feedback to see how it lands.', {label:'Undo', fn:()=>this.undoRevise(pid)});
+  }
+  undoRevise(pid){
+    if(pid && !this.stillOn(pid)) return; const rv=this.state.review; if(!rv || !rv.before) return;
+    const m={}; rv.before.forEach(b=>{ m[b.id]=b; });
+    this.setState({sections:this.state.sections.map(x=>m[x.id]?{...x, text:m[x.id].text, handEdited:m[x.id].handEdited, editedBy:m[x.id].editedBy}:x), review:{...rv, before:null, revisedAt:0}}, ()=>this.persist());
+    this.showToast('Revision undone. The script is back to how the readers heard it.');
+  }
+  // What both the Script page and the Studio show.
+  reviewVM(rv, sections, typeId){
+    if(!rv) return {has:false, readers:[], steps:[], changes:[]};
+    const vc={got:['#0B6B3A','rgba(30,150,90,0.14)','Got it'], partly:['#8A6A00','rgba(255,200,54,0.24)','Partly'], missed:['#C4471A','rgba(247,105,35,0.14)','Missed it']};
+    const stale=!!rv.srcKey && rv.srcKey!==this.reviewSrcKeyOf(sections, typeId);
+    const type=this.TYPES.find(t=>t.id===typeId); const label=id=>{ const x=(sections||[]).find(y=>y.id===id); const d=type && type.sections.find(y=>y.id===id); return (x && x.label) || (d && d.label) || id; };
+    return { has:true, stale, when:'Read '+this.relTime(rv.at)+(rv.revisedAt?(' · revised '+this.relTime(rv.revisedAt)):''), intended:rv.intended||null, plan:rv.plan||'',
+      steps:(rv.nextSteps||[]).map(t=>({text:t})), hasSteps:!!(rv.nextSteps||[]).length, changes:(rv.changes||[]).map(c=>({label:label(c.section), change:c.change})), hasChanges:!!(rv.changes||[]).length,
+      canRevise:!stale && !!(rv.changes||[]).length, canUndo:!!rv.before,
+      readers:(rv.readers||[]).map(r=>{ const v=vc[r.verdict]; return { label:r.label, desc:r.desc, failed:!!r.failed, hasVerdict:!!v, verdictLabel:v?v[2]:'', vColor:v?v[0]:'var(--fg-muted)', vBg:v?v[1]:'transparent', why:r.why||null, takeaway:r.takeaway||null, lost:r.lost||null, inauthentic:r.inauthentic||null, reaction:r.reaction||null }; }) };
   }
 
   // ---------- ticket: the request system's "new request" form, filled from the brief ----------
@@ -4139,7 +4317,7 @@ class Component extends DCLogic {
           studioEmpty:!rows.length, noStudioSel:!sel, hasStudioSel:!!sel, studioSelGone:!!st.studioSel && !sel && !!this._studioSeen && this._studioSeen===st.studioSel,
           sd:sel?{ title:sel.title, isDraft:sel.status==='drafting', lockLine:this.lockLineFor(sel), canSendBack:sel.status!=='drafting' && sel.status!=='done',
             compareNote:ver?(((ver.sections||[]).every(x=>(curSecs.find(c=>c.id===x.id)||{}).text===x.text) && (ver.sections||[]).length===curSecs.length)?'No differences: the current script matches this version.':'Struck-through words were removed and highlighted words added since this version.'):'',
-            single:!ver, compare:!!ver, compareLabel:ver?(({submitted:'Submitted',resubmitted:'Resubmitted',manual:'Saved',beforeRestore:'Before restore'}[ver.kind]||'Version')+' · '+this.relTime(ver.at)):'',
+            single:!ver, compare:!!ver, compareLabel:ver?(({submitted:'Submitted',resubmitted:'Resubmitted',manual:'Saved',beforeRestore:'Before restore', beforeRevise:'Before revision'}[ver.kind]||'Version')+' · '+this.relTime(ver.at)):'',
             compareRows:ver?(()=>{ const ids=[]; curSecs.forEach(x=>ids.push(x.id)); (ver.sections||[]).forEach(x=>{ if(!ids.includes(x.id)) ids.push(x.id); }); const vm={}; (ver.sections||[]).forEach(x=>vm[x.id]=x);
               const seg=(arr)=>arr.map(g=>({ text:g.text+' ', bg:g.cls==='del'?'rgba(247,105,35,0.18)':(g.cls==='add'?'rgba(16,165,172,0.22)':'transparent'), deco:g.cls==='del'?'line-through':'none' }));
               return ids.map(id=>{ const o=(vm[id]||{}).text||'', n=curMap[id]||''; const d=this.diffWords(o, n); const changed=o.trim()!==n.trim(); return { label:(vm[id]||{}).label||label(id), tag:changed?' · changed':'', labelColor:changed?'#7A5C00':'var(--c-emerald)', oldSegs:seg(d.old), newSegs:seg(d.neu) }; }); })():[], ownerName:this.nameOf(sel.ownerEmail), byline:sel.ownerEmail+' · started '+this.relTime(sel.createdAt)+' · last activity '+this.relTime(Math.max(sel.updatedAt,sel.activityAt))+' by '+((sel.activityAt>sel.updatedAt?sel.activityBy:sel.updatedBy)||sel.ownerEmail),
@@ -4147,7 +4325,7 @@ class Component extends DCLogic {
             caseLabel:st.ticketPack?((st.ticketPack.name||'Ticket')+' case'):'Scheduler case ID', casePlaceholder:(st.ticketPack&&st.ticketPack.casePlaceholder)||'e.g. V-1234', caseSystem:(st.ticketPack&&st.ticketPack.name)||'', caseLink:this.caseUrl(this.normCase(sel.caseId)),
             refs:((c&&c.references)||[]).map(r=>{ const full=(st.studioRefOpen===r.id); return {name:r.name, body:full?(String(r.text||'')||r.brief||''):(r.brief||String(r.text||'').slice(0,600)+((r.text||'').length>600?'…':'')), toggleLabel:full?'Show the summary':'Show the full text', onToggle:()=>this.setState({studioRefOpen:full?null:r.id})}; }), hasRefs:!!((c&&c.references)||[]).length,
             loading:st.studioLoading, versionSel:st.studioVersionSel,
-            versionOptions:[{id:'current', label:'Current'}].concat((st.studioVersions||[]).map(v=>({id:v.id, label:'Compare with: '+({submitted:'Submitted',resubmitted:'Resubmitted',manual:'Saved',beforeRestore:'Before restore'}[v.kind]||'Version')+' · '+(v.byTeam?this.nameOf(v.by):'requester')+' · '+this.relTime(v.at)}))),
+            versionOptions:[{id:'current', label:'Current'}].concat((st.studioVersions||[]).map(v=>({id:v.id, label:'Compare with: '+({submitted:'Submitted',resubmitted:'Resubmitted',manual:'Saved',beforeRestore:'Before restore', beforeRevise:'Before revision'}[v.kind]||'Version')+' · '+(v.byTeam?this.nameOf(v.by):'requester')+' · '+this.relTime(v.at)}))),
             sections:shown.map(s=>({label:s.label||label(s.id), text:s.text||'', changed:!!ver && (curMap[s.id]||'')!==(s.text||'')})), noSections:!st.studioLoading && !shown.some(s=>(s.text||'').trim()),
             messages:(st.studioMsgs||[]).map(m=>({ who:m.authorEmail===me.email?'You':(m.authorIsTeam?this.nameOf(m.authorEmail)+' (video team)':m.authorEmail), when:this.relTime(m.at), tag:m.internal?' · internal note':'', text:m.text,
               bg:m.internal?'rgba(255,200,54,0.12)':(m.authorIsTeam?'rgba(95,103,185,0.07)':'var(--c-grey-50)'), border:m.internal?'rgba(255,200,54,0.5)':'var(--border-hairline)' })),
@@ -4168,6 +4346,7 @@ class Component extends DCLogic {
               kbNotes:d && d.key==='__notes'?d.value:((k&&k.notes)||''), onKbNotes:(e)=>this.setState({kbDraft:{id:sel.id, key:'__notes', value:e.target.value}}), onKbNotesBlur:()=>this.commitKickoff(sel.id),
               onKbBuild:()=>this.buildKickoff(sel.id, false), onKbFromNotes:()=>this.kickoffFromNotes(sel.id),
               onKbCopy:()=>{ this.commitKickoff(sel.id); this.copyText(this.kickoffText(sel, this.kickoffOf(sel.id))); }, onKbDocx:()=>{ this.commitKickoff(sel.id); this.exportKickoffDocx(sel, this.kickoffOf(sel.id)); } }; })(),
+          sdRv:sel?this.reviewVM(c && c.review, (c && c.sections) || [], c && c.typeId):{has:false, readers:[], steps:[], changes:[]},
           statusOptions:this.STATUSES.map(x=>({id:x.id, label:(x.id==='submitted'&&st.ticketPack)?'Ready':x.label})),
           assignOptions:[{id:'', label:'Nobody yet'}].concat((st.teamEmails||[]).map(e=>({id:e, label:e}))),
           onSdStatus:(e)=>{ if(sel) this.sdDraft(sel, 'status', e.target.value, 900); }, onSdStatusBlur:()=>{ if(sel) this.sdCommit(sel); },
@@ -4200,6 +4379,14 @@ class Component extends DCLogic {
       steps, appTitle:st.advanced?'Video Script & B-Roll Generator':'Video Script Generator', advanced:st.advanced, simpleMode:!st.advanced,
       isIntake:st.view==='intake', isQuestions:st.view==='questions', isTypeStep:st.view==='type', isWorkspace:st.view==='workspace', isScenes:st.view==='scenes', isShots:st.view==='shots',
       settingsOpen:st.settingsOpen, toast:st.toast, showCoaching, showCoachingNow:showCoaching && st.showHeads!==false,
+      ...(()=>{ const pick=st.reviewPick||[]; const busy=st.reviewBusy;
+        return { rv:this.reviewVM(st.review, st.sections, st.selectedTypeId), rvBusy:!!busy, rvBtnOpacity:busy?'0.6':'1', rvError:st.reviewError||null,
+          rvBusyText:{readers:'Your readers are listening to the script…', summary:'Pulling their feedback together…', revise:'Revising the sections…'}[busy]||'',
+          rvBtnLabel:busy==='readers'?'Readers are listening…':(busy==='summary'?'Summing up…':(busy==='revise'?'Revising…':(st.review?'Get fresh feedback':'Get audience feedback'))),
+          rvReviseLabel:busy==='revise'?'Revising…':'Revise the script this way', onRunReview:()=>this.runReview(), onRevise:()=>this.reviseFromReview(), onUndoRevise:()=>this.undoRevise(),
+          rvPickNote:pick.length?(pick.length+' of 3 picked. '+(pick.length<3?((3-pick.length)===1?'The third is chosen at random.':'The other two are chosen at random.'):'Unpick one to swap.')):'Pick up to three readers, or leave it and three are chosen at random.',
+          rvChips:this.REVIEW_READERS.map(r=>{ const on=pick.includes(r.id); const rr=this.reviewReader(r.id); return { label:rr.label, title:rr.desc, on:on?'true':'false', bg:on?'rgba(95,103,185,0.14)':'var(--c-white)', border:on?'var(--c-violet)':'var(--border-hairline)', color:on?'var(--c-violet)':'var(--c-navy)', weight:on?'700':'500',
+            onToggle:()=>{ const p=this.state.reviewPick||[]; if(p.includes(r.id)) this.setState({reviewPick:p.filter(x=>x!==r.id)}, ()=>this.persist()); else if(p.length>=3) this.showToast('Three readers at most. Unpick one first.'); else this.setState({reviewPick:p.concat([r.id])}, ()=>this.persist()); } }; }) }; })(),
       showHeads:st.showHeads!==false, headsPressed:st.showHeads!==false?'true':'false', headsLabel:'Section headers: '+(st.showHeads!==false?'on':'off'),
       readCard:st.showHeads!==false?'':'border-color:transparent;box-shadow:none;background:transparent', readPad:st.showHeads!==false?'18px 20px':'0',
       secPad:st.showHeads!==false?'10px 0':'4px 0', secRule:st.showHeads!==false?'1px solid var(--divider)':'none',
