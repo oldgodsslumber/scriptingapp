@@ -176,7 +176,8 @@
           <input type="file" multiple accept=".docx,.pptx,.pdf,.txt,.md" onChange="{{ onRefFile }}" style="display:none"/>
         </label>
         <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
-          <input type="url" value="{{ refUrl }}" onChange="{{ onRefUrl }}" onKeyDown="{{ onRefUrlKey }}" placeholder="Or paste a web page link, e.g. https://www.example.com/product" aria-label="Web page link" style="flex:1;min-width:240px;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+          <input type="text" inputMode="url" autoComplete="off" spellCheck="false" value="{{ refUrl }}" onChange="{{ onRefUrl }}" onKeyDown="{{ onRefUrlKey }}" onPaste="{{ onRefUrlPaste }}" onDragOver="{{ onDragOver }}" onDrop="{{ onRefUrlDrop }}" placeholder="Or paste a web page link, e.g. https://www.example.com/product" aria-label="Web page link" style="flex:1;min-width:240px;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+          <button onClick="{{ onPasteRefUrl }}" disabled="{{ refUrlBusy }}" style="padding:10px 16px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:13px;font-weight:700;cursor:pointer">Paste link</button>
           <button onClick="{{ onAddRefUrl }}" disabled="{{ refUrlBusy }}" style="padding:10px 16px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;opacity:{{ refUrlOpacity }}">{{ refUrlLabel }}</button>
         </div>
         <div style="font-size:12px;color:var(--fg-muted);margin-top:6px">Public pages only. For a page that needs a sign-in (an intranet page, say), save it as a PDF and attach the file.</div>
@@ -2793,6 +2794,17 @@ class Component extends DCLogic {
     if((this.state.references||[]).some(r=>r.name===file.name && (r.size==null || r.size===file.size))){ this.setState({refStatus:file.name+' is already attached.'}); return; } this.setState({refStatus:'Parsing '+file.name+'…'}); try{ const text=await this.parseReference(file); if(!this.stillOn(pid)) return; if(!text.trim()) throw new Error(/\.(txt|md)$/i.test(file.name)?'the file is empty':'no text found (scanned or image-only?)'); const references=(this.state.references||[]).concat([{id:this.uid('ref'), name:file.name, size:file.size, text}]); this.setState({references, refStatus:'.docx · .pptx · .pdf · .txt · .md'}, ()=>this.persist()); }catch(e){ this.setState({refStatus:'Could not parse '+file.name+': '+(e.message||e)}); } }
   // A web page joins the reference documents. The server reads it (most sites don't let a browser read them); without
   // the server, the browser tries directly, which works only where the site allows it.
+  // Browsers hand over a copied or dragged link as a link list, plain text or a snippet of HTML; take the first web address.
+  linkFrom(dt){ if(!dt || typeof dt.getData!=='function') return ''; const get=t=>{ try{ return String(dt.getData(t)||''); }catch(e){ return ''; } };
+    const list=get('text/uri-list').split(/\r?\n/).map(x=>x.trim()).find(x=>x && x[0]!=='#'); if(list && /^https?:\/\//i.test(list)) return list;
+    const m=get('text/plain').match(/https?:\/\/[^\s<>"']+/i); if(m) return m[0].replace(/[).,;]+$/,'');
+    const h=get('text/html').match(/href=["'](https?:\/\/[^"']+)["']/i); if(h) return h[1].replace(/&amp;/g,'&');
+    const plain=get('text/plain').trim(); return /^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(plain)?plain:''; }
+  takeLink(link){ if(!link) return false; this.setState({refUrl:link}, ()=>this.addWebReference()); return true; }
+  async pasteRefUrl(){
+    let t=''; try{ t=String((navigator.clipboard && await navigator.clipboard.readText())||''); }catch(e){ this.setState({refStatus:'Your browser didn’t share the clipboard. Click in the box and press Ctrl+V (⌘V on a Mac).'}); return; }
+    if(!this.takeLink(this.linkFrom({getData:x=>x==='text/plain'?t:''}))) this.setState({refStatus:t.trim()?'There’s no web link on the clipboard. Copy the page’s address first.':'The clipboard is empty. Copy the page’s address first.'});
+  }
   async addWebReference(){
     const raw=String(this.state.refUrl||'').trim(); if(!raw || this.state.refUrlBusy) return;
     let url; try{ url=new URL(/^https?:\/\//i.test(raw)?raw:'https://'+raw); }catch(e){ this.setState({refStatus:'That doesn’t look like a web address.'}); return; }
@@ -4917,11 +4929,13 @@ go();
       // intake
       idea:st.idea, onIdea:(e)=>this.setState({idea:e.target.value},()=>this.persist()), types, hasType:!!type, typeLabel:type?type.label:'',
       pickLabel:st.pickBusy?'Recommending…':'Recommend again', onPickForMe:()=>this.doPickForMe(), pickResult:st.pickResult, pickError:st.pickError, prepList,
-      refUrl:st.refUrl||'', onRefUrl:(e)=>this.setState({refUrl:e.target.value}), onRefUrlKey:(e)=>{ if(e.key==='Enter'){ e.preventDefault(); this.addWebReference(); } }, onAddRefUrl:()=>this.addWebReference(),
+      refUrl:st.refUrl||'', onRefUrl:(e)=>this.setState({refUrl:e.target.value}), onRefUrlKey:(e)=>{ if(e.key==='Enter'){ e.preventDefault(); this.addWebReference(); } }, onAddRefUrl:()=>this.addWebReference(), onPasteRefUrl:()=>this.pasteRefUrl(),
+      onRefUrlPaste:(e)=>{ const cur=String(e.target.value||'').trim(); if(cur && e.target.selectionStart!==0) return; const link=this.linkFrom(e.clipboardData); if(link){ e.preventDefault(); this.takeLink(link); } },
+      onRefUrlDrop:(e)=>{ e.preventDefault(); const fs=e.dataTransfer.files?Array.from(e.dataTransfer.files):[]; if(fs.length){ this.onRefFiles(fs); return; } this.takeLink(this.linkFrom(e.dataTransfer)); },
       refUrlBusy:!!st.refUrlBusy, refUrlOpacity:st.refUrlBusy?'0.6':'1', refUrlLabel:st.refUrlBusy?'Reading…':'Add page',
       references:(st.references||[]).map(r=>({ id:r.id, name:r.name, charLabel:(r.url?((()=>{ try{ return new URL(r.url).hostname+' · '; }catch(e){ return ''; } })()):'')+((r.text?r.text.length:0).toLocaleString())+' characters'+((r.brief||'').trim()?' · distilled ✓':(r.briefBusy?' · summarizing…':(r.briefFailed?' · summary failed, using raw text':' · distilled on generate'))), briefFailed:!!r.briefFailed && !r.briefBusy && !(r.brief||'').trim(), onRetry:()=>this.retryBrief(r.id), onRemove:()=>this.removeReference(r.id) })), refStatus:st.refStatus,
       onDropKey:(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); const i=e.currentTarget.querySelector('input[type=file]'); if(i) i.click(); } },
-      onRefFile:(e)=>{ const fs=e.target.files?Array.from(e.target.files):[]; e.target.value=''; this.onRefFiles(fs); }, onDragOver:(e)=>e.preventDefault(), onDrop:(e)=>{ e.preventDefault(); const fs=e.dataTransfer.files?Array.from(e.dataTransfer.files):[]; if(fs.length) this.onRefFiles(fs); },
+      onRefFile:(e)=>{ const fs=e.target.files?Array.from(e.target.files):[]; e.target.value=''; this.onRefFiles(fs); }, onDragOver:(e)=>e.preventDefault(), onDrop:(e)=>{ e.preventDefault(); const fs=e.dataTransfer.files?Array.from(e.dataTransfer.files):[]; if(fs.length) this.onRefFiles(fs); else this.takeLink(this.linkFrom(e.dataTransfer)); },
       generateDisabled:!canGen, generateBg:canGen?'var(--c-emerald)':'var(--c-grey-300)', generateCursor:canGen?'pointer':'not-allowed',
       generateHint:!st.idea.trim()?'Add an idea to begin.':(!type?'Choose a video type.':(this.hasProvider()?(type.id==='overview'?'Ready. Next you’ll pick a concept, then it drafts the script in your brand voice'+(st.advanced?' with '+engineName:'')+'.':(type.kind==='podcast'?'Ready. This plans the hook ideas, opening, closing and topics, with the questions worth asking'+(st.advanced?' with '+engineName:'')+'.':'Ready. This drafts every section in your brand voice'+(st.advanced?' with '+engineName:'')+'.')):(st.provider==='gemini'?'Add your Gemini key in Settings, or switch engines.':'Built-in Claude isn’t available here — pick Gemini or Local in Settings.'))), onGenerate:()=>{ if(canGen) this.onGenerateClick(); }, generateLabel:(type&&type.id==='overview')?'Next: pick a concept':((type&&type.kind==='podcast')?'Plan the episode':'Generate script'),
 
