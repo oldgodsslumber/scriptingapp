@@ -649,7 +649,10 @@
             <div style="font-family:var(--font-display);font-weight:600;font-size:19px;color:var(--c-navy)">Audience review</div>
             <div style="font-size:13px;line-height:1.5;color:var(--fg-muted);margin-top:4px">Three AI readers hear your script the way real viewers would, with nothing but the words. Did they get the message, get lost, or stop believing it? You get their reactions and a recommendation for what to change.</div>
           </div>
-          <button onClick="{{ onRunReview }}" disabled="{{ rvBusy }}" style="padding:10px 16px;border-radius:var(--radius-sm);background:var(--c-emerald);border:1px solid var(--c-emerald);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;opacity:{{ rvBtnOpacity }}">{{ rvBtnLabel }}</button>
+          <span style="display:flex;gap:8px;flex-wrap:wrap">
+            <sc-if value="{{ rv.has }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onOpenWalk }}" disabled="{{ rvBusy }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:10px 14px;font-size:13px">Walk through the feedback</button></sc-if>
+            <button onClick="{{ onRunReview }}" disabled="{{ rvBusy }}" style="padding:10px 16px;border-radius:var(--radius-sm);background:var(--c-emerald);border:1px solid var(--c-emerald);color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;opacity:{{ rvBtnOpacity }}">{{ rvBtnLabel }}</button>
+          </span>
         </div>
         <div>
           <div role="group" aria-label="Readers" style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ rvChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.onToggle }}" aria-pressed="{{ c.on }}" title="{{ c.title }}" style="padding:5px 11px;border-radius:999px;border:1px solid {{ c.border }};background:{{ c.bg }};color:{{ c.color }};font-size:12px;font-weight:{{ c.weight }};cursor:pointer">{{ c.label }}</button></sc-for></div>
@@ -659,18 +662,27 @@
         <sc-if value="{{ rvError }}" hint-placeholder-val="{{ null }}"><div role="alert" style="font-size:13px;color:var(--c-orange)">Couldn’t get feedback: {{ rvError }}</div></sc-if>
         <sc-if value="{{ rv.stale }}" hint-placeholder-val="{{ false }}"><div role="status" style="padding:8px 12px;border-radius:var(--radius-sm);background:rgba(255,200,54,0.12);border:1px solid rgba(255,200,54,0.6);font-size:13px;color:var(--c-navy)">The script has changed since this feedback. Get fresh feedback to see how it lands now.</div></sc-if>
             <sc-if value="{{ rv.has }}" hint-placeholder-val="{{ false }}">
-              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">
+              <div style="display:flex;flex-direction:column;gap:8px">
                 <sc-for list="{{ rv.readers }}" as="r" hint-placeholder-count="3">
-                  <div style="border:1px solid var(--border-hairline);border-radius:var(--radius-md);background:var(--c-white);padding:14px;display:flex;flex-direction:column;gap:8px">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:14px;font-weight:700;color:var(--c-navy)">{{ r.label }}</span><sc-if value="{{ r.hasVerdict }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:{{ r.vBg }};color:{{ r.vColor }}">{{ r.verdictLabel }}</span></sc-if></div>
-                    <div style="font-size:12px;line-height:1.45;color:var(--fg-muted)">{{ r.desc }}</div>
-                    <sc-if value="{{ r.failed }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--c-orange)">This reader didn’t answer. Get fresh feedback to try again.</div></sc-if>
-                    <sc-if value="{{ r.answer }}" hint-placeholder-val="{{ null }}"><div style="padding:8px 10px;border-radius:var(--radius-sm);background:rgba(95,103,185,0.06);border-left:3px solid var(--c-violet)"><div style="font-size:12px;font-weight:700;color:var(--c-violet);line-height:1.4">{{ r.question }}</div><div style="margin-top:3px;font-size:13px;line-height:1.5;color:var(--c-navy);white-space:pre-wrap">{{ r.answer }}</div></div></sc-if>
-                    <sc-if value="{{ r.takeaway }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Took away:</b> “{{ r.takeaway }}”</div></sc-if>
-                    <sc-if value="{{ r.why }}" hint-placeholder-val="{{ null }}"><div style="font-size:12px;line-height:1.45;color:{{ r.vColor }}">{{ r.why }}</div></sc-if>
-                    <sc-if value="{{ r.lost }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Got lost:</b> {{ r.lost }}</div></sc-if>
-                    <sc-if value="{{ r.inauthentic }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Didn’t ring true:</b> {{ r.inauthentic }}</div></sc-if>
-                    <sc-if value="{{ r.reaction }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.55;color:var(--fg-default);font-style:italic;white-space:pre-wrap">{{ r.reaction }}</div></sc-if>
+                  <div style="border:1px solid var(--border-hairline);border-radius:var(--radius-md);background:var(--c-white)">
+                    <button onClick="{{ r.onToggle }}" aria-expanded="{{ r.expanded }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;background:transparent;border:none;cursor:pointer;text-align:left">
+                      <span style="font-size:14px;font-weight:700;color:var(--c-navy);white-space:nowrap">{{ r.label }}</span>
+                      <sc-if value="{{ r.hasVerdict }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:{{ r.vBg }};color:{{ r.vColor }}">{{ r.verdictLabel }}</span></sc-if>
+                      <span style="flex:1;min-width:0;font-size:13px;color:var(--fg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.takeLine }}</span>
+                      <span style="font-size:12px;font-weight:600;color:var(--c-violet);white-space:nowrap">{{ r.toggleLabel }}</span>
+                    </button>
+                    <sc-if value="{{ r.open }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:8px">
+                      <div style="font-size:12px;line-height:1.45;color:var(--fg-muted)">{{ r.desc }}</div>
+                      <sc-if value="{{ r.failed }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--c-orange)">This reader didn’t answer. Get fresh feedback to try again.</div></sc-if>
+                      <sc-if value="{{ r.answer }}" hint-placeholder-val="{{ null }}"><div style="padding:8px 10px;border-radius:var(--radius-sm);background:rgba(95,103,185,0.06);border-left:3px solid var(--c-violet)"><div style="font-size:12px;font-weight:700;color:var(--c-violet);line-height:1.4">{{ r.question }}</div><div style="margin-top:3px;font-size:13px;line-height:1.5;color:var(--c-navy);white-space:pre-wrap">{{ r.answer }}</div></div></sc-if>
+                      <sc-if value="{{ r.takeaway }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Took away:</b> “{{ r.takeaway }}”</div></sc-if>
+                      <sc-if value="{{ r.why }}" hint-placeholder-val="{{ null }}"><div style="font-size:12px;line-height:1.45;color:{{ r.vColor }}">{{ r.why }}</div></sc-if>
+                      <sc-if value="{{ r.lost }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Got lost:</b> {{ r.lost }}</div></sc-if>
+                      <sc-if value="{{ r.inauthentic }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Didn’t ring true:</b> {{ r.inauthentic }}</div></sc-if>
+                      <sc-if value="{{ r.reaction }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.55;color:var(--fg-default);font-style:italic;white-space:pre-wrap">{{ r.reaction }}</div></sc-if>
+                    </div>
+                    </sc-if>
                   </div>
                 </sc-for>
               </div>
@@ -1407,18 +1419,27 @@
               <div style="font-size:14px;font-weight:700;color:var(--c-navy)">Audience review <span style="font-weight:400;color:var(--fg-muted)">· what the requester saw</span></div>
               <sc-if value="{{ sdRv.stale }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#8A6A00">The script has changed since this review.</div></sc-if>
             <sc-if value="{{ sdRv.has }}" hint-placeholder-val="{{ false }}">
-              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px">
+              <div style="display:flex;flex-direction:column;gap:8px">
                 <sc-for list="{{ sdRv.readers }}" as="r" hint-placeholder-count="3">
-                  <div style="border:1px solid var(--border-hairline);border-radius:var(--radius-md);background:var(--c-white);padding:14px;display:flex;flex-direction:column;gap:8px">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:14px;font-weight:700;color:var(--c-navy)">{{ r.label }}</span><sc-if value="{{ r.hasVerdict }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:{{ r.vBg }};color:{{ r.vColor }}">{{ r.verdictLabel }}</span></sc-if></div>
-                    <div style="font-size:12px;line-height:1.45;color:var(--fg-muted)">{{ r.desc }}</div>
-                    <sc-if value="{{ r.failed }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--c-orange)">This reader didn’t answer. Get fresh feedback to try again.</div></sc-if>
-                    <sc-if value="{{ r.answer }}" hint-placeholder-val="{{ null }}"><div style="padding:8px 10px;border-radius:var(--radius-sm);background:rgba(95,103,185,0.06);border-left:3px solid var(--c-violet)"><div style="font-size:12px;font-weight:700;color:var(--c-violet);line-height:1.4">{{ r.question }}</div><div style="margin-top:3px;font-size:13px;line-height:1.5;color:var(--c-navy);white-space:pre-wrap">{{ r.answer }}</div></div></sc-if>
-                    <sc-if value="{{ r.takeaway }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Took away:</b> “{{ r.takeaway }}”</div></sc-if>
-                    <sc-if value="{{ r.why }}" hint-placeholder-val="{{ null }}"><div style="font-size:12px;line-height:1.45;color:{{ r.vColor }}">{{ r.why }}</div></sc-if>
-                    <sc-if value="{{ r.lost }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Got lost:</b> {{ r.lost }}</div></sc-if>
-                    <sc-if value="{{ r.inauthentic }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Didn’t ring true:</b> {{ r.inauthentic }}</div></sc-if>
-                    <sc-if value="{{ r.reaction }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.55;color:var(--fg-default);font-style:italic;white-space:pre-wrap">{{ r.reaction }}</div></sc-if>
+                  <div style="border:1px solid var(--border-hairline);border-radius:var(--radius-md);background:var(--c-white)">
+                    <button onClick="{{ r.onToggle }}" aria-expanded="{{ r.expanded }}" style="width:100%;display:flex;align-items:center;gap:10px;padding:12px 14px;background:transparent;border:none;cursor:pointer;text-align:left">
+                      <span style="font-size:14px;font-weight:700;color:var(--c-navy);white-space:nowrap">{{ r.label }}</span>
+                      <sc-if value="{{ r.hasVerdict }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:{{ r.vBg }};color:{{ r.vColor }}">{{ r.verdictLabel }}</span></sc-if>
+                      <span style="flex:1;min-width:0;font-size:13px;color:var(--fg-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.takeLine }}</span>
+                      <span style="font-size:12px;font-weight:600;color:var(--c-violet);white-space:nowrap">{{ r.toggleLabel }}</span>
+                    </button>
+                    <sc-if value="{{ r.open }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:0 14px 14px;display:flex;flex-direction:column;gap:8px">
+                      <div style="font-size:12px;line-height:1.45;color:var(--fg-muted)">{{ r.desc }}</div>
+                      <sc-if value="{{ r.failed }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--c-orange)">This reader didn’t answer. Get fresh feedback to try again.</div></sc-if>
+                      <sc-if value="{{ r.answer }}" hint-placeholder-val="{{ null }}"><div style="padding:8px 10px;border-radius:var(--radius-sm);background:rgba(95,103,185,0.06);border-left:3px solid var(--c-violet)"><div style="font-size:12px;font-weight:700;color:var(--c-violet);line-height:1.4">{{ r.question }}</div><div style="margin-top:3px;font-size:13px;line-height:1.5;color:var(--c-navy);white-space:pre-wrap">{{ r.answer }}</div></div></sc-if>
+                      <sc-if value="{{ r.takeaway }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Took away:</b> “{{ r.takeaway }}”</div></sc-if>
+                      <sc-if value="{{ r.why }}" hint-placeholder-val="{{ null }}"><div style="font-size:12px;line-height:1.45;color:{{ r.vColor }}">{{ r.why }}</div></sc-if>
+                      <sc-if value="{{ r.lost }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Got lost:</b> {{ r.lost }}</div></sc-if>
+                      <sc-if value="{{ r.inauthentic }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Didn’t ring true:</b> {{ r.inauthentic }}</div></sc-if>
+                      <sc-if value="{{ r.reaction }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.55;color:var(--fg-default);font-style:italic;white-space:pre-wrap">{{ r.reaction }}</div></sc-if>
+                    </div>
+                    </sc-if>
                   </div>
                 </sc-for>
               </div>
@@ -1762,6 +1783,58 @@
     </div>
   </sc-if>
 
+  <sc-if value="{{ walkOn }}" hint-placeholder-val="{{ false }}">
+    <div data-walk="1" style="position:fixed;inset:0;z-index:72;background:rgba(0,31,95,0.35);display:flex;align-items:center;justify-content:center;padding:16px">
+      <div role="dialog" aria-modal="true" aria-label="Audience feedback, one reader at a time" style="background:var(--c-white);border-radius:var(--radius-lg);box-shadow:var(--shadow-3);width:min(1120px,100%);max-height:calc(100vh - 32px);display:flex;flex-direction:column;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border-hairline);flex-wrap:wrap">
+          <div style="flex:1;min-width:220px">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c-emerald)">Audience review · {{ walkStepText }}</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:2px;flex-wrap:wrap"><span style="font-family:var(--font-display);font-size:21px;font-weight:600;color:var(--c-navy)">{{ walkTitle }}</span><sc-if value="{{ walkHasV }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:{{ walkVBg }};color:{{ walkVColor }}">{{ walkVLabel }}</span></sc-if></div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" aria-label="Steps"><sc-for list="{{ walkSteps }}" as="w" hint-placeholder-count="4"><button onClick="{{ w.onGo }}" aria-current="{{ w.current }}" style="padding:5px 11px;border-radius:999px;border:none;background:{{ w.bg }};color:{{ w.color }};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">{{ w.label }}</button></sc-for></div>
+          <button onClick="{{ onWalkClose }}" aria-label="Close" title="Close" style="display:grid;place-items:center;width:34px;height:34px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--fg-muted);font-size:20px;line-height:1;cursor:pointer">×</button>
+        </div>
+        <div style="flex:1;overflow:auto;display:flex;flex-wrap:wrap">
+          <div style="flex:1 1 340px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;border-right:1px solid var(--border-hairline)">
+            <sc-if value="{{ walkReader }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size:13px;line-height:1.5;color:var(--fg-muted)">{{ walkWho }}</div>
+              <sc-if value="{{ walkFailed }}" hint-placeholder-val="{{ false }}"><div style="font-size:14px;color:var(--c-orange)">This reader didn’t answer. Get fresh feedback to try again.</div></sc-if>
+              <sc-if value="{{ walkA }}" hint-placeholder-val="{{ null }}"><div style="padding:10px 12px;border-radius:var(--radius-sm);background:rgba(95,103,185,0.06);border-left:3px solid var(--c-violet)"><div style="font-size:13px;font-weight:700;color:var(--c-violet);line-height:1.4">{{ walkQ }}</div><div style="margin-top:4px;font-size:14px;line-height:1.55;color:var(--c-navy);white-space:pre-wrap">{{ walkA }}</div></div></sc-if>
+              <sc-if value="{{ walkTake }}" hint-placeholder-val="{{ null }}"><div style="font-size:14px;line-height:1.55;color:var(--c-navy)"><b>Took away:</b> “{{ walkTake }}”</div></sc-if>
+              <sc-if value="{{ walkWhy }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.45;color:{{ walkVColor }}">{{ walkWhy }}</div></sc-if>
+              <sc-if value="{{ walkLost }}" hint-placeholder-val="{{ null }}"><div style="font-size:14px;line-height:1.55;color:var(--c-navy);padding-left:10px;border-left:3px solid rgba(247,105,35,0.6)"><b>Got lost:</b> {{ walkLost }}<span style="color:var(--fg-muted)">{{ walkLostNote }}</span></div></sc-if>
+              <sc-if value="{{ walkFalse }}" hint-placeholder-val="{{ null }}"><div style="font-size:14px;line-height:1.55;color:var(--c-navy);padding-left:10px;border-left:3px solid rgba(214,160,0,0.75)"><b>Didn’t ring true:</b> {{ walkFalse }}<span style="color:var(--fg-muted)">{{ walkFalseNote }}</span></div></sc-if>
+              <sc-if value="{{ walkReact }}" hint-placeholder-val="{{ null }}"><div style="font-size:14px;line-height:1.6;color:var(--fg-default);font-style:italic;white-space:pre-wrap">{{ walkReact }}</div></sc-if>
+            </sc-if>
+            <sc-if value="{{ walkSum }}" hint-placeholder-val="{{ false }}">
+              <sc-if value="{{ rv.intended }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;color:var(--fg-muted)"><b style="color:var(--c-navy)">The message you meant:</b> {{ rv.intended }}</div></sc-if>
+              <div style="font-size:15px;line-height:1.6;color:var(--c-navy);white-space:pre-wrap">{{ rv.plan }}</div>
+              <sc-if value="{{ rv.hasSteps }}" hint-placeholder-val="{{ false }}"><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.5;color:var(--c-navy)"><sc-for list="{{ rv.steps }}" as="st" hint-placeholder-count="2"><li>{{ st.text }}</li></sc-for></ol></sc-if>
+              <sc-if value="{{ rv.hasChanges }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Sections to change</div><sc-for list="{{ rv.changes }}" as="ch" hint-placeholder-count="2"><div style="font-size:14px;line-height:1.5;color:var(--c-navy)"><b>{{ ch.label }}:</b> {{ ch.change }}</div></sc-for></div></sc-if>
+            </sc-if>
+          </div>
+          <div style="flex:1.3 1 380px;padding:18px 20px;background:var(--c-grey-50)">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:8px">{{ walkRightTitle }}</div>
+            <sc-if value="{{ walkStale }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px;color:#8A6A00;margin-bottom:8px">The script has changed since this feedback, so some highlights may be missing.</div></sc-if>
+            <sc-for list="{{ walkSecs }}" as="sec" hint-placeholder-count="4">
+              <div style="padding:8px 0 8px 12px;border-left:3px solid {{ sec.border }};margin-bottom:6px">
+                <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ sec.labelColor }}">{{ sec.label }}{{ sec.changeTag }}</div>
+                <div style="margin-top:3px;font-size:15px;line-height:1.65;color:var(--c-navy);white-space:pre-wrap"><sc-for list="{{ sec.segs }}" as="g" hint-placeholder-count="2"><span style="background:{{ g.bg }};border-radius:3px;padding:{{ g.pad }}">{{ g.text }}</span><sc-if value="{{ g.tag }}" hint-placeholder-val="{{ null }}"><span style="font-size:11px;font-weight:700;color:{{ g.tagColor }};margin-left:4px;white-space:nowrap">{{ g.tag }}</span></sc-if></sc-for></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px;border-top:1px solid var(--border-hairline);flex-wrap:wrap">
+          <span><sc-if value="{{ walkPrevShow }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onWalkPrev }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:9px 14px;font-size:13px">← Back</button></sc-if></span>
+          <span style="display:flex;gap:8px;flex-wrap:wrap">
+            <sc-if value="{{ walkReader }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onWalkNext }}" style="padding:9px 16px;border-radius:var(--radius-sm);background:var(--c-emerald);border:1px solid var(--c-emerald);color:#fff;font-size:13px;font-weight:700;cursor:pointer">{{ walkNextLabel }}</button></sc-if>
+            <sc-if value="{{ walkCanRevise }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onWalkRevise }}" style="padding:9px 16px;border-radius:var(--radius-sm);background:var(--c-violet);border:1px solid var(--c-violet);color:#fff;font-size:13px;font-weight:700;cursor:pointer">Revise the script this way</button></sc-if>
+            <sc-if value="{{ walkSum }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onWalkClose }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:9px 16px;font-size:13px">Done</button></sc-if>
+          </span>
+        </div>
+      </div>
+    </div>
+  </sc-if>
   <sc-if value="{{ confirmOpen }}" hint-placeholder-val="{{ false }}">
     <div data-sc-backdrop="1" data-confirm="1" style="position:fixed;inset:0;z-index:75;background:rgba(0,31,95,0.35);display:flex;align-items:center;justify-content:center;padding:20px">
       <div role="alertdialog" aria-modal="true" aria-label="{{ confirmTitle }}" style="width:100%;max-width:460px;background:var(--c-white);border-radius:var(--radius-lg);box-shadow:var(--shadow-3);padding:24px;display:flex;flex-direction:column;gap:14px">
@@ -1885,7 +1958,7 @@ class Component extends DCLogic {
     studioTab:'scripts', studioFilter:'active', studioSearch:'', studioSel:null, studioContent:null, studioLoading:false, studioMsgs:[], studioVersions:[], studioVersionSel:'current',
     teamScripts:[], teamEmails:[], teamAddInput:'',
     authState:'boot', authEmail:'', authInput:'', authBusy:false, authError:null, cloudOk:false, isAdmin:false, quota:null, orgBrand:null, logoSrc:'assets/logo.svg',
-    showHeads:true, signInOrg:'', signInDomain:'', review:null, reviewPick:[], reviewBusy:null, reviewError:null,
+    showHeads:true, signInOrg:'', signInDomain:'', review:null, reviewPick:[], reviewBusy:null, reviewError:null, rvWalk:null, rvOpen:{}, sdRvOpen:{},
     bpName:'', bpVoice:'', bpLogo:'', bpTheme:'', bpBusy:false, refUrl:'', refUrlBusy:false, tkText:'', tkDraft:'', tkBusy:false,
     ticketPack:null, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null,
     kickoff:null, kbDraft:null, kbBusy:null, kbError:null,
@@ -1951,12 +2024,14 @@ class Component extends DCLogic {
         const st=this.state;
         if(e.key==='Escape'){
           if(st.confirmOpen){ this.closeConfirm(false); e.preventDefault(); return; }
+          if(st.rvWalk!=null && st.view==='workspace'){ this.closeWalk(); e.preventDefault(); return; }
           if(st.settingsOpen){ this.closeSettings(); e.preventDefault(); return; }
           if(st.projectsMenuOpen||st.notifOpen||st.scriptExportOpen||st.scenesExportOpen||st.shotsExportOpen||st.sbOpen){ this.setState({projectsMenuOpen:false, notifOpen:false, scriptExportOpen:false, scenesExportOpen:false, shotsExportOpen:false, sbOpen:false}); e.preventDefault(); }
           return;
         }
-        if(e.key==='Tab' && (st.settingsOpen||st.confirmOpen)){
-          const box=document.querySelector(st.confirmOpen?'[data-confirm] [role=alertdialog]':'[role=dialog]'); if(!box) return;
+        const walking=st.rvWalk!=null && st.view==='workspace';
+        if(e.key==='Tab' && (st.settingsOpen||st.confirmOpen||walking)){
+          const box=document.querySelector(st.confirmOpen?'[data-confirm] [role=alertdialog]':(walking?'[data-walk] [role=dialog]':'[role=dialog]')); if(!box) return;
           const f=[...box.querySelectorAll('button,input,select,textarea,[tabindex="0"]')].filter(x=>!x.disabled && x.offsetParent!==null); if(!f.length) return;
           const first=f[0], last=f[f.length-1];
           if(!box.contains(document.activeElement)){ first.focus(); e.preventDefault(); }
@@ -2802,7 +2877,7 @@ class Component extends DCLogic {
     if(!references.length && d.referenceText){ references=[{id:this.uid('ref'), name:d.referenceFileName||'reference', text:d.referenceText}]; }
     // A failed summary gets another try each time the video is opened (it was usually a network blip).
     references=references.map(r=>({...r, briefFailed:false, briefBusy:false}));
-    this.setState({ idea:d.idea||'', selectedTypeId:d.typeId||null, prepAnswers:d.prepAnswers||{}, references, sectionsByType, refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:d.concepts||[], selectedConceptId:d.selectedConceptId||null, customConcept:d.customConcept||'', conceptSeen:d.conceptSeen||[], conceptKey:d.conceptKey||'', conceptBusy:false, conceptError:null, sections, industry:d.industry||'', targetShotSeconds:d.targetShotSeconds||4, scenes:(d.scenes||[]).map(s=>({...s, scene_id:s.scene_id||this.uid('s'), regenBusy:false, shotsGenerating:false, shots:(s.shots||[]).map(sh=>({...sh, shot_id:sh.shot_id||this.uid('sh'), regenBusy:false, videoBusy:false}))})), personas:d.personas||[], view:this.viewFor(d.view, sections.length>0), submitForm:{neededBy:'', whereRun:'', notes:'', approver:'', approvalBy:'', ...(d.submitForm||{})}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0, ...(d.ticket||{})}, ticketBusy:false, ticketError:null, caseDraft:null, review:d.review||null, reviewPick:Array.isArray(d.reviewPick)?d.reviewPick:[], reviewBusy:null, reviewError:null, title:d.title||'', titleManual:!!d.titleManual, questions:(Array.isArray(d.questions)?d.questions:[]).map(q=>q&&q.kind==='speaker'?{...q, q:this.speakerQuestion().q, why:this.speakerQuestion().why, options:(q.options||[]).length>=4?q.options:this.speakerQuestion().options}:q), qIndex:(d.qIndex!=null?d.qIndex:(d.questions||[]).length), qRead:d.qRead||'', qKey:d.qKey||'', qAsked:!!d.qAsked, qError:null, pickKey:d.pickKey||'', ...this.idleFlags(), pickResult:d.pickResult||null, pickError:null, scenesError:null, expanded:{} });
+    this.setState({ idea:d.idea||'', selectedTypeId:d.typeId||null, prepAnswers:d.prepAnswers||{}, references, sectionsByType, refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:d.concepts||[], selectedConceptId:d.selectedConceptId||null, customConcept:d.customConcept||'', conceptSeen:d.conceptSeen||[], conceptKey:d.conceptKey||'', conceptBusy:false, conceptError:null, sections, industry:d.industry||'', targetShotSeconds:d.targetShotSeconds||4, scenes:(d.scenes||[]).map(s=>({...s, scene_id:s.scene_id||this.uid('s'), regenBusy:false, shotsGenerating:false, shots:(s.shots||[]).map(sh=>({...sh, shot_id:sh.shot_id||this.uid('sh'), regenBusy:false, videoBusy:false}))})), personas:d.personas||[], view:this.viewFor(d.view, sections.length>0), submitForm:{neededBy:'', whereRun:'', notes:'', approver:'', approvalBy:'', ...(d.submitForm||{})}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0, ...(d.ticket||{})}, ticketBusy:false, ticketError:null, caseDraft:null, review:d.review||null, reviewPick:Array.isArray(d.reviewPick)?d.reviewPick:[], reviewBusy:null, reviewError:null, rvWalk:null, rvOpen:{}, title:d.title||'', titleManual:!!d.titleManual, questions:(Array.isArray(d.questions)?d.questions:[]).map(q=>q&&q.kind==='speaker'?{...q, q:this.speakerQuestion().q, why:this.speakerQuestion().why, options:(q.options||[]).length>=4?q.options:this.speakerQuestion().options}:q), qIndex:(d.qIndex!=null?d.qIndex:(d.questions||[]).length), qRead:d.qRead||'', qKey:d.qKey||'', qAsked:!!d.qAsked, qError:null, pickKey:d.pickKey||'', ...this.idleFlags(), pickResult:d.pickResult||null, pickError:null, scenesError:null, expanded:{} });
   }
   exportJSON(){ const blob=new Blob([JSON.stringify(this.projectData(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(this.projectTitle().replace(/[^a-z0-9]+/gi,'-').toLowerCase()||'video-script')+'.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
   importJSON(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ let d; try{ d=JSON.parse(r.result); }catch(err){ d=null; } if(!d||typeof d!=='object'||Array.isArray(d)){ this.showToast('Invalid project file'); return; }
@@ -2810,7 +2885,7 @@ class Component extends DCLogic {
       this.flushPersist(); this.setState({projectId:this.uid('proj'), projectsMenuOpen:false}); this.loadProjectData(d); this.persistNow(); this.showToast('Imported as a new video'); }; r.readAsText(f); }; inp.click(); }
   // The brief steps reopen where they were left; scenes and shots need advanced mode, so without it they open the script.
   viewFor(v, hasSections){ if(v==='studio') v='workspace'; if(['intake','questions','type','concept'].includes(v)) return v; if(!hasSections) return 'intake'; if((v==='scenes'||v==='shots') && !this.state.advanced) return 'workspace'; return v||'workspace'; }
-  newProject(){ this.releaseLock(); if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const id=this.newProjectId(); this._revs=this._revs||{}; this._revs[id]=0; if(this._unsubCur){ this._unsubCur(); this._unsubCur=null; } this.setState({ projectId:id, remoteChange:null, cloudDoc:null, myMsgs:[], submitForm:{neededBy:'', whereRun:'', notes:''}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null, review:null, reviewPick:[], reviewBusy:null, reviewError:null, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
+  newProject(){ this.releaseLock(); if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const id=this.newProjectId(); this._revs=this._revs||{}; this._revs[id]=0; if(this._unsubCur){ this._unsubCur(); this._unsubCur=null; } this.setState({ projectId:id, remoteChange:null, cloudDoc:null, myMsgs:[], submitForm:{neededBy:'', whereRun:'', notes:''}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null, review:null, reviewPick:[], reviewBusy:null, reviewError:null, rvWalk:null, rvOpen:{}, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
   downloadText(name, text, mime){ this.downloadBlob(name, new Blob([text],{type:mime||'text/plain'})); }
   _fallbackCopy(text){ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ document.execCommand('copy'); this.showToast('Copied to clipboard'); }catch(e){ this.showToast('Copy failed'); } ta.remove(); }
   copyText(text){ try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(()=>this.showToast('Copied to clipboard'),()=>this._fallbackCopy(text)); return; } }catch(e){} this._fallbackCopy(text); }
@@ -2991,7 +3066,7 @@ class Component extends DCLogic {
   // While the sign-in screen is up, nothing behind it can be tabbed to or read out.
   // Whatever overlay is on top (sign-in screen, a dialog) keeps the page behind it out of reach of keyboard and screen readers.
   syncInert(on){ const key=String(on); if(this._inertOn===key || typeof document==='undefined' || typeof document.querySelector!=='function' || typeof queueMicrotask!=='function') return; this._inertOn=key;
-    queueMicrotask(()=>{ const root=document.querySelector('[data-app-root]'); if(!root) return; const sel=on==='gate'?'[data-gate]':(on==='confirm'?'[data-confirm]':'[data-sc-backdrop]');
+    queueMicrotask(()=>{ const root=document.querySelector('[data-app-root]'); if(!root) return; const sel=on==='gate'?'[data-gate]':(on==='confirm'?'[data-confirm]':(on==='walk'?'[data-walk]':'[data-sc-backdrop]'));
       [...root.children].forEach(el=>{ const keep=!!on && (el.matches(sel) || !!el.querySelector(sel)); if(on && !keep) el.setAttribute('inert',''); else el.removeAttribute('inert'); }); }); }
   // Dialogs take focus when they open and hand it back when they close.
   focusInto(selector){ if(typeof document==='undefined' || typeof document.querySelector!=='function' || typeof setTimeout!=='function') return; setTimeout(()=>{ const box=document.querySelector(selector); if(!box) return; const f=[...box.querySelectorAll('input,select,textarea,button')].find(x=>!x.disabled && x.offsetParent!==null); if(f) f.focus(); }, 60); }
@@ -3662,7 +3737,8 @@ class Component extends DCLogic {
     const changes=(Array.isArray(sum.changes)?sum.changes:[]).filter(c=>c && ids.includes(c.section) && String(c.change||'').trim()).slice(0,4).map(c=>({section:c.section, change:txt(c.change,600)}));
     const review={at:Date.now(), srcKey:key, readers:out.map(r=>({...r, verdict:(verdicts[r.id]||{}).verdict||'', why:(verdicts[r.id]||{}).why||''})), intended:txt(sum.intended,400),
       nextSteps:(Array.isArray(sum.nextSteps)?sum.nextSteps:[]).map(x=>txt(x,400)).filter(Boolean).slice(0,3), plan:sumFailed?'The summary didn’t come back, so there is no recommendation this time. The readers’ reactions are below.':txt(sum.plan,1500), changes};
-    this.setState({review, reviewBusy:null}, ()=>this.persist());
+    this.setState({review, reviewBusy:null, rvOpen:{}}, ()=>this.persist());
+    if(this.state.view==='workspace') this.openWalk(0);
   }
   // Rewrites only the sections the summary named, each with its instruction. The previous text is one click away.
   async reviseFromReview(){
@@ -3688,16 +3764,62 @@ class Component extends DCLogic {
     this.setState({sections:this.state.sections.map(x=>m[x.id]?{...x, text:m[x.id].text, handEdited:m[x.id].handEdited, editedBy:m[x.id].editedBy}:x), review:{...rv, before:null, revisedAt:0}}, ()=>this.persist());
     this.showToast('Revision undone. The script is back to how the readers heard it.');
   }
-  // What both the Script page and the Studio show.
-  reviewVM(rv, sections, typeId){
+  REVIEW_VERDICTS = {got:['#0B6B3A','rgba(30,150,90,0.14)','Got it'], partly:['#8A6A00','rgba(255,200,54,0.24)','Partly'], missed:['#C4471A','rgba(247,105,35,0.14)','Missed it']};
+  openWalk(i){ this.setState({rvWalk:i||0}); this.focusInto('[data-walk] [role=dialog]'); }
+  closeWalk(){ this.setState({rvWalk:null}); }
+  // The lines a reader pointed at: their quoted words, or the line itself when they gave it bare ("<line> — why").
+  reviewQuotes(t){
+    t=String(t||'').trim(); if(!t) return [];
+    let out=[...t.matchAll(/“([^”]{8,})”/g), ...t.matchAll(/"([^"]{8,})"/g)].map(m=>m[1]);
+    if(!out.length){ const m=t.match(/^'([^']{8,})'/); if(m) out=[m[1]]; }
+    if(!out.length){ const cut=t.split(/\s[—–-]\s|\sbecause\s/)[0]; out=[cut.length<t.length || t.length<=260 ? cut : '']; }
+    return out.map(x=>x.trim().replace(/^['"“‘]+|['"”’.,;:!?…]+$/g,'')).filter(x=>x.length>=8);
+  }
+  // Where a quote sits in a section's text, ignoring case and curly vs straight quotes; a long quote that was trimmed
+  // or slightly reworded still matches on its opening words, up to the end of that sentence.
+  locateQuote(text, q){
+    const norm=x=>String(x).replace(/[’‘]/g,"'").replace(/[“”]/g,'"').toLowerCase();
+    const T=norm(text), Q=norm(q); let i=T.indexOf(Q); if(i>=0) return [i, i+Q.length];
+    if(Q.length>36){ const p=Q.slice(0,36); i=T.indexOf(p); if(i>=0){ const e=T.slice(i+p.length).search(/[.!?](\s|$)/); return [i, e<0?T.length:i+p.length+e+1]; } }
+    return null;
+  }
+  walkVals(){
+    const st=this.state; const rv=st.review; const i=st.rvWalk;
+    if(!rv || i==null || st.view!=='workspace') return {walkOn:false, walkSecs:[], walkSteps:[]};
+    const readers=rv.readers||[]; const n=readers.length; const idx=Math.max(0, Math.min(i, n)); const onSum=idx>=n; const r=onSum?null:readers[idx];
+    const marks=[]; const found={lost:false, false:false};
+    if(r){ this.reviewQuotes(r.lost).forEach(q=>marks.push({q, k:'lost', tag:'← got lost here', bg:'rgba(247,105,35,0.22)', tagColor:'#C4471A'}));
+      this.reviewQuotes(r.inauthentic).forEach(q=>marks.push({q, k:'false', tag:'← didn’t ring true', bg:'rgba(255,200,54,0.42)', tagColor:'#7A5C00'})); }
+    const changeIds=onSum?(rv.changes||[]).map(c=>c.section):[];
+    const secs=(st.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>{
+      const text=String(x.text); const ranges=[];
+      marks.forEach(m=>{ const at=this.locateQuote(text, m.q); if(at && !ranges.some(g=>at[0]<g[1] && at[1]>g[0])){ ranges.push([at[0], at[1], m]); found[m.k]=true; } });
+      ranges.sort((a,b)=>a[0]-b[0]); const segs=[]; let pos=0;
+      ranges.forEach(([a,b,m])=>{ if(a>pos) segs.push({text:text.slice(pos,a), bg:'transparent', pad:'0', tag:null}); segs.push({text:text.slice(a,b), bg:m.bg, pad:'1px 2px', tag:m.tag, tagColor:m.tagColor}); pos=b; });
+      if(pos<text.length) segs.push({text:text.slice(pos), bg:'transparent', pad:'0', tag:null});
+      const ch=changeIds.includes(x.id);
+      return {label:x.label, segs, changeTag:ch?' · will change':'', labelColor:ch?'var(--c-violet)':'var(--fg-subtle)', border:ch?'var(--c-violet)':'var(--border-hairline)'}; });
+    const v=r?this.REVIEW_VERDICTS[r.verdict]:null; const stale=!!rv.srcKey && rv.srcKey!==this.reviewSrcKeyOf(st.sections, st.selectedTypeId);
+    return { walkOn:true, walkSum:onSum, walkReader:!onSum, walkTitle:onSum?'How to take it forward':r.label, walkStepText:onSum?'Summary':('Reader '+(idx+1)+' of '+n),
+      walkSteps:readers.map((x,k)=>({label:x.label, current:k===idx?'step':'false', bg:k===idx?'var(--c-violet)':'var(--c-grey-100)', color:k===idx?'#fff':'var(--c-navy)', onGo:()=>this.setState({rvWalk:k})}))
+        .concat([{label:'Summary', current:onSum?'step':'false', bg:onSum?'var(--c-violet)':'var(--c-grey-100)', color:onSum?'#fff':'var(--c-navy)', onGo:()=>this.setState({rvWalk:n})}]),
+      walkWho:r?(r.who||r.desc||''):'', walkQ:(r && r.question)||null, walkA:(r && r.answer)||null, walkTake:(r && r.takeaway)||null, walkWhy:(r && r.why)||null, walkFailed:!!(r && r.failed),
+      walkHasV:!!v, walkVLabel:v?v[2]:'', walkVColor:v?v[0]:'var(--fg-muted)', walkVBg:v?v[1]:'transparent',
+      walkLost:(r && r.lost)||null, walkFalse:(r && r.inauthentic)||null, walkLostNote:found.lost?'  (highlighted in the script)':'', walkFalseNote:found.false?'  (highlighted in the script)':'', walkReact:(r && r.reaction)||null,
+      walkSecs:secs, walkStale:stale, walkRightTitle:onSum?'Your script · sections to change are marked':'Your script · what this reader flagged is highlighted',
+      walkPrevShow:idx>0, onWalkPrev:()=>this.setState({rvWalk:idx-1}), walkNextLabel:idx===n-1?'How to take it forward →':'Next reader →', onWalkNext:()=>this.setState({rvWalk:idx+1}),
+      onWalkClose:()=>this.closeWalk(), walkCanRevise:onSum && !stale && !!(rv.changes||[]).length, onWalkRevise:()=>{ this.closeWalk(); this.reviseFromReview(); } };
+  }
+  // What both the Script page and the Studio show; `open` says which readers are expanded.
+  reviewVM(rv, sections, typeId, open, setOpen){
     if(!rv) return {has:false, readers:[], steps:[], changes:[]};
-    const vc={got:['#0B6B3A','rgba(30,150,90,0.14)','Got it'], partly:['#8A6A00','rgba(255,200,54,0.24)','Partly'], missed:['#C4471A','rgba(247,105,35,0.14)','Missed it']};
+    const vc=this.REVIEW_VERDICTS; open=open||{};
     const stale=!!rv.srcKey && rv.srcKey!==this.reviewSrcKeyOf(sections, typeId);
     const type=this.TYPES.find(t=>t.id===typeId); const label=id=>{ const x=(sections||[]).find(y=>y.id===id); const d=type && type.sections.find(y=>y.id===id); return (x && x.label) || (d && d.label) || id; };
     return { has:true, stale, when:'Read '+this.relTime(rv.at)+(rv.revisedAt?(' · revised '+this.relTime(rv.revisedAt)):''), intended:rv.intended||null, plan:rv.plan||'',
       steps:(rv.nextSteps||[]).map(t=>({text:t})), hasSteps:!!(rv.nextSteps||[]).length, changes:(rv.changes||[]).map(c=>({label:label(c.section), change:c.change})), hasChanges:!!(rv.changes||[]).length,
       canRevise:!stale && !!(rv.changes||[]).length, canUndo:!!rv.before,
-      readers:(rv.readers||[]).map(r=>{ const v=vc[r.verdict]; return { label:r.label, desc:r.who||r.desc, question:r.question||'', answer:r.answer||null, failed:!!r.failed, hasVerdict:!!v, verdictLabel:v?v[2]:'', vColor:v?v[0]:'var(--fg-muted)', vBg:v?v[1]:'transparent', why:r.why||null, takeaway:r.takeaway||null, lost:r.lost||null, inauthentic:r.inauthentic||null, reaction:r.reaction||null }; }) };
+      readers:(rv.readers||[]).map((r,i)=>{ const v=vc[r.verdict]; return { open:!!open[i], expanded:open[i]?'true':'false', toggleLabel:open[i]?'Hide':'Details', onToggle:()=>{ if(setOpen) setOpen(i); }, takeLine:r.takeaway?('“'+r.takeaway+'”'):(r.failed?'Didn’t answer':''), label:r.label, desc:r.who||r.desc, question:r.question||'', answer:r.answer||null, failed:!!r.failed, hasVerdict:!!v, verdictLabel:v?v[2]:'', vColor:v?v[0]:'var(--fg-muted)', vBg:v?v[1]:'transparent', why:r.why||null, takeaway:r.takeaway||null, lost:r.lost||null, inauthentic:r.inauthentic||null, reaction:r.reaction||null }; }) };
   }
 
   // ---------- ticket: the request system's "new request" form, filled from the brief ----------
@@ -4162,7 +4284,7 @@ go();
   selectStudio(id){
     const prev=(this.state.teamScripts||[]).find(x=>x.id===this.state.studioSel); if(prev){ this.sdCommit(prev); this.commitKickoff(prev.id); }
     ['_unsubSdMsgs','_unsubSdVers','_unsubSdContent','_unsubSdKick'].forEach(k=>{ if(this[k]){ try{ this[k](); }catch(e){} this[k]=null; } });
-    this.setState({sbOpen:false, studioSel:id, studioContent:null, kickoff:null, kbDraft:null, kbError:null, studioLoading:true, studioMsgs:[], studioVersions:[], studioVersionSel:'current', msgDraft:'', msgInternal:false});
+    this.setState({sbOpen:false, studioSel:id, studioContent:null, sdRvOpen:{}, kickoff:null, kbDraft:null, kbError:null, studioLoading:true, studioMsgs:[], studioVersions:[], studioVersionSel:'current', msgDraft:'', msgInternal:false});
     if(!id||!this.canShare()) return;
     const {fsM, db}=this._fb;
     this._unsubSdContent=fsM.onSnapshot(fsM.doc(db,'scripts',id,'content','main'), c=>{ if(this.state.studioSel===id){ this.setState({studioContent:c.exists()?(c.data().data||{}):{}, studioLoading:false}); this.maybeAutoKickoff(id); } }, ()=>{ if(this.state.studioSel===id) this.setState({studioLoading:false}); });
@@ -4527,7 +4649,7 @@ go();
               kbNotes:d && d.key==='__notes'?d.value:((k&&k.notes)||''), onKbNotes:(e)=>this.setState({kbDraft:{id:sel.id, key:'__notes', value:e.target.value}}), onKbNotesBlur:()=>this.commitKickoff(sel.id),
               onKbBuild:()=>this.buildKickoff(sel.id, false), onKbFromNotes:()=>this.kickoffFromNotes(sel.id),
               onKbCopy:()=>{ this.commitKickoff(sel.id); this.copyText(this.kickoffText(sel, this.kickoffOf(sel.id))); }, onKbDocx:()=>{ this.commitKickoff(sel.id); this.exportKickoffDocx(sel, this.kickoffOf(sel.id)); } }; })(),
-          sdRv:sel?this.reviewVM(c && c.review, (c && c.sections) || [], c && c.typeId):{has:false, readers:[], steps:[], changes:[]},
+          sdRv:sel?this.reviewVM(c && c.review, (c && c.sections) || [], c && c.typeId, st.sdRvOpen, i=>this.setState({sdRvOpen:{...(this.state.sdRvOpen||{}), [i]:!(this.state.sdRvOpen||{})[i]}})):{has:false, readers:[], steps:[], changes:[]},
           statusOptions:this.STATUSES.map(x=>({id:x.id, label:(x.id==='submitted'&&st.ticketPack)?'Ready':x.label})),
           assignOptions:[{id:'', label:'Nobody yet'}].concat((st.teamEmails||[]).map(e=>({id:e, label:e}))),
           onSdStatus:(e)=>{ if(sel) this.sdDraft(sel, 'status', e.target.value, 900); }, onSdStatusBlur:()=>{ if(sel) this.sdCommit(sel); },
@@ -4546,7 +4668,7 @@ go();
 
       // sign-in gate
       logoSrc:st.logoSrc||'assets/logo.svg',
-      showGate:(()=>{ const on=['boot','checking','signedOut','sent','confirm','denied'].includes(st.authState); this.syncInert(on?'gate':(st.confirmOpen?'confirm':(st.settingsOpen?'dialog':false))); return on; })(),
+      showGate:(()=>{ const on=['boot','checking','signedOut','sent','confirm','denied'].includes(st.authState); this.syncInert(on?'gate':(st.confirmOpen?'confirm':((st.rvWalk!=null && st.view==='workspace')?'walk':(st.settingsOpen?'dialog':false)))); return on; })(),
       gateChecking:st.authState==='checking'||st.authState==='boot', gateAskEmail:st.authState==='signedOut'||st.authState==='confirm', gateSent:st.authState==='sent', gateDenied:st.authState==='denied',
       gateTitle:{boot:'Loading', checking:'Signing you in', signedOut:'Sign in', sent:'Check your email', confirm:'Finish signing in', denied:'This account can’t sign in'}[st.authState]||'Sign in',
       gateText:{boot:'', checking:'Checking your sign-in.', signedOut:(st.signInDomain?('For '+(st.signInOrg?st.signInOrg+' employees':'people at '+st.signInDomain)+'. Enter your @'+st.signInDomain+' email and we’ll send you a link to sign in. No password, nothing to set up.'):'Enter your work email and we’ll send you a link to sign in. No password, nothing to set up.'), sent:'We sent a sign-in link to '+st.authEmail+'. Open it in this browser to continue. If it isn’t there in a minute, check your junk folder.', confirm:'You opened the link in a different browser. Enter the email address it was sent to.', denied:(st.authEmail||'That address')+' isn’t allowed to use this app. Sign in with your work email.'}[st.authState]||'',
@@ -4561,7 +4683,7 @@ go();
       isIntake:st.view==='intake', isQuestions:st.view==='questions', isTypeStep:st.view==='type', isWorkspace:st.view==='workspace', isScenes:st.view==='scenes', isShots:st.view==='shots',
       settingsOpen:st.settingsOpen, toast:st.toast, showCoaching, showCoachingNow:showCoaching && st.showHeads!==false,
       ...(()=>{ const pick=st.reviewPick||[]; const busy=st.reviewBusy;
-        return { rv:this.reviewVM(st.review, st.sections, st.selectedTypeId), rvBusy:!!busy, rvBtnOpacity:busy?'0.6':'1', rvError:st.reviewError||null,
+        return { rv:this.reviewVM(st.review, st.sections, st.selectedTypeId, st.rvOpen, i=>this.setState({rvOpen:{...(this.state.rvOpen||{}), [i]:!(this.state.rvOpen||{})[i]}})), onOpenWalk:()=>this.openWalk(0), ...this.walkVals(), rvBusy:!!busy, rvBtnOpacity:busy?'0.6':'1', rvError:st.reviewError||null,
           rvBusyText:{readers:'Your readers are listening to the script…', summary:'Pulling their feedback together…', revise:'Revising the sections…'}[busy]||'',
           rvBtnLabel:busy==='readers'?'Readers are listening…':(busy==='summary'?'Summing up…':(busy==='revise'?'Revising…':(st.review?'Get fresh feedback':'Get audience feedback'))),
           rvReviseLabel:busy==='revise'?'Revising…':'Revise the script this way', onRunReview:()=>this.runReview(), onRevise:()=>this.reviseFromReview(), onUndoRevise:()=>this.undoRevise(),
