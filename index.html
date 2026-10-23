@@ -1448,16 +1448,35 @@
                 <sc-if value="{{ bpHasTheme }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onBpThemeClear }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
               </span>
             </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-              <div><div style="font-size:13px;font-weight:700;color:var(--c-navy)">Ticket form <span style="font-weight:400;color:var(--fg-muted)">· optional JSON</span></div><div style="font-size:12px;color:var(--fg-muted)">{{ bpTicketStatus }}</div></div>
-              <span style="display:flex;gap:8px">
-                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload .json<input type="file" accept=".json,application/json" onChange="{{ onBpTicketFile }}" style="display:none"/></label>
-                <sc-if value="{{ bpHasTicket }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onBpTicketClear }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
-              </span>
-            </div>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
               <button onClick="{{ onSaveBrandPack }}" disabled="{{ bpBusy }}" style="padding:10px 18px;border-radius:var(--radius-sm);background:var(--c-emerald);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ bpBtnOpacity }}">{{ bpSaveLabel }}</button>
               <span style="font-size:12px;color:var(--fg-muted)">Everyone gets it on their next sign-in or reload.</span>
+            </div>
+          </div>
+      </sc-if>
+      <sc-if value="{{ studioTicketTab }}" hint-placeholder-val="{{ false }}">
+          <div style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px;display:flex;flex-direction:column;gap:14px;max-width:760px">
+            <div>
+              <label style="display:block;font-size:13px;font-weight:700;color:var(--c-navy);margin-bottom:6px">Ticketing</label>
+              <p style="margin:0;font-size:12px;color:var(--fg-muted);line-height:1.5">Where requests are filed. With a ticket form, the requester’s last step is <b>Ticket</b>: the form’s fields are written for them from their script, they file it (copying fields or with a one-time bookmark), paste the case number back and mark it ready. Without one, the last step is a plain <b>Submit</b>. {{ tkUpdated }}</p>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div><div style="font-size:13px;font-weight:700;color:var(--c-navy)">Ticket form <span style="font-weight:400;color:var(--fg-muted)">· JSON</span></div><div style="font-size:12px;color:var(--fg-muted)">{{ tkStatus }}</div></div>
+              <span style="display:flex;gap:8px">
+                <label style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Upload .json<input type="file" accept=".json,application/json" onChange="{{ onTkFile }}" style="display:none"/></label>
+                <sc-if value="{{ tkHas }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onTkClear }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove</button></sc-if>
+              </span>
+            </div>
+            <sc-if value="{{ tkHas }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:160px 1fr;gap:6px 16px;font-size:13px">
+                <span style="color:var(--fg-muted)">Opens</span><span data-value="1" style="color:var(--c-navy);word-break:break-all">{{ tkUrl }}</span>
+                <span style="color:var(--fg-muted)">Fields</span><span data-value="1" style="color:var(--c-navy)">{{ tkFieldList }}</span>
+                <span style="color:var(--fg-muted)">Fill-in bookmark</span><span data-value="1" style="color:var(--c-navy)">{{ tkBookmark }}</span>
+              </div>
+            </sc-if>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <button onClick="{{ onTkSave }}" disabled="{{ tkBusy }}" style="padding:10px 18px;border-radius:var(--radius-sm);background:var(--c-emerald);border:none;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ tkBtnOpacity }}">{{ tkSaveLabel }}</button>
+              <span style="font-size:12px;color:{{ tkNoteColor }}">{{ tkNote }}</span>
             </div>
           </div>
       </sc-if>
@@ -1758,7 +1777,7 @@ class Component extends DCLogic {
     studioTab:'scripts', studioFilter:'active', studioSearch:'', studioSel:null, studioContent:null, studioLoading:false, studioMsgs:[], studioVersions:[], studioVersionSel:'current',
     teamScripts:[], teamEmails:[], teamAddInput:'',
     authState:'boot', authEmail:'', authInput:'', authBusy:false, authError:null, cloudOk:false, isAdmin:false, quota:null, orgBrand:null, logoSrc:'assets/logo.svg',
-    bpName:'', bpVoice:'', bpLogo:'', bpTheme:'', bpTicket:'', bpBusy:false,
+    bpName:'', bpVoice:'', bpLogo:'', bpTheme:'', bpBusy:false, tkText:'', tkDraft:'', tkBusy:false,
     ticketPack:null, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null,
     kickoff:null, kbDraft:null, kbBusy:null, kbError:null,
     title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', busySince:0, dKeyShow:false, qAsked:false, qBusy:false, qError:null, pickKey:'',
@@ -2887,7 +2906,7 @@ class Component extends DCLogic {
     this.switchLibrary(u.uid);
     // A brand pack cached for this same person shows at once; the server still has the final say just after.
     const cached=this.cachedBrand(email);
-    if(cached){ this.applyOrgBrand(cached); this.setState({authState:'signedIn', authEmail:email, isAdmin:!!this._cachedTeam}); }
+    if(cached){ this.applyOrgBrand(cached); this.applyTicketForm(this._cachedTicket||''); this.setState({authState:'signedIn', authEmail:email, isAdmin:!!this._cachedTeam}); }
     else this.setState({authState:'checking', authEmail:email});
     await this.refreshBrand();
   }
@@ -2897,8 +2916,8 @@ class Component extends DCLogic {
     try{
       const r=(await this.callFn('getBrand')).data||{};
       if(!same()) return;
-      this.lsSet('vsg_org_brand', JSON.stringify({email:this.state.authEmail, brand:r.brand||{}, team:!!r.isAdmin}));
-      this.applyOrgBrand(r.brand||{});
+      this.lsSet('vsg_org_brand', JSON.stringify({email:this.state.authEmail, brand:r.brand||{}, team:!!r.isAdmin, ticketForm:r.ticketForm||''}));
+      this.applyOrgBrand(r.brand||{}); this.applyTicketForm(r.ticketForm||''); this.setState({tkUpdatedAt:r.ticketUpdatedAt||0});
       this.setState({authState:'signedIn', cloudOk:true, isAdmin:!!r.isAdmin, quota:{limit:r.dailyLimit||0, used:r.usedToday||0}});
       this.startShared();
       // Requesters always use the team engine, the brand voice and the simple flow; the team keeps its own settings.
@@ -2915,18 +2934,17 @@ class Component extends DCLogic {
     }
   }
   // The brand pack and team status cached for this same person, so the right header shows before the server answers.
-  cachedBrand(email){ try{ const c=JSON.parse(this.lsGet('vsg_org_brand','')||'null'); this._cachedTeam=!!(c&&c.email===email&&c.team); return (c&&c.email===email)?c.brand:null; }catch(e){ return null; } }
+  cachedBrand(email){ try{ const c=JSON.parse(this.lsGet('vsg_org_brand','')||'null'); this._cachedTeam=!!(c&&c.email===email&&c.team); this._cachedTicket=(c&&c.email===email&&c.ticketForm)||''; return (c&&c.email===email)?c.brand:null; }catch(e){ return null; } }
   // Section names carry the company name ("Why Acme"); rename the open script's sections when it changes.
   relabelSections(){ const t=this.currentType(); if(!t) return; this.setState({sections:this.state.sections.map(s=>{ const d=t.sections.find(x=>x.id===s.id); return d?{...s, label:d.label, coaching:d.coaching}:s; })}); }
   applyOrgBrand(b){
     b=b||{};
     const name=String(b.name||'').trim();
-    const patch={orgBrand:b, logoSrc:b.logo||'assets/logo.svg', ticketPack:this.parseTicketPack(b.ticketForm)};
+    const patch={orgBrand:b, logoSrc:b.logo||'assets/logo.svg'};
     if(name){ patch.brand=name; this.applyBrand(name); }
     if(b.voiceDoc){ patch.voiceDefault=b.voiceDoc; if(!(this.state.voiceDoc||'').trim()) patch.dVoice=b.voiceDoc; }
     this.setTheme(b.themeCss||'');
     this.setState(patch); this.relabelSections();
-    if(patch.ticketPack && this.state.view==='submit') this.fillRemembered();
     // The speaker question's options name the organization; refresh them once its name is known.
     if(name) this.setState({questions:(this.state.questions||[]).map(q=>q.kind==='speaker'?{...q, options:this.speakerQuestion().options}:q)});
   }
@@ -2934,7 +2952,7 @@ class Component extends DCLogic {
     try{ localStorage.removeItem('vsg_org_brand'); }catch(e){}
     const local=this.lsGet('vsg_brand',''); this.applyBrand(local);
     this.setTheme('');
-    this.setState({orgBrand:null, ticketPack:null, logoSrc:'assets/logo.svg', brand:local, dBrand:local, voiceDefault:this._sampleVoice||'', dVoice:this.state.voiceDoc||this._sampleVoice||''});
+    this.setState({orgBrand:null, ticketPack:null, tkText:'', logoSrc:'assets/logo.svg', brand:local, dBrand:local, voiceDefault:this._sampleVoice||'', dVoice:this.state.voiceDoc||this._sampleVoice||''});
     this.relabelSections();
   }
   setTheme(css){
@@ -2998,6 +3016,17 @@ class Component extends DCLogic {
     if(!d.text) throw new Error('Gemini returned no text ('+(d.blockReason?'prompt blocked: '+d.blockReason:'finish reason: '+(d.finishReason||'unknown'))+').');
     return /^gemma/i.test(model)?this.stripThink(d.text):d.text;
   }
+  // The request system's ticket form: its own setting, next to the brand pack but separate from it.
+  applyTicketForm(text){ const p=this.parseTicketPack(text); this.setState({ticketPack:p, tkText:text||''}); if(p && this.state.view==='submit') this.fillRemembered(); }
+  async saveTicketForm(){
+    if(this.state.tkBusy) return;
+    const text=String(this.state.tkDraft||'').trim();
+    if(text && !this.parseTicketPack(text)){ this.showToast('That isn’t a ticket form: it needs a "url" and a list of "fields".'); return; }
+    this.setState({tkBusy:true});
+    try{ await this.callFn('saveTicketForm', {form:text}); await this.refreshBrand(); this.setState({tkBusy:false, tkDraft:this.state.tkText||''});
+      this.showToast(text?'Ticketing saved. Requesters get the Ticket step on their next sign-in or reload.':'Ticket form removed. Requesters get the plain Submit step.'); }
+    catch(e){ this.setState({tkBusy:false}); this.showToast('Couldn’t save ticketing: '+this.cloudMessage(e)); }
+  }
   // ----- brand pack editing (admins) -----
   readFileAs(file, how){ return new Promise((res, rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=()=>rej(fr.error); if(how==='url') fr.readAsDataURL(file); else fr.readAsText(file); }); }
   async onBpFile(e, kind){
@@ -3015,7 +3044,7 @@ class Component extends DCLogic {
         if(kind==='ticket' && !/\.json$/i.test(f.name)){ this.showToast('The ticket form must be a .json file.'); return; }
         const t=String(await this.readFileAs(f, 'text'));
         if(!t.trim()){ this.showToast(f.name+' is empty.'); return; }
-        if(kind==='ticket'){ const p=this.parseTicketPack(t); if(!p){ this.showToast('That file isn’t a ticket form: it needs a "url" and a list of "fields".'); return; } this.setState({bpTicket:t.trim()}); this.showToast('Ticket form loaded: '+p.fields.length+' fields. Save the brand pack to use it.'); return; }
+        if(kind==='ticket'){ const p=this.parseTicketPack(t); if(!p){ this.showToast('That file isn’t a ticket form: it needs a "url" and a list of "fields".'); return; } this.setState({tkDraft:t.trim()}); this.showToast('Ticket form loaded: '+p.fields.length+' fields. Click Save to use it.'); return; }
         if(kind==='voice') this.setState({bpVoice:t.trim()}); else this.setState({bpTheme:t});
       }
     }catch(err){ this.showToast('Couldn’t read that file.'); }
@@ -3025,7 +3054,7 @@ class Component extends DCLogic {
     if(!String(this.state.bpName||'').trim()){ this.showToast('Add the company name first. It appears in the video types and every prompt.'); return; }
     this.setState({bpBusy:true});
     try{
-      await this.callFn('saveBrand', {name:(this.state.bpName||'').trim(), voiceDoc:this.state.bpVoice||'', logo:this.state.bpLogo||'', themeCss:this.state.bpTheme||'', ticketForm:this.state.bpTicket||''});
+      await this.callFn('saveBrand', {name:(this.state.bpName||'').trim(), voiceDoc:this.state.bpVoice||'', logo:this.state.bpLogo||'', themeCss:this.state.bpTheme||''});
       await this.refreshBrand();
       this.setState({bpBusy:false}); this.showToast('Brand pack saved. Everyone gets it on their next sign-in or reload.');
     }catch(e){ this.setState({bpBusy:false}); this.showToast('Couldn’t save the brand pack: '+this.cloudMessage(e)); }
@@ -3842,10 +3871,10 @@ class Component extends DCLogic {
     if(list.includes(email)){ this.setState({teamAddInput:''}); this.showToast(email+' is already on the team.'); return; }
     this.setTeamEmails(list.concat([email])); this.setState({teamAddInput:''});
   }
-  initBpForm(){ const ob=this.state.orgBrand||{}; this.setState({bpName:ob.name||'', bpVoice:ob.voiceDoc||'', bpLogo:ob.logo||'', bpTheme:ob.themeCss||'', bpTicket:ob.ticketForm||''}); }
+  initBpForm(){ const ob=this.state.orgBrand||{}; this.setState({bpName:ob.name||'', bpVoice:ob.voiceDoc||'', bpLogo:ob.logo||'', bpTheme:ob.themeCss||''}); }
 
   // ---------- settings ----------
-  openSettings(){ this._settingsOpener=typeof document!=='undefined'?document.activeElement:null; this.focusInto('[role=dialog]'); const ob=this.state.orgBrand||{}; this.setState({bpName:ob.name||'', bpVoice:ob.voiceDoc||'', bpLogo:ob.logo||'', bpTheme:ob.themeCss||'', bpTicket:ob.ticketForm||'', settingsOpen:true, dProvider:this.state.provider, dKey:this.state.geminiKey, dModel:this.state.geminiModel, dModelCustom:false, dTemp:this.state.geminiTemp, dThinking:this.state.geminiThinking, dVoice:(this.state.voiceDoc||this.state.voiceDefault), dBrand:this.state.brand, dAdvanced:this.state.advanced, dEndpoint:this.state.foundryEndpoint, dFModel:this.state.foundryModel, dFoundryThink:this.state.foundryThink, dFoundryStatus:'', dFoundryOk:false}); }
+  openSettings(){ this._settingsOpener=typeof document!=='undefined'?document.activeElement:null; this.focusInto('[role=dialog]'); const ob=this.state.orgBrand||{}; this.setState({bpName:ob.name||'', bpVoice:ob.voiceDoc||'', bpLogo:ob.logo||'', bpTheme:ob.themeCss||'', settingsOpen:true, dProvider:this.state.provider, dKey:this.state.geminiKey, dModel:this.state.geminiModel, dModelCustom:false, dTemp:this.state.geminiTemp, dThinking:this.state.geminiThinking, dVoice:(this.state.voiceDoc||this.state.voiceDefault), dBrand:this.state.brand, dAdvanced:this.state.advanced, dEndpoint:this.state.foundryEndpoint, dFModel:this.state.foundryModel, dFoundryThink:this.state.foundryThink, dFoundryStatus:'', dFoundryOk:false}); }
   saveSettings(){ if(this.restricted()){ this.setState({settingsOpen:false}); return; } const temp=parseFloat(this.state.dTemp); const t=isNaN(temp)?0.7:this.clamp(temp,0,2); const fEnd=(this.state.dEndpoint||'http://localhost:8757/v1').trim(); const fMod=(this.state.dFModel||'qwen3-14b').trim();
     const model=this.normalizeGeminiModel(this.state.dModel), key=(this.state.dKey||'').trim(), thinking=this.state.dThinking||'';
     // A voice doc identical to the shipped default is stored as "use the default", so later edits to voice-guide.md still reach this browser.
@@ -4013,7 +4042,7 @@ class Component extends DCLogic {
           submitBtnBg:sent && !cd.editedSinceSubmit?'var(--c-white)':'var(--c-emerald)', submitBtnColor:sent && !cd.editedSinceSubmit?'var(--c-navy)':'#fff', submitBtnBorder:sent && !cd.editedSinceSubmit?'var(--border-hairline)':'var(--c-emerald)',
           submitBtnShadow:sent && !cd.editedSinceSubmit?'none':'var(--shadow-2)', submitBtnPad:sent && !cd.editedSinceSubmit?'11px 20px':'14px 26px',
           submitHint:pk?(sent?(cd.editedSinceSubmit?'This tells the team to take another look.':'Nothing new to send. Only do this if you want the team to look again.'):'Do this once the ticket is filed. The team sees your script, answers and ticket right away.'):(sent?(cd.editedSinceSubmit?'Resubmitting tells the team to take another look.':'Nothing new to send. Resubmit only if you want the team to look again.'):'They’ll see it right away, with your answers and any reference documents.') }; })(),
-      ...(()=>{ const pack=st.ticketPack; if(!pack) return {ticketOn:false, ticketRows:[], bmOn:false, ticketSetupNote:st.isAdmin?'Video team only: no ticket form is set up, so requesters get this plain Submit step. Add the ticket system’s form in Studio → Brand → Ticket form, and this step becomes Ticket: the fields written for them, a fill-in bookmark and the case number.':null};
+      ...(()=>{ const pack=st.ticketPack; if(!pack) return {ticketOn:false, ticketRows:[], bmOn:false, ticketSetupNote:st.isAdmin?'Video team only: no ticket form is set up, so requesters get this plain Submit step. Add the ticket system’s form in Studio → Ticketing, and this step becomes Ticket: the fields written for them, a fill-in bookmark and the case number.':null};
         const t=st.ticket||{}; const name=pack.name||'request'; const fields=this.ticketFields();
         const rows=fields.map(f=>{ const v=this.ticketValue(f); const edited=!!(t.edited||{})[f.key]; const gem=f.source==='gemini'||f.source==='title';
           const unsure=gem && !edited && !!t.at && (t.unsure||[]).includes(f.key); const missing=!!f.required && this.emptyVal(f, v);
@@ -4055,7 +4084,7 @@ class Component extends DCLogic {
       msgDraft:st.msgDraft, onMsgDraft:(e)=>this.setState({msgDraft:e.target.value}),
       myMessages:(st.myMsgs||[]).map(m=>({ who:m.authorIsTeam?(this.nameOf(m.authorEmail)+' (video team)'):(m.authorEmail===(this.me()||{}).email?'You':m.authorEmail), when:this.relTime(m.at), text:m.text, bg:m.authorIsTeam?'rgba(95,103,185,0.07)':'var(--c-grey-50)' })),
       noMyMessages:!(st.myMsgs||[]).length, onSendMyMessage:()=>this.sendMessage(st.cloudDoc||(st.projectId?{id:st.projectId, ownerUid:(this.me()||{}).uid, ownerEmail:(this.me()||{}).email, title:this.projectTitle()}:null), false),
-      ...(()=>{ const tabs=[['scripts','Scripts'],['team','Team'],['brand','Brand']];
+      ...(()=>{ const tabs=[['scripts','Scripts'],['team','Team'],['brand','Brand'],['ticketing','Ticketing']];
         const all=st.teamScripts||[]; const q=String(st.studioSearch||'').trim().toLowerCase();
         const fdefs=[['active','Active',x=>x.status!=='done'&&x.status!=='drafting'],['drafting','Drafting',x=>x.status==='drafting'],['done','Done',x=>x.status==='done'],['all','All',()=>true]];
         const fcur=(fdefs.find(f=>f[0]===st.studioFilter)||fdefs[0])[2];
@@ -4076,8 +4105,8 @@ class Component extends DCLogic {
           if(sel.approver) facts.push({label:'Approver', value:sel.approver+(sel.approvalBy?', by '+this.fmtDay(sel.approvalBy):'')}); if(sel.whereRun) facts.push({label:'Where it’s used', value:sel.whereRun}); if(sel.submitNotes) facts.push({label:'Notes', value:sel.submitNotes}); }
         const me=this.me()||{};
         return {
-          studioTabs:tabs.map(([id,lab])=>({ label:lab, onClick:()=>{ this.setState({studioTab:id}); if(id==='brand') this.initBpForm(); }, bg:st.studioTab===id?'var(--c-navy)':'var(--c-white)', border:st.studioTab===id?'var(--c-navy)':'var(--border-hairline)', color:st.studioTab===id?'#fff':'var(--c-navy)' })),
-          studioScriptsTab:st.studioTab==='scripts', studioTeamTab:st.studioTab==='team', studioBrandTab:st.studioTab==='brand',
+          studioTabs:tabs.map(([id,lab])=>({ label:lab, onClick:()=>{ this.setState({studioTab:id}); if(id==='brand') this.initBpForm(); if(id==='ticketing') this.setState({tkDraft:this.state.tkText||''}); }, bg:st.studioTab===id?'var(--c-navy)':'var(--c-white)', border:st.studioTab===id?'var(--c-navy)':'var(--border-hairline)', color:st.studioTab===id?'#fff':'var(--c-navy)' })),
+          studioScriptsTab:st.studioTab==='scripts', studioTeamTab:st.studioTab==='team', studioBrandTab:st.studioTab==='brand', studioTicketTab:st.studioTab==='ticketing',
           studioSearch:st.studioSearch, onStudioSearch:(e)=>this.setState({studioSearch:e.target.value}),
           statusFilters:fdefs.map(([id,lab,fn])=>({ label:lab+' '+all.filter(fn).length, onClick:()=>this.setState({studioFilter:id}), bg:st.studioFilter===id?'rgba(95,103,185,0.14)':'transparent', border:st.studioFilter===id?'rgba(95,103,185,0.45)':'var(--border-hairline)', color:st.studioFilter===id?'var(--c-violet)':'var(--fg-muted)' })),
           studioRows:rows.map(x=>{ const sv=this.statusOf(x.status); const d=this.daysUntil(x.neededBy); const open=x.status!=='done'&&x.status!=='drafting'; const urgent=open && d!=null && d<=7;
@@ -4241,7 +4270,14 @@ class Component extends DCLogic {
       bpLogo:st.bpLogo, bpHasLogo:!!st.bpLogo, bpNoLogo:!st.bpLogo, onBpLogoFile:(e)=>this.onBpFile(e,'logo'), onBpLogoClear:()=>this.setState({bpLogo:''}),
       bpThemeStatus:(st.bpTheme||'').trim()?((st.bpTheme||'').length.toLocaleString()+' characters of CSS'):'None, so the default colors show', bpHasTheme:!!(st.bpTheme||'').trim(),
       onBpThemeFile:(e)=>this.onBpFile(e,'theme'), onBpThemeClear:()=>this.setState({bpTheme:''}),
-      ...(()=>{ const p=this.parseTicketPack(st.bpTicket); return { bpHasTicket:!!(st.bpTicket||'').trim(), bpTicketStatus:p?((p.name||'Ticket')+(p.formName?' · '+p.formName:'')+', '+p.fields.length+' fields. Requesters get a Ticket step instead of Submit.'):'None, so requesters get a plain Submit step', onBpTicketFile:(e)=>this.onBpFile(e,'ticket'), onBpTicketClear:()=>this.setState({bpTicket:''}) }; })(),
+      ...(()=>{ const p=this.parseTicketPack(st.tkDraft); const draft=String(st.tkDraft||'').trim(); const dirty=draft!==String(st.tkText||'').trim();
+        const label={title:'written for them', gemini:'written for them', requester:'their email', neededBy:'their needed-by date', typeMap:'from the video type', fixed:'always the same', ask:'they pick'};
+        return { tkHas:!!p, tkUrl:p?p.url:'', tkBusy:st.tkBusy, tkBtnOpacity:st.tkBusy?'0.6':'1', tkSaveLabel:st.tkBusy?'Saving…':'Save ticketing',
+          tkStatus:p?((p.name||'Ticket')+(p.formName?' · '+p.formName:'')+', '+p.fields.length+' fields'+(p.fields.some(f=>f.required)?(', '+p.fields.filter(f=>f.required).length+' required'):'')):(draft?'That file isn’t a ticket form.':'None, so requesters get a plain Submit step'),
+          tkFieldList:p?p.fields.map(f=>f.label+(f.required?' *':'')+' ('+(label[f.source]||'left to them')+')').join(' · '):'',
+          tkBookmark:p?(p.formMarker?'Yes. It finds the form by '+p.formMarker+'.':'No (no formMarker), so requesters copy the fields across.'):'',
+          tkNote:dirty?'Not saved yet.':'Saved. Requesters get it on their next sign-in or reload.', tkNoteColor:dirty?'var(--c-orange)':'var(--fg-muted)',
+          tkUpdated:st.tkUpdatedAt?('Last saved '+this.relTime(st.tkUpdatedAt)+'.'):'', onTkFile:(e)=>this.onBpFile(e,'ticket'), onTkClear:()=>this.setState({tkDraft:''}), onTkSave:()=>this.saveTicketForm() }; })(),
       onSaveBrandPack:()=>this.saveBrandPack(), bpBusy:st.bpBusy, bpBtnOpacity:st.bpBusy?'0.6':'1', bpSaveLabel:st.bpBusy?'Saving…':'Save brand pack',
       onChooseClaude:()=>this.setState({dProvider:'claude'}), onChooseGemini:()=>this.setState({dProvider:'gemini'}), onChooseFoundry:()=>this.setState({dProvider:'foundry'}),
       claudeBg:st.dProvider==='claude'?'rgba(16,165,172,0.08)':'var(--c-white)', claudeBorder:st.dProvider==='claude'?'var(--c-emerald)':'var(--border-hairline)',

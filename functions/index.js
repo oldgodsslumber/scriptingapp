@@ -17,6 +17,7 @@ const GEMINI_BASE_URL = defineString('GEMINI_BASE_URL', { default: 'https://gene
 const GEMINI_KEY = defineSecret('GEMINI_KEY');
 
 const BRAND_DOC = 'brand/main';
+const TICKET_DOC = 'config/ticket';
 const LIMITS = { name: 80, voiceDoc: 200000, logo: 400000, themeCss: 100000, ticketForm: 100000, prompt: 400000 };
 
 function emailOf(auth) { return String((auth && auth.token && auth.token.email) || '').trim().toLowerCase(); }
@@ -42,18 +43,19 @@ async function ensureConfig() {
   const missing = adminList().filter(e => !listed.includes(e));
   if (!team.exists || missing.length) await db.doc('config/team').set({ emails: listed.concat(missing) }, { merge: true });
   await seedBrand();
+  await seedTicket();
   configChecked = true;
 }
-// A deployment can ship its starting brand pack as functions/brand-seed.json (git-ignored, uploaded with the
-// functions). Each part (name, voice, logo, colors, ticket form) is filled in once, if it's still empty; `seeded`
+// A deployment can ship its starting settings as functions/brand-seed.json (git-ignored, uploaded with the
+// functions). Each part of the brand pack (name, voice, logo, colors) is filled in once, if it's still empty; `seeded`
 // remembers what was filled, so a part the team later clears or replaces in the Studio stays as they left it.
+function readSeed() { try { return require('./brand-seed.json'); } catch (e) { return null; } }
 async function seedBrand() {
-  let seed; try { seed = require('./brand-seed.json'); } catch (e) { return; }
+  const seed = readSeed(); if (!seed) return;
   const patch = {};
-  for (const k of ['name', 'voiceDoc', 'logo', 'themeCss', 'ticketForm']) {
+  for (const k of ['name', 'voiceDoc', 'logo', 'themeCss']) {
     if (typeof seed[k] === 'string' && seed[k] && seed[k].length <= LIMITS[k]) patch[k] = seed[k];
   }
-  if (patch.ticketForm) { try { ticketFormProblem(patch.ticketForm); } catch (e) { delete patch.ticketForm; } }
   if (!Object.keys(patch).length) return;
   const ref = db.doc(BRAND_DOC);
   await db.runTransaction(async (tx) => {
@@ -63,6 +65,22 @@ async function seedBrand() {
     if (!Object.keys(add).length) return;
     const seeded = { ...done }; Object.keys(add).forEach(k => { seeded[k] = true; });
     tx.set(ref, { ...add, seeded, updatedAt: FieldValue.serverTimestamp(), updatedBy: s.exists ? (cur.updatedBy || 'deploy') : 'deploy' }, { merge: true });
+  });
+}
+// The ticket form has its own document. A form left in the brand pack by earlier versions moves here; otherwise the
+// seed file's ticketForm fills it in once. Clearing it in the Studio is remembered, so it isn't filled in again.
+async function seedTicket() {
+  const seed = readSeed(); let fromSeed = seed && typeof seed.ticketForm === 'string' ? seed.ticketForm : '';
+  if (fromSeed) { try { ticketFormProblem(fromSeed); } catch (e) { fromSeed = ''; } }
+  const tref = db.doc(TICKET_DOC), bref = db.doc(BRAND_DOC);
+  await db.runTransaction(async (tx) => {
+    const [t, b] = await Promise.all([tx.get(tref), tx.get(bref)]);
+    const cur = t.exists ? t.data() : {}; const legacy = b.exists ? String(b.data().ticketForm || '') : '';
+    if (!String(cur.form || '').trim() && !cur.seeded) {
+      const form = legacy.trim() ? legacy : fromSeed;
+      if (form) tx.set(tref, { form, seeded: true, updatedAt: FieldValue.serverTimestamp(), updatedBy: legacy.trim() ? (b.data().updatedBy || 'deploy') : 'deploy' }, { merge: true });
+    }
+    if (b.exists && b.data().ticketForm !== undefined) tx.update(bref, { ticketForm: FieldValue.delete(), 'seeded.ticketForm': FieldValue.delete() });
   });
 }
 // Email-link sign-in marks the address verified: the person had to open the link in that inbox.
@@ -80,17 +98,19 @@ exports.checkEmail = onCall(async (request) => {
   return { ok: domainOk(email) };
 });
 
-// The brand pack, plus whether this person may edit it and how much of today's allowance is left.
+// The brand pack and the ticket form, plus whether this person may edit them and how much of today's allowance is left.
 exports.getBrand = onCall(async (request) => {
   const email = requireMember(request);
   await ensureConfig();
-  const [snap, usage] = await Promise.all([
+  const [snap, usage, ticket] = await Promise.all([
     db.doc(BRAND_DOC).get(),
     db.doc('usage/' + request.auth.uid + '_' + today()).get(),
+    db.doc(TICKET_DOC).get(),
   ]);
-  const b = snap.exists ? snap.data() : {};
+  const b = snap.exists ? snap.data() : {}; const t = ticket.exists ? ticket.data() : {};
   return {
-    brand: { name: b.name || '', voiceDoc: b.voiceDoc || '', logo: b.logo || '', themeCss: b.themeCss || '', ticketForm: b.ticketForm || '', updatedAt: b.updatedAt ? b.updatedAt.toMillis() : 0 },
+    brand: { name: b.name || '', voiceDoc: b.voiceDoc || '', logo: b.logo || '', themeCss: b.themeCss || '', updatedAt: b.updatedAt ? b.updatedAt.toMillis() : 0 },
+    ticketForm: t.form || '', ticketUpdatedAt: t.updatedAt ? t.updatedAt.toMillis() : 0,
     isAdmin: await isTeam(email),
     dailyLimit: DAILY_LIMIT.value(),
     usedToday: usage.exists ? (usage.data().count || 0) : 0,
@@ -117,7 +137,7 @@ exports.saveBrand = onCall(async (request) => {
   if (!(await isTeam(email))) throw new HttpsError('permission-denied', 'Only the team can change the brand pack.');
   const d = request.data || {};
   const patch = {};
-  for (const k of ['name', 'voiceDoc', 'logo', 'themeCss', 'ticketForm']) {
+  for (const k of ['name', 'voiceDoc', 'logo', 'themeCss']) {
     if (d[k] === undefined) continue;
     if (typeof d[k] !== 'string') throw new HttpsError('invalid-argument', k + ' must be text.');
     if (d[k].length > LIMITS[k]) throw new HttpsError('invalid-argument', k + ' is too large.');
@@ -125,8 +145,18 @@ exports.saveBrand = onCall(async (request) => {
   }
   if (patch.logo && !/^data:image\/(svg\+xml|png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(patch.logo)) throw new HttpsError('invalid-argument', 'The logo must be an SVG, PNG, JPEG or WebP image.');
   if (patch.themeCss && /<\/?style|<script|@import\s+url\(\s*['"]?javascript:/i.test(patch.themeCss)) throw new HttpsError('invalid-argument', 'The theme must be plain CSS.');
-  if (patch.ticketForm) ticketFormProblem(patch.ticketForm);
   await db.doc(BRAND_DOC).set({ ...patch, updatedAt: FieldValue.serverTimestamp(), updatedBy: email }, { merge: true });
+  return { ok: true };
+});
+
+// Team only. The ticket form as JSON text; an empty string removes it (requesters then get a plain Submit step).
+exports.saveTicketForm = onCall(async (request) => {
+  const email = requireMember(request);
+  if (!(await isTeam(email))) throw new HttpsError('permission-denied', 'Only the team can change ticketing.');
+  const form = String((request.data || {}).form ?? '');
+  if (form.length > LIMITS.ticketForm) throw new HttpsError('invalid-argument', 'The ticket form is too large.');
+  if (form.trim()) ticketFormProblem(form);
+  await db.doc(TICKET_DOC).set({ form: form.trim(), seeded: true, updatedAt: FieldValue.serverTimestamp(), updatedBy: email }, { merge: true });
   return { ok: true };
 });
 
