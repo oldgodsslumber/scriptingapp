@@ -69,6 +69,8 @@ async function seedBrand() {
 }
 // The ticket form has its own document. A form left in the brand pack by earlier versions moves here; otherwise the
 // seed file's ticketForm fills it in once. Clearing it in the Studio is remembered, so it isn't filled in again.
+// The same request form (same system and link), perhaps an older version of it.
+function sameForm(a, b) { try { const x = JSON.parse(a), y = JSON.parse(b); return x.url === y.url && (x.name || '') === (y.name || '') && (x.formName || '') === (y.formName || ''); } catch (e) { return false; } }
 async function seedTicket() {
   const seed = readSeed(); let fromSeed = seed && typeof seed.ticketForm === 'string' ? seed.ticketForm : '';
   if (fromSeed) { try { ticketFormProblem(fromSeed); } catch (e) { fromSeed = ''; } }
@@ -79,6 +81,9 @@ async function seedTicket() {
     if (!String(cur.form || '').trim() && !cur.seeded) {
       const form = legacy.trim() ? legacy : fromSeed;
       if (form) tx.set(tref, { form, seeded: true, updatedAt: FieldValue.serverTimestamp(), updatedBy: legacy.trim() ? (b.data().updatedBy || 'deploy') : 'deploy' }, { merge: true });
+    } else if (fromSeed && !cur.byTeam && (cur.updatedBy || 'deploy') === 'deploy' && String(cur.form || '').trim() && cur.form !== fromSeed && sameForm(cur.form, fromSeed)) {
+      // An older copy of the shipped form that the team never replaced: bring it up to date (e.g. a new video type).
+      tx.set(tref, { form: fromSeed, updatedAt: FieldValue.serverTimestamp(), updatedBy: 'deploy' }, { merge: true });
     }
     if (b.exists && b.data().ticketForm !== undefined) tx.update(bref, { ticketForm: FieldValue.delete(), 'seeded.ticketForm': FieldValue.delete() });
   });
@@ -164,7 +169,7 @@ exports.saveTicketForm = onCall(async (request) => {
   const form = String((request.data || {}).form ?? '');
   if (form.length > LIMITS.ticketForm) throw new HttpsError('invalid-argument', 'The ticket form is too large.');
   if (form.trim()) ticketFormProblem(form);
-  await db.doc(TICKET_DOC).set({ form: form.trim(), seeded: true, updatedAt: FieldValue.serverTimestamp(), updatedBy: email }, { merge: true });
+  await db.doc(TICKET_DOC).set({ form: form.trim(), seeded: true, byTeam: true, updatedAt: FieldValue.serverTimestamp(), updatedBy: email }, { merge: true });
   return { ok: true };
 });
 

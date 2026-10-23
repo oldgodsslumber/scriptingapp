@@ -330,7 +330,7 @@
           </button>
         </div>
         <p style="margin:0 0 16px;font-size:13px;color:var(--fg-muted)">Each type has its own structure, timing, and word budgets.</p>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
           <sc-for list="{{ types }}" as="t" hint-placeholder-count="3">
             <button onClick="{{ t.onSelect }}" style="text-align:left;cursor:pointer;padding:18px;border-radius:var(--radius-md);background:{{ t.bg }};border:1.5px solid {{ t.border }};display:flex;flex-direction:column;gap:8px;transition:all .15s ease">
               <div style="display:flex;align-items:center;justify-content:space-between">
@@ -348,6 +348,18 @@
           </sc-for>
         </div>
         <div style="margin-top:12px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg-muted)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--c-violet)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>More video types are coming soon.</div>
+        <sc-if value="{{ podTypeOn }}" hint-placeholder-val="{{ false }}">
+          <section aria-label="Podcast questions" style="margin-top:16px;background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:22px;display:flex;flex-direction:column;gap:14px">
+            <div><div style="font-size:16px;font-weight:700;color:var(--c-navy)">Before we plan the episode</div><div style="font-size:13px;color:var(--fg-muted);margin-top:4px;line-height:1.5">A podcast lives or dies on the conversation. These shape the questions, especially the honest ones. Answer what you can.</div></div>
+            <sc-for list="{{ podQs }}" as="q" hint-placeholder-count="5">
+              <div>
+                <label style="display:block;font-size:14px;font-weight:700;color:var(--c-navy);margin-bottom:2px">{{ q.q }}</label>
+                <div style="font-size:12px;color:var(--fg-muted);margin-bottom:6px">{{ q.why }}</div>
+                <textarea value="{{ q.value }}" onChange="{{ q.onChange }}" aria-label="{{ q.q }}" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;min-height:64px;line-height:1.5"></textarea>
+              </div>
+            </sc-for>
+          </section>
+        </sc-if>
         <sc-if value="{{ pickResult }}" hint-placeholder-val="{{ null }}">
           <div style="margin-top:16px;padding:14px 16px;border-radius:var(--radius-md);background:rgba(95,103,185,0.07);border:1px solid rgba(95,103,185,0.25);display:flex;gap:12px;align-items:flex-start">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-violet)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
@@ -478,8 +490,9 @@
                 <div style="position:absolute;top:calc(100% + 6px);left:0;z-index:30;min-width:190px;background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-md);box-shadow:var(--shadow-3);overflow:hidden;padding:6px">
                   <button onClick="{{ onExportDocx }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:var(--radius-sm);background:transparent;border:none;color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer;text-align:left" style-hover="background:var(--c-grey-50)">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--c-violet)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg>
-                    Word (.docx)
+                    {{ exportDocxLabel }}
                   </button>
+                  <sc-if value="{{ isPod }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onExportGuest }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:var(--radius-sm);background:transparent;border:none;color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer;text-align:left">Guest prep sheet (.docx)</button></sc-if>
                   <button onClick="{{ onExportPdf }}" style="display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border-radius:var(--radius-sm);background:transparent;border:none;color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer;text-align:left" style-hover="background:var(--c-grey-50)">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--c-orange)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><path d="M14 2v6h6"></path></svg>
                     PDF
@@ -512,6 +525,7 @@
             </sc-if>
           </div>
         </div>
+        <sc-if value="{{ notPod }}" hint-placeholder-val="{{ true }}">
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;padding:18px 0 16px">
           <div>
             <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px">
@@ -544,6 +558,23 @@
             </div>
           </div>
         </div>
+        </sc-if>
+        <sc-if value="{{ isPod }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-wrap:wrap;gap:20px 32px;align-items:flex-end;padding:18px 0 16px">
+          <div style="flex:1 1 260px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-muted)">Planned length</span><span style="font-size:14px;font-weight:700;color:{{ podLenColor }}">{{ podLenLabel }} <span style="color:var(--fg-subtle);font-weight:500">/ 20–30 min</span></span></div>
+            <div style="height:6px;border-radius:999px;background:var(--c-grey-100);position:relative;overflow:hidden"><div style="position:absolute;left:{{ podBandStart }}%;width:{{ podBandWidth }}%;top:0;bottom:0;background:rgba(16,165,172,0.18)"></div><div style="position:absolute;left:0;top:0;bottom:0;width:{{ podLenPct }}%;background:{{ podLenColor }};border-radius:999px"></div></div>
+            <div style="font-size:11px;color:var(--fg-subtle);margin-top:5px">from the topic times, plus the opening and closing</div>
+          </div>
+          <div>
+            <div style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px">Opening and closing</div>
+            <div role="group" aria-label="Opening and closing" style="display:inline-flex;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);overflow:hidden">
+              <button onClick="{{ onPodWritten }}" aria-pressed="{{ podWrittenOn }}" style="padding:7px 12px;border:none;background:{{ podWrittenBg }};color:{{ podWrittenColor }};font-size:12px;font-weight:600;cursor:pointer">Written out</button>
+              <button onClick="{{ onPodBeats }}" aria-pressed="{{ podBeatsOn }}" style="padding:7px 12px;border:none;border-left:1px solid var(--border-hairline);background:{{ podBeatsBg }};color:{{ podBeatsColor }};font-size:12px;font-weight:600;cursor:pointer">Beats</button>
+            </div>
+          </div>
+        </div>
+        </sc-if>
       </div>
     </div>
 
@@ -614,8 +645,9 @@
               <sc-if value="{{ showCoachingNow }}" hint-placeholder-val="{{ true }}">
                 <p style="margin:0 0 12px;font-size:13px;font-style:italic;color:var(--fg-muted);line-height:1.5">{{ s.coaching }}</p>
               </sc-if>
-              <textarea value="{{ s.text }}" onChange="{{ s.onInput }}" placeholder="Narration for this section…" style="width:100%;min-height:{{ s.minH }};height:{{ s.readH }};padding:14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:15px;line-height:1.6;color:var(--fg-default);background:var(--c-grey-50);outline:none"></textarea>
-              <sc-if value="{{ showHeads }}" hint-placeholder-val="{{ true }}">
+              <textarea value="{{ s.text }}" onChange="{{ s.onInput }}" placeholder="{{ s.ph }}" style="width:100%;min-height:{{ s.minH }};height:{{ s.readH }};padding:14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:15px;line-height:1.6;color:var(--fg-default);background:var(--c-grey-50);outline:none"></textarea>
+              <sc-if value="{{ s.isPodTopic }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px"><span style="font-size:12px;color:var(--fg-muted)">{{ s.podTime }}</span><button onClick="{{ s.onRemoveTopic }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Remove topic</button></div></sc-if>
+              <sc-if value="{{ s.showMeter }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;gap:16px;margin-top:14px;flex-wrap:wrap">
                 <div style="flex:1;min-width:220px">
                   <div style="height:6px;border-radius:999px;background:var(--c-grey-100);position:relative;overflow:hidden">
@@ -642,12 +674,29 @@
         </sc-for>
       </div>
 
+      <sc-if value="{{ podCanAdd }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px"><button onClick="{{ onAddTopic }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:10px 16px;font-size:13px">+ Add a topic</button></div></sc-if>
+      <sc-if value="{{ podExtrasOn }}" hint-placeholder-val="{{ false }}">
+      <section aria-label="Episode extras" style="margin-top:24px;background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px"><div style="font-family:var(--font-display);font-weight:600;font-size:19px;color:var(--c-navy)">Titles, show notes and clips</div><div style="font-size:13px;color:var(--fg-muted);margin-top:4px">Episode title options, a short description, and the moments likely to make good clips, written from the plan.</div></div>
+          <button onClick="{{ onPodExtras }}" disabled="{{ podExtrasBusy }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:10px 16px;font-size:13px;opacity:{{ podExtrasOpacity }}">{{ podExtrasLabel }}</button>
+        </div>
+        <sc-if value="{{ podError }}" hint-placeholder-val="{{ null }}"><div role="alert" style="font-size:13px;color:var(--c-orange)">Couldn’t write them: {{ podError }}</div></sc-if>
+        <sc-if value="{{ podExtrasHas }}" hint-placeholder-val="{{ false }}">
+          <div><div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px">Titles</div>
+            <sc-for list="{{ podTitles }}" as="t" hint-placeholder-count="3"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--divider)"><span style="font-size:15px;color:var(--c-navy)">{{ t.text }}</span><button onClick="{{ t.onCopy }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:4px 10px">Copy</button></div></sc-for></div>
+          <div><div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px"><span style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Show notes</span><button onClick="{{ onCopyPodNotes }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:4px 10px">Copy</button></div><div style="font-size:14px;line-height:1.6;color:var(--c-navy);white-space:pre-wrap">{{ podNotes }}</div></div>
+          <div><div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:6px">Clip ideas</div>
+            <sc-for list="{{ podClips }}" as="c" hint-placeholder-count="3"><div style="padding:10px 0;border-top:1px solid var(--divider);display:flex;flex-direction:column;gap:4px"><div style="font-size:14px;font-weight:700;color:var(--c-navy)">{{ c.moment }}</div><sc-if value="{{ c.why }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;color:var(--fg-muted)">{{ c.why }}</div></sc-if><sc-if value="{{ c.post }}" hint-placeholder-val="{{ null }}"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px"><div style="font-size:13px;line-height:1.5;color:var(--c-navy);font-style:italic">{{ c.post }}</div><button onClick="{{ c.onCopy }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:4px 10px">Copy post</button></div></sc-if></div></sc-for></div>
+        </sc-if>
+      </section>
+      </sc-if>
       <sc-if value="{{ rvShow }}" hint-placeholder-val="{{ true }}">
       <section aria-label="Audience review" style="margin-top:24px;background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:22px;display:flex;flex-direction:column;gap:14px">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
           <div style="flex:1;min-width:240px">
             <div style="font-family:var(--font-display);font-weight:600;font-size:19px;color:var(--c-navy)">Audience review</div>
-            <div style="font-size:13px;line-height:1.5;color:var(--fg-muted);margin-top:4px">Three AI readers hear your script the way real viewers would, with nothing but the words. Did they get the message, get lost, or stop believing it? You get their reactions and a recommendation for what to change.</div>
+            <div style="font-size:13px;line-height:1.5;color:var(--fg-muted);margin-top:4px">{{ reviewIntro }}</div>
           </div>
           <span style="display:flex;gap:8px;flex-wrap:wrap">
             <sc-if value="{{ rv.has }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onOpenWalk }}" disabled="{{ rvBusy }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:10px 14px;font-size:13px">Walk through the feedback</button></sc-if>
@@ -773,8 +822,8 @@
       <!-- Executive block -->
       <sc-if value="{{ execBlocked }}" hint-placeholder-val="{{ false }}">
         <div style="max-width:640px;margin:40px auto;text-align:center;background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);padding:40px 32px;box-shadow:var(--shadow-1)">
-          <div style="font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--c-navy);margin-bottom:10px">No b-roll for Executive videos</div>
-          <p style="margin:0;font-size:14px;color:var(--fg-muted);line-height:1.6">Executive videos are an on-camera exec message and traditionally carry no b-roll, so the scene and shot steps don't apply. Switch the type on intake to Overview or Explainer to storyboard b-roll.</p>
+          <div style="font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--c-navy);margin-bottom:10px">No b-roll for this video type</div>
+          <p style="margin:0;font-size:14px;color:var(--fg-muted);line-height:1.6">Executive videos and podcasts don’t use b-roll, so the scene and shot steps don’t apply. Switch the type to Overview or Explainer to storyboard b-roll.</p>
         </div>
       </sc-if>
 
@@ -1906,7 +1955,7 @@ class Component extends DCLogic {
         {feeds:'result', q:'What measurable result does it deliver?'},
         {feeds:'closing', q:'What is the next step for the viewer?'}
       ] },
-    { id:'executive', label:'Executive', wpm:127, runtime:'75–90 s', runtimeSec:[75,90], wordCap:165,
+    { id:'executive', noBroll:true, label:'Executive', wpm:127, runtime:'75–90 s', runtimeSec:[75,90], wordCap:165,
       desc:'One of {brand}’s own executives{execsParen} speaking to camera: a thank-you, company context, why {brand}, and a statement of support. Warm and personal.',
       // Without this the prompt framed every type as company narration, so an executive's remarks came back as marketing copy.
       delivery:'First-person remarks spoken on camera by one of {brand}’s own executives{execsParen}: the person named in the Intro speaker answer. “We” and “our” mean {brand}. Use the voice guide for plain, spoken clarity, but make it sound like this person talking, not marketing copy: no taglines or product superlatives unless the prep answers supply them.',
@@ -1927,7 +1976,24 @@ class Component extends DCLogic {
         {feeds:'support', q:'What commitment or support are you affirming?'},
         {feeds:'preClosing', q:'What note do you want to leave before closing?'},
         {feeds:'closing', q:'How do you want to close?'}
-      ] }
+      ] },
+    { id:'podcast', kind:'podcast', noBroll:true, label:'Podcast', wpm:150, runtime:'20–30 min', runtimeSec:[1200,1800], wordCap:600,
+      desc:'A real conversation, not a presentation: a host and a guest, or guests on their own. You get hook ideas, an opening and a closing, and five topics with the questions worth asking, including the ones that don’t usually get asked.',
+      delivery:'An unscripted conversation between the speakers. Only the hook ideas, the opening and the closing are written; the middle is a guide to the conversation.',
+      sections:[
+        {id:'hooks', label:'Hook ideas', band:[0,99999], sweet:0, coaching:'Short, witty openers built from the material. The best hook is often found while recording and pulled from mid-episode.'},
+        {id:'opening', label:'Opening', band:[0,99999], sweet:0, coaching:'Welcome, who’s speaking and why they’re worth hearing, and why this conversation now.'},
+        {id:'topic1', label:'Topic 1', band:[0,99999], sweet:0, coaching:'What to ask, what to dig into, and the honest question.'},
+        {id:'topic2', label:'Topic 2', band:[0,99999], sweet:0, coaching:'What to ask, what to dig into, and the honest question.'},
+        {id:'topic3', label:'Topic 3', band:[0,99999], sweet:0, coaching:'What to ask, what to dig into, and the honest question.'},
+        {id:'topic4', label:'Topic 4', band:[0,99999], sweet:0, coaching:'What to ask, what to dig into, and the honest question.'},
+        {id:'topic5', label:'Topic 5', band:[0,99999], sweet:0, coaching:'What to ask, what to dig into, and the honest question.'},
+        {id:'topic6', label:'Topic 6', band:[0,99999], sweet:0, coaching:'What to ask, what to dig into, and the honest question.'},
+        {id:'topic7', label:'Topic 7', band:[0,99999], sweet:0, coaching:'What to ask, what to dig into, and the honest question.'},
+        {id:'closing', label:'Closing', band:[0,99999], sweet:0, coaching:'One takeaway, thanks, and where listeners go next.'}
+      ],
+      prep:[]
+    }
   ];
   REGISTERS = {
     problem:{label:'Problem', bg:'rgba(247,105,35,0.12)', color:'#C4471A'},
@@ -1958,7 +2024,7 @@ class Component extends DCLogic {
     studioTab:'scripts', studioFilter:'active', studioSearch:'', studioSel:null, studioContent:null, studioLoading:false, studioMsgs:[], studioVersions:[], studioVersionSel:'current',
     teamScripts:[], teamEmails:[], teamAddInput:'',
     authState:'boot', authEmail:'', authInput:'', authBusy:false, authError:null, cloudOk:false, isAdmin:false, quota:null, orgBrand:null, logoSrc:'assets/logo.svg',
-    showHeads:true, signInOrg:'', signInDomain:'', review:null, reviewPick:[], reviewBusy:null, reviewError:null, rvWalk:null, rvOpen:{}, sdRvOpen:{},
+    showHeads:true, signInOrg:'', signInDomain:'', podMode:'written', podShown:5, podExtras:null, podBusy:null, podError:null, review:null, reviewPick:[], reviewBusy:null, reviewError:null, rvWalk:null, rvOpen:{}, sdRvOpen:{},
     bpName:'', bpVoice:'', bpLogo:'', bpTheme:'', bpBusy:false, refUrl:'', refUrlBusy:false, tkText:'', tkDraft:'', tkBusy:false,
     ticketPack:null, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null,
     kickoff:null, kbDraft:null, kbBusy:null, kbError:null,
@@ -2240,7 +2306,7 @@ class Component extends DCLogic {
     if(/^["“‘']/.test(t) && /["”’']$/.test(t)) t=t.slice(1,-1).trim();
     return t;
   }
-  assemblePickPrompt(){ const b=this.brandNoun(); return 'Classify this video idea into exactly one '+this.brandAdj()+' video type.\nTypes:\n- overview: crisp high-level flyover of '+b+' for a broad first-time audience (~60–90s).\n- explainer: problem → product → three-step how-it-works → result (~90s–2min).\n- executive: one of '+b+'’s own executives'+(this._execs?' ('+this._execs+')':'')+' speaking to camera — thank-you, company context, why '+b+', support statement (~75–90s).\n\nIdea: '+this.state.idea+'\n'+this.qaBlock()+this.speakerWeight()+'\nAlso give "title": a short working title for the video, 3 to 8 words, specific to it, with no quotes.\n\nReturn ONLY JSON: {"type":"overview|explainer|executive","rationale":"one short sentence","title":""}'; }
+  assemblePickPrompt(){ const b=this.brandNoun(); return 'Classify this video idea into exactly one '+this.brandAdj()+' video type.\nTypes:\n- overview: crisp high-level flyover of '+b+' for a broad first-time audience (~60–90s).\n- explainer: problem → product → three-step how-it-works → result (~90s–2min).\n- executive: one of '+b+'’s own executives'+(this._execs?' ('+this._execs+')':'')+' speaking to camera — thank-you, company context, why '+b+', support statement (~75–90s).\n- podcast: a conversation between two or more people (a host and a guest, or guests on their own), ~20–30 min. Choose it when the idea is a podcast, interview, panel or conversation.\n\nIdea: '+this.state.idea+'\n'+this.qaBlock()+this.speakerWeight()+'\nAlso give "title": a short working title for the video, 3 to 8 words, specific to it, with no quotes.\n\nReturn ONLY JSON: {"type":"overview|explainer|executive|podcast","rationale":"one short sentence","title":""}'; }
   speakerWeight(){ const sp=this.speakerAnswer(); return sp?('\n## WHO THEY ENVISION DELIVERING IT (a preference to weigh, not a requirement)\n'+sp+'\nWeigh it with the content. A voiceover narrator fits Overview or Explainer. An executive points to Executive when the content is remarks, thanks, or a statement of support, but an executive can also front an Overview. Someone from '+this.brandNoun()+', such as a product marketing manager, usually fits Explainer or Overview. Pick the type whose structure best fits the content. If the speaker shaped the choice, say so in the rationale; if a different speaker would serve the video better, suggest it there in a friendly way.\n'):''; }
 
   // ---------- STEP 2 prompt ----------
@@ -2469,7 +2535,7 @@ class Component extends DCLogic {
   briefKey(){ return (this.state.idea||'').trim()+'|'+(this.state.references||[]).map(r=>r.id).join(','); }
   // Asked every time by the app, not the model, so the three options are always the same.
   speakerQuestion(){ const b=(this.state.brand||'').trim()||'the company'; return { id:'speaker', kind:'speaker', q:'Who do you envision delivering the script?', why:'Just a starting point. We’ll recommend what fits best, and it can change later.', options:['A voiceover narrator', 'Someone from '+b+', like a product marketing manager', 'An executive from '+b, 'A customer or partner executive'], answer:'', skipped:false }; }
-  speakerAnswer(){ const q=(this.state.questions||[]).find(x=>x.kind==='speaker'); return (q && !q.skipped && (q.answer||'').trim()) || ''; }
+  speakerAnswer(){ if(this.isPodcast()){ const p=this.podAnswer('pod_speakers'); if(p) return p; } const q=(this.state.questions||[]).find(x=>x.kind==='speaker'); return (q && !q.skipped && (q.answer||'').trim()) || ''; }
   // Model-suggested titles only fill in until the producer names the video themselves.
   cleanTitle(t){ return String(t||'').replace(/^["'“‘\s]+|["'”’\s.]+$/g,'').replace(/\s+/g,' ').slice(0,80); }
   suggestTitle(t){ const v=this.cleanTitle(t); return (v && !this.state.titleManual)?{title:v}:{}; }
@@ -2483,7 +2549,7 @@ class Component extends DCLogic {
       +(src?'\n## REFERENCE DOCUMENTS (read these closely; the video will be built from them)\n'+src+'\n':'')
       +(answered.length?'\n## ALREADY ANSWERED (do not ask again)\n'+answered.map(q=>'Q: '+q.q+'\nA: '+q.answer.trim()).join('\n\n')+'\n':'')
       +(skipped.length?'\n## ALREADY ASKED AND SKIPPED (do not ask again or rephrase)\n'+skipped.map(q=>'- '+q.q).join('\n')+'\n':'')
-      +'\n## TASK\nAsk '+(more?'up to 4 more':'5 to 7')+' short, specific questions, most important first. Ask only what the idea'+(src?' and source material':'')+' do not already answer, and never generic questions like "what is your video about?". Good targets: who the audience is and what they already know; the one message they should remember; concrete proof (numbers, named customers, outcomes); the action viewers should take; anything ambiguous in the idea. Do not ask who will deliver, narrate or present the video; that is asked separately. Never ask which video type, format, style or length they want, and never list our video types as choices: assume they don’t know them and need guiding; the app recommends a type afterwards from their answers. Instead ask what a producer would ask to guide them there: what is prompting the video and why now (a launch, an event, a campaign, a customer win); where and how people will watch it (on stage, on a web page, in social, in a sales conversation); whether it should introduce the big picture, explain how something works step by step, or carry a personal message from someone; who should appear in it; and how much the audience needs explained. One thing per question, answerable in a sentence, in plain language. Phrase each one as gathering their ideas and preferences, not as a final decision: "Do you have a customer story in mind?", not "Which customer will be featured?". Nothing they say is locked in; the video team may recommend changes later. The person can skip any question, so asking is cheap.\n'
+      +(this.looksLikePodcast()?'\n## THIS IS A PODCAST\nQuestions about who is speaking, who is listening, what doesn’t usually get said, stories and anything off the table are asked separately. Don’t repeat them; ask what else the episode plan needs.\n':'')+'\n## TASK\nAsk '+(more?'up to 4 more':(this.looksLikePodcast()?'2 or 3':'5 to 7'))+' short, specific questions, most important first. Ask only what the idea'+(src?' and source material':'')+' do not already answer, and never generic questions like "what is your video about?". Good targets: who the audience is and what they already know; the one message they should remember; concrete proof (numbers, named customers, outcomes); the action viewers should take; anything ambiguous in the idea. Do not ask who will deliver, narrate or present the video; that is asked separately. Never ask which video type, format, style or length they want, and never list our video types as choices: assume they don’t know them and need guiding; the app recommends a type afterwards from their answers. Instead ask what a producer would ask to guide them there: what is prompting the video and why now (a launch, an event, a campaign, a customer win); where and how people will watch it (on stage, on a web page, in social, in a sales conversation); whether it should introduce the big picture, explain how something works step by step, or carry a personal message from someone; who should appear in it; and how much the audience needs explained. One thing per question, answerable in a sentence, in plain language. Phrase each one as gathering their ideas and preferences, not as a final decision: "Do you have a customer story in mind?", not "Which customer will be featured?". Nothing they say is locked in; the video team may recommend changes later. The person can skip any question, so asking is cheap.\n'
       +(src?'Use the reference documents to make the questions informed and specific. Where they offer choices (several customer stories, metrics, products, features, or angles), ask which to feature and name the candidates, e.g. "The deck cites two bank results. Which should lead?". Where they leave gaps (who the video is for, the one message, the action to take), ask about those. Never ask for a fact the documents already state, and if the documents and the idea disagree, ask which is right.\n':'')
       +'For each question, give 2 to 4 short example answers in "options", drawn from '+(src?'the reference documents and the idea':'the idea')+', when examples would help; otherwise an empty list. Give "why": one short clause on how the answer shapes the script.\n'
       +(more?'If the brief already covers what the script needs, return an empty "questions" list.\n':'')
@@ -2495,7 +2561,9 @@ class Component extends DCLogic {
     if(!(this.state.idea||'').trim()){ this.showToast('Describe the video first'); return; }
     const key=this.briefKey();
     if(this.state.qKey===key && this.state.qAsked){ this.setState({view:'questions'}, ()=>this.persist()); return; }
-    const kept=this.answeredQA(); const questions=kept.some(q=>q.kind==='speaker')?kept:kept.concat([this.speakerQuestion()]);
+    const kept=this.answeredQA(); let questions=kept;
+    if(this.looksLikePodcast()) this.PODCAST_QUESTIONS.forEach(d=>{ if(!questions.some(q=>q.id===d.id)) questions=questions.concat([this.podQuestion(d.id)]); });
+    else if(!kept.some(q=>q.kind==='speaker')) questions=kept.concat([this.speakerQuestion()]);
     this.setState({view:'questions', questions, qIndex:kept.length, qKey:key, qAsked:false, qRead:'', qError:null}, ()=>{ this.persist(); this.askQuestions(false); });
   }
   async askQuestions(more){
@@ -2536,6 +2604,7 @@ class Component extends DCLogic {
   async generateScript(){
     const type=this.currentType();
     if(!type){ this.showToast('Pick a video type first'); return; }
+    if(type.kind==='podcast') return this.generatePodcast();
     if(this.state.generating || !this.requireProvider()) return;
     const pid=this.state.projectId;
     const locked={}; this.state.sections.forEach(s=>{ if(s.locked && type.sections.some(t=>t.id===s.id)) locked[s.id]={text:s.text}; });
@@ -2568,7 +2637,7 @@ class Component extends DCLogic {
     const pid=this.state.projectId, sid=sec.id;
     const mark=(patch)=>this.setState({sections:this.state.sections.map(s=>s.id===sid?{...s, ...patch}:s)});
     mark({regenBusy:true});
-    try{ const raw=await this.generate(this.assembleSectionPrompt(type,sec,note)); if(!this.stillOn(pid)) return; const text=this.cleanSectionText(raw, sec); if(!text) throw new Error('the model returned no text'); this.markScenesStaleForSection(sec.label); const meR=this.me(); mark(this.state.teamEdit&&meR?{text, regenBusy:false, editedBy:meR.email, handEdited:true}:{text, regenBusy:false, editedBy:''}); this.persist(); }
+    try{ const pod=!!(type && type.kind==='podcast'); const raw=await this.generate(pod?this.assemblePodSectionPrompt(sec,note):this.assembleSectionPrompt(type,sec,note), pod?{json:true}:undefined); if(!this.stillOn(pid)) return; const text=pod?this.podSectionText(sec, this.parseJSON(raw)||{}):this.cleanSectionText(raw, sec); if(!text) throw new Error('the model returned no text'); this.markScenesStaleForSection(sec.label); const meR=this.me(); mark(this.state.teamEdit&&meR?{text, regenBusy:false, editedBy:meR.email, handEdited:true}:{text, regenBusy:false, editedBy:''}); this.persist(); }
     catch(e){ if(!this.stillOn(pid)) return; mark({regenBusy:false}); this.showToast('Regenerate failed: '+(e.message||e)); }
   }
   toggleLock(idx){ const n=this.state.sections.slice(); n[idx]={...n[idx], locked:!n[idx].locked}; this.setState({sections:n}, ()=>this.persist()); }
@@ -2583,7 +2652,7 @@ class Component extends DCLogic {
   recalcStarts(scenes){ let acc=0; return scenes.map(sc=>{ const s={...sc, approx_start_s:Math.round(acc)}; acc+=Number(sc.duration)||0; return s; }); }
   async generateScenes(){
     const type=this.currentType();
-    if(!type||type.id==='executive') return;
+    if(!type||type.noBroll) return;
     if(!this.state.sections.some(s=>s.text&&s.text.trim())){ this.showToast('Generate the script first'); return; }
     if(this.state.scenesGenerating || !this.requireProvider()) return;
     const pid=this.state.projectId;
@@ -2798,7 +2867,7 @@ class Component extends DCLogic {
 
   // ---------- persistence ----------
   projectTitle(){ const named=(this.state.title||'').trim(); if(named) return named; const i=(this.state.idea||'').trim(); if(!i) return 'Untitled script'; const t=i.split(/[.!?\n]/)[0].trim(); return t.length>72?t.slice(0,72)+'…':t; }
-  projectData(){ const tk=this.state.ticket||{}; return { version:5, submitForm:{neededBy:'', whereRun:'', notes:'', approver:'', approvalBy:'', ...(this.state.submitForm||{})}, ticket:{values:tk.values||{}, edited:tk.edited||{}, notes:tk.notes||{}, unsure:tk.unsure||[], srcKey:tk.srcKey||'', at:tk.at||0}, review:this.state.review||null, reviewPick:this.state.reviewPick||[], idea:this.state.idea, title:this.state.title||'', titleManual:!!this.state.titleManual, questions:(this.state.questions||[]).map(q=>({id:q.id, kind:q.kind||'', q:q.q, why:q.why, options:q.options, answer:q.answer, skipped:!!q.skipped})), qIndex:this.state.qIndex, qRead:this.state.qRead, qKey:this.state.qKey, qAsked:!!this.state.qAsked, pickKey:this.state.pickKey||'', pickResult:this.state.pickResult||null, typeId:this.state.selectedTypeId, prepAnswers:this.state.prepAnswers, references:this.state.references, concepts:this.state.concepts, selectedConceptId:this.state.selectedConceptId, customConcept:this.state.customConcept, conceptSeen:this.state.conceptSeen, conceptKey:this.state.conceptKey||'', view:this.state.view, industry:this.state.industry, targetShotSeconds:this.state.targetShotSeconds, sections:this.state.sections.map(s=>({id:s.id,text:s.text,locked:!!s.locked,editedBy:s.editedBy||''})), sectionsByType:this.state.sectionsByType||{}, scenes:this.state.scenes, personas:this.state.personas }; }
+  projectData(){ const tk=this.state.ticket||{}; return { version:5, submitForm:{neededBy:'', whereRun:'', notes:'', approver:'', approvalBy:'', ...(this.state.submitForm||{})}, ticket:{values:tk.values||{}, edited:tk.edited||{}, notes:tk.notes||{}, unsure:tk.unsure||[], srcKey:tk.srcKey||'', at:tk.at||0}, podMode:this.state.podMode||'written', podShown:this.state.podShown||5, podExtras:this.state.podExtras||null, review:this.state.review||null, reviewPick:this.state.reviewPick||[], idea:this.state.idea, title:this.state.title||'', titleManual:!!this.state.titleManual, questions:(this.state.questions||[]).map(q=>({id:q.id, kind:q.kind||'', q:q.q, why:q.why, options:q.options, answer:q.answer, skipped:!!q.skipped})), qIndex:this.state.qIndex, qRead:this.state.qRead, qKey:this.state.qKey, qAsked:!!this.state.qAsked, pickKey:this.state.pickKey||'', pickResult:this.state.pickResult||null, typeId:this.state.selectedTypeId, prepAnswers:this.state.prepAnswers, references:this.state.references, concepts:this.state.concepts, selectedConceptId:this.state.selectedConceptId, customConcept:this.state.customConcept, conceptSeen:this.state.conceptSeen, conceptKey:this.state.conceptKey||'', view:this.state.view, industry:this.state.industry, targetShotSeconds:this.state.targetShotSeconds, sections:this.state.sections.map(s=>({id:s.id,text:s.text,locked:!!s.locked,editedBy:s.editedBy||''})), sectionsByType:this.state.sectionsByType||{}, scenes:this.state.scenes, personas:this.state.personas }; }
   // Videos saved in this browser belong to whoever is signed in. Before any sign-in exists they live in the shared
   // key; the first person to sign in on this browser takes them over, and after that nothing carries across accounts.
   libKey(){ return this._scope?('vsg_projects:'+this._scope):'vsg_projects'; }
@@ -2877,7 +2946,7 @@ class Component extends DCLogic {
     if(!references.length && d.referenceText){ references=[{id:this.uid('ref'), name:d.referenceFileName||'reference', text:d.referenceText}]; }
     // A failed summary gets another try each time the video is opened (it was usually a network blip).
     references=references.map(r=>({...r, briefFailed:false, briefBusy:false}));
-    this.setState({ idea:d.idea||'', selectedTypeId:d.typeId||null, prepAnswers:d.prepAnswers||{}, references, sectionsByType, refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:d.concepts||[], selectedConceptId:d.selectedConceptId||null, customConcept:d.customConcept||'', conceptSeen:d.conceptSeen||[], conceptKey:d.conceptKey||'', conceptBusy:false, conceptError:null, sections, industry:d.industry||'', targetShotSeconds:d.targetShotSeconds||4, scenes:(d.scenes||[]).map(s=>({...s, scene_id:s.scene_id||this.uid('s'), regenBusy:false, shotsGenerating:false, shots:(s.shots||[]).map(sh=>({...sh, shot_id:sh.shot_id||this.uid('sh'), regenBusy:false, videoBusy:false}))})), personas:d.personas||[], view:this.viewFor(d.view, sections.length>0), submitForm:{neededBy:'', whereRun:'', notes:'', approver:'', approvalBy:'', ...(d.submitForm||{})}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0, ...(d.ticket||{})}, ticketBusy:false, ticketError:null, caseDraft:null, review:d.review||null, reviewPick:Array.isArray(d.reviewPick)?d.reviewPick:[], reviewBusy:null, reviewError:null, rvWalk:null, rvOpen:{}, title:d.title||'', titleManual:!!d.titleManual, questions:(Array.isArray(d.questions)?d.questions:[]).map(q=>q&&q.kind==='speaker'?{...q, q:this.speakerQuestion().q, why:this.speakerQuestion().why, options:(q.options||[]).length>=4?q.options:this.speakerQuestion().options}:q), qIndex:(d.qIndex!=null?d.qIndex:(d.questions||[]).length), qRead:d.qRead||'', qKey:d.qKey||'', qAsked:!!d.qAsked, qError:null, pickKey:d.pickKey||'', ...this.idleFlags(), pickResult:d.pickResult||null, pickError:null, scenesError:null, expanded:{} });
+    this.setState({ idea:d.idea||'', selectedTypeId:d.typeId||null, prepAnswers:d.prepAnswers||{}, references, sectionsByType, refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:d.concepts||[], selectedConceptId:d.selectedConceptId||null, customConcept:d.customConcept||'', conceptSeen:d.conceptSeen||[], conceptKey:d.conceptKey||'', conceptBusy:false, conceptError:null, sections, industry:d.industry||'', targetShotSeconds:d.targetShotSeconds||4, scenes:(d.scenes||[]).map(s=>({...s, scene_id:s.scene_id||this.uid('s'), regenBusy:false, shotsGenerating:false, shots:(s.shots||[]).map(sh=>({...sh, shot_id:sh.shot_id||this.uid('sh'), regenBusy:false, videoBusy:false}))})), personas:d.personas||[], view:this.viewFor(d.view, sections.length>0), submitForm:{neededBy:'', whereRun:'', notes:'', approver:'', approvalBy:'', ...(d.submitForm||{})}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0, ...(d.ticket||{})}, ticketBusy:false, ticketError:null, caseDraft:null, podMode:d.podMode==='beats'?'beats':'written', podShown:Math.max(1, Math.min(7, d.podShown||5)), podExtras:d.podExtras||null, podBusy:null, podError:null, review:d.review||null, reviewPick:Array.isArray(d.reviewPick)?d.reviewPick:[], reviewBusy:null, reviewError:null, rvWalk:null, rvOpen:{}, title:d.title||'', titleManual:!!d.titleManual, questions:(Array.isArray(d.questions)?d.questions:[]).map(q=>q&&q.kind==='speaker'?{...q, q:this.speakerQuestion().q, why:this.speakerQuestion().why, options:(q.options||[]).length>=4?q.options:this.speakerQuestion().options}:q), qIndex:(d.qIndex!=null?d.qIndex:(d.questions||[]).length), qRead:d.qRead||'', qKey:d.qKey||'', qAsked:!!d.qAsked, qError:null, pickKey:d.pickKey||'', ...this.idleFlags(), pickResult:d.pickResult||null, pickError:null, scenesError:null, expanded:{} });
   }
   exportJSON(){ const blob=new Blob([JSON.stringify(this.projectData(),null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(this.projectTitle().replace(/[^a-z0-9]+/gi,'-').toLowerCase()||'video-script')+'.json'; a.click(); setTimeout(()=>URL.revokeObjectURL(a.href),1000); }
   importJSON(){ const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json'; inp.onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ let d; try{ d=JSON.parse(r.result); }catch(err){ d=null; } if(!d||typeof d!=='object'||Array.isArray(d)){ this.showToast('Invalid project file'); return; }
@@ -2885,7 +2954,7 @@ class Component extends DCLogic {
       this.flushPersist(); this.setState({projectId:this.uid('proj'), projectsMenuOpen:false}); this.loadProjectData(d); this.persistNow(); this.showToast('Imported as a new video'); }; r.readAsText(f); }; inp.click(); }
   // The brief steps reopen where they were left; scenes and shots need advanced mode, so without it they open the script.
   viewFor(v, hasSections){ if(v==='studio') v='workspace'; if(['intake','questions','type','concept'].includes(v)) return v; if(!hasSections) return 'intake'; if((v==='scenes'||v==='shots') && !this.state.advanced) return 'workspace'; return v||'workspace'; }
-  newProject(){ this.releaseLock(); if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const id=this.newProjectId(); this._revs=this._revs||{}; this._revs[id]=0; if(this._unsubCur){ this._unsubCur(); this._unsubCur=null; } this.setState({ projectId:id, remoteChange:null, cloudDoc:null, myMsgs:[], submitForm:{neededBy:'', whereRun:'', notes:''}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null, review:null, reviewPick:[], reviewBusy:null, reviewError:null, rvWalk:null, rvOpen:{}, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
+  newProject(){ this.releaseLock(); if(this.state.teamEdit) this.leaveTeamEdit(true); else this.flushPersist(); const id=this.newProjectId(); this._revs=this._revs||{}; this._revs[id]=0; if(this._unsubCur){ this._unsubCur(); this._unsubCur=null; } this.setState({ projectId:id, remoteChange:null, cloudDoc:null, myMsgs:[], submitForm:{neededBy:'', whereRun:'', notes:''}, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null, podMode:'written', podShown:5, podExtras:null, podBusy:null, podError:null, review:null, reviewPick:[], reviewBusy:null, reviewError:null, rvWalk:null, rvOpen:{}, view:'intake', idea:'', title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', qAsked:false, qError:null, pickKey:'', selectedTypeId:null, prepAnswers:{}, references:[], refStatus:'.docx · .pptx · .pdf · .txt · .md', concepts:[], selectedConceptId:null, customConcept:'', conceptError:null, conceptSeen:[], conceptKey:'', sections:[], sectionsByType:{}, scenes:[], personas:[], industry:'', targetShotSeconds:4, expanded:{}, ...this.idleFlags(), pickResult:null, pickError:null, scenesError:null, projectsMenuOpen:false }, ()=>this.persist()); }
   downloadText(name, text, mime){ this.downloadBlob(name, new Blob([text],{type:mime||'text/plain'})); }
   _fallbackCopy(text){ const ta=document.createElement('textarea'); ta.value=text; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); try{ document.execCommand('copy'); this.showToast('Copied to clipboard'); }catch(e){ this.showToast('Copy failed'); } ta.remove(); }
   copyText(text){ try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(()=>this.showToast('Copied to clipboard'),()=>this._fallbackCopy(text)); return; } }catch(e){} this._fallbackCopy(text); }
@@ -3038,12 +3107,14 @@ class Component extends DCLogic {
     const e=[]; p32(e,0x06054b50); p16(e,0); p16(e,0); p16(e,files.length); p16(e,files.length); p32(e,cdSize); p32(e,offset); p16(e,0);
     const all=[...parts,...central,Uint8Array.from(e)]; const total=all.reduce((a,x)=>a+x.length,0); const out=new Uint8Array(total); let pos=0; all.forEach(x=>{ out.set(x,pos); pos+=x.length; }); return out; }
   xmlEsc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  exportSecs(){ const pod=this.isPodcast(); return (this.state.sections||[]).filter(s=>!pod || String(s.text||'').trim()); }
+  exportMeta(){ const t=this.currentType(); return this.isPodcast()?(t.label+'  ·  target '+t.runtime+'  ·  planned ~'+Math.round(this.podPlannedMinutes())+' min'):(t.label+'  ·  target '+t.runtime+'  ·  ~'+t.wpm+' wpm'); }
   exportDocx(){
     const t=this.currentType(); const esc=(s)=>this.xmlEsc(s);
     const para=(text,o)=>{ o=o||{}; const rpr='<w:rPr>'+(o.bold?'<w:b/>':'')+(o.font?'<w:rFonts w:ascii="'+o.font+'" w:hAnsi="'+o.font+'"/>':'')+(o.size?'<w:sz w:val="'+o.size+'"/>':'')+(o.color?'<w:color w:val="'+o.color+'"/>':'')+(o.caps?'<w:caps/><w:spacing w:val="14"/>':'')+'</w:rPr>'; const ppr='<w:pPr><w:spacing w:before="'+(o.before||0)+'" w:after="'+(o.after||80)+'"/></w:pPr>'; return '<w:p>'+ppr+'<w:r>'+rpr+'<w:t xml:space="preserve">'+esc(text)+'</w:t></w:r></w:p>'; };
     let body=para(this.projectTitle(),{bold:true,size:40,color:'001F5F',font:'Lora',after:40});
-    body+=para(t.label+'  ·  target '+t.runtime+'  ·  ~'+t.wpm+' wpm',{size:20,color:'6F7480',after:200});
-    this.state.sections.forEach(s=>{ body+=para(s.label,{bold:true,size:20,color:'0E7E84',font:'Open Sans',caps:true,before:200,after:20}); (s.text||'').split(/\n+/).forEach(line=>{ body+=para(line,{size:24,color:'23272F',after:120}); }); });
+    body+=para(this.exportMeta(),{size:20,color:'6F7480',after:200});
+    this.exportSecs().forEach(s=>{ body+=para(s.label,{bold:true,size:20,color:'0E7E84',font:'Open Sans',caps:true,before:200,after:20}); (s.text||'').split(/\n+/).forEach(line=>{ body+=para(line,{size:24,color:'23272F',after:120}); }); });
     // The brief rides along so the video team sees what the script was written from.
     body+=para('Brief',{bold:true,size:28,color:'001F5F',font:'Lora',before:480,after:80});
     body+=para('Idea',{bold:true,size:20,color:'0E7E84',font:'Open Sans',caps:true,before:120,after:20}); (this.state.idea||'').split(/\n+/).forEach(line=>{ body+=para(line,{size:22,color:'23272F',after:100}); });
@@ -3053,9 +3124,9 @@ class Component extends DCLogic {
   }
   exportPdf(){
     const t=this.currentType(); const esc=(s)=>this.xmlEsc(s);
-    const secs=this.state.sections.map(s=>'<h2>'+esc(s.label)+'</h2><p>'+esc(s.text||'')+'</p>').join('')
+    const secs=this.exportSecs().map(s=>'<h2>'+esc(s.label)+'</h2><p>'+esc(s.text||'')+'</p>').join('')
       +'<h3>Brief</h3><h2>Idea</h2><p>'+esc(this.state.idea||'')+'</p>'+this.answeredQA().map(q=>'<p class="q">'+esc(q.q)+'</p><p>'+esc(q.answer.trim())+'</p>').join('');
-    const html='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(this.projectTitle())+'</title><style>@import url("https://fonts.googleapis.com/css2?family=Lora:wght@600&family=Open+Sans:wght@400;600&display=swap");*{box-sizing:border-box}body{font-family:\'Open Sans\',system-ui,sans-serif;color:#001F5F;max-width:640px;margin:48px auto;padding:0 24px;line-height:1.6}h1{font-family:Lora,serif;font-size:26px;margin:0 0 4px}.meta{color:#6F7480;font-size:13px;margin:0 0 28px;font-weight:600;letter-spacing:.04em}h2{font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#0E7E84;margin:22px 0 4px}p{margin:0 0 6px;font-size:15px;color:#23272F}h3{font-family:Lora,serif;font-size:20px;margin:40px 0 4px;padding-top:20px;border-top:1px solid #D7DAE0}p.q{font-weight:600;color:#001F5F;margin-top:14px}@media print{body{margin:24px auto}}</style></head><body><h1>'+esc(this.projectTitle())+'</h1><p class="meta">'+esc(t.label)+' &middot; target '+esc(t.runtime)+' &middot; ~'+t.wpm+' wpm</p>'+secs+'</body></html>';
+    const html='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(this.projectTitle())+'</title><style>@import url("https://fonts.googleapis.com/css2?family=Lora:wght@600&family=Open+Sans:wght@400;600&display=swap");*{box-sizing:border-box}body{font-family:\'Open Sans\',system-ui,sans-serif;color:#001F5F;max-width:640px;margin:48px auto;padding:0 24px;line-height:1.6}h1{font-family:Lora,serif;font-size:26px;margin:0 0 4px}.meta{color:#6F7480;font-size:13px;margin:0 0 28px;font-weight:600;letter-spacing:.04em}h2{font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:#0E7E84;margin:22px 0 4px}p{margin:0 0 6px;font-size:15px;color:#23272F;white-space:pre-wrap}h3{font-family:Lora,serif;font-size:20px;margin:40px 0 4px;padding-top:20px;border-top:1px solid #D7DAE0}p.q{font-weight:600;color:#001F5F;margin-top:14px}@media print{body{margin:24px auto}}</style></head><body><h1>'+esc(this.projectTitle())+'</h1><p class="meta">'+esc(this.exportMeta()).replace(/  ·  /g,' &middot; ')+'</p>'+secs+'</body></html>';
     const w=window.open('','_blank');
     if(!w){ this.showToast('Allow pop-ups to export PDF'); this.setState({scriptExportOpen:false}); return; }
     w.document.write(html); w.document.close(); w.focus(); setTimeout(()=>{ try{ w.print(); }catch(e){} },500);
@@ -3428,7 +3499,7 @@ class Component extends DCLogic {
     this._unsubMyMsgs=fsM.onSnapshot(mq, snap=>{ if(this.state.projectId!==id) return; this.setState({myMsgs:snap.docs.map(x=>({id:x.id, ...x.data(), at:this.ms(x.data().at)||Date.now()})).sort((a,b)=>a.at-b.at)}); }, ()=>{});
   }
   // ----- merging two people's edits -----
-  fieldLabel(k){ return ({title:'the title', idea:'the idea', typeId:'the video type', customConcept:'the concept', selectedConceptId:'the concept', references:'the reference documents', submitForm:'the submission details', ticket:'the ticket', review:'the audience review', reviewPick:'the review readers'}[k])||k; }
+  fieldLabel(k){ return ({title:'the title', idea:'the idea', typeId:'the video type', customConcept:'the concept', selectedConceptId:'the concept', references:'the reference documents', submitForm:'the submission details', ticket:'the ticket', review:'the audience review', podExtras:'the titles, show notes and clips', podMode:'the opening and closing style', podShown:'the number of topics', reviewPick:'the review readers'}[k])||k; }
   sectionLabelIn(data, id){ const t=this.TYPES.find(x=>x.id===(data&&data.typeId)); const d=t&&t.sections.find(x=>x.id===id); return d?d.label:id; }
   // Three-way merge: what changed on only one side is kept; only the same field or section changed on both sides is a conflict.
   mergeData(base, local, remote){
@@ -3695,13 +3766,13 @@ class Component extends DCLogic {
     const script=(this.state.sections||[]).map(x=>String(x.text||'').trim()).filter(Boolean).join('\n\n');
     return 'You are a viewer giving honest, first-person feedback on a short video before it is made. Stay in character the whole time.\n\n'
       +'## WHO YOU ARE\n'+r.who+'\nYou care about: '+r.cares+'.\nYou don’t care about: '+r.skips+'.\n\n'
-      +'You will watch a '+(t?(t.label.toLowerCase()+' video of about '+t.runtime):'short video')+(where?(', shown '+where):'')+'.'+(sp?(' It is delivered by '+sp.replace(/[.\s]+$/,'').toLowerCase()+'.'):'')+' This narration is everything you get; you have not seen any brief and don’t know what the makers intended.\n\n'
-      +'## THE NARRATION\n'+script+'\n\n## TASK\nReact as this viewer would, not as a copywriter. Other viewers are giving feedback too, each from their own angle, so spend your words on what matters to you. If a flaw would be obvious to anyone, mention it in one sentence at most and say how it hits you specifically; then move on to what only someone like you would notice. Quote the narration’s exact words when you point at something.\n'
+      +((t && t.kind==='podcast')?('You are deciding whether to listen to a podcast episode of about '+t.runtime+(where?(', shared '+where):'')+'.'+(sp?(' Speaking: '+sp.replace(/[.\s]+$/,'')+'.'):'')+' Below is the episode plan: hook ideas, the opening, the topics and questions the speakers will discuss, and the closing. The conversation itself isn’t scripted, so judge the plan as a listener would: would you press play, keep listening, and believe it? You haven’t seen any brief.\n\n'):('You will watch a '+(t?(t.label.toLowerCase()+' video of about '+t.runtime):'short video')+(where?(', shown '+where):'')+'.'+(sp?(' It is delivered by '+sp.replace(/[.\s]+$/,'').toLowerCase()+'.'):'')+' This narration is everything you get; you have not seen any brief and don’t know what the makers intended.\n\n'))
+      +((t && t.kind==='podcast')?('## THE EPISODE PLAN\n'+(this.state.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>'['+x.label+']\n'+String(x.text).trim()).join('\n\n')):('## THE NARRATION\n'+script))+'\n\n## TASK\nReact as this viewer would, not as a copywriter. Other viewers are giving feedback too, each from their own angle, so spend your words on what matters to you. If a flaw would be obvious to anyone, mention it in one sentence at most and say how it hits you specifically; then move on to what only someone like you would notice. Quote the narration’s exact words when you point at something.\n'
       +'Return JSON only: {"takeaway": "one sentence, in your own words: what this video wants you to remember", "yourAnswer": "your answer to: '+r.question.replace(/"/g,'\'')+'", "lost": "the exact line where you got lost or confused, and why; or an empty string", "inauthentic": "the exact line that felt least believable to someone like you, and why; or an empty string", "reaction": "3 to 5 sentences of your honest reaction, in the first person, in your own voice"}';
   }
   assembleReviewSummaryPrompt(readers){
     const t=this.currentType();
-    const script=(this.state.sections||[]).map(x=>'['+x.id+'] '+x.label+':\n'+String(x.text||'').trim()).join('\n\n');
+    const script=(this.state.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>'['+x.id+'] '+x.label+':\n'+String(x.text||'').trim()).join('\n\n');
     return 'You are a video producer reviewing audience feedback on a draft '+this.brandAdj()+' '+(t?t.label+' ':'')+'script, to decide how to take it forward.\n\n'
       +'## WHAT THE REQUESTER WANTED\nIdea: '+String(this.state.idea||'').trim()+'\n'+this.qaBlock()+'\n## THE SCRIPT (section ids in brackets)\n'+script+'\n\n'
       +'## AUDIENCE FEEDBACK\n'+readers.map(r=>'### '+r.id+': '+r.label+' ('+r.desc+')\nTook away: '+(r.takeaway||'(nothing)')+(r.question?('\nAsked "'+r.question+'": '+(r.answer||'(no answer)')):'')+'\nGot lost at: '+(r.lost||'nowhere')+'\nDidn’t ring true: '+(r.inauthentic||'nothing')+'\nReaction: '+(r.reaction||'')).join('\n\n')+'\n\n'
@@ -3806,7 +3877,7 @@ class Component extends DCLogic {
       walkWho:r?(r.who||r.desc||''):'', walkQ:(r && r.question)||null, walkA:(r && r.answer)||null, walkTake:(r && r.takeaway)||null, walkWhy:(r && r.why)||null, walkFailed:!!(r && r.failed),
       walkHasV:!!v, walkVLabel:v?v[2]:'', walkVColor:v?v[0]:'var(--fg-muted)', walkVBg:v?v[1]:'transparent',
       walkLost:(r && r.lost)||null, walkFalse:(r && r.inauthentic)||null, walkLostNote:found.lost?'  (highlighted in the script)':'', walkFalseNote:found.false?'  (highlighted in the script)':'', walkReact:(r && r.reaction)||null,
-      walkSecs:secs, walkStale:stale, walkRightTitle:onSum?'Your script · sections to change are marked':'Your script · what this reader flagged is highlighted',
+      walkSecs:secs, walkStale:stale, walkRightTitle:(this.isPodcast()?'Your episode plan':'Your script')+(onSum?' · sections to change are marked':' · what this reader flagged is highlighted'),
       walkPrevShow:idx>0, onWalkPrev:()=>this.setState({rvWalk:idx-1}), walkNextLabel:idx===n-1?'How to take it forward →':'Next reader →', onWalkNext:()=>this.setState({rvWalk:idx+1}),
       onWalkClose:()=>this.closeWalk(), walkCanRevise:onSum && !stale && !!(rv.changes||[]).length, onWalkRevise:()=>{ this.closeWalk(); this.reviseFromReview(); } };
   }
@@ -3820,6 +3891,140 @@ class Component extends DCLogic {
       steps:(rv.nextSteps||[]).map(t=>({text:t})), hasSteps:!!(rv.nextSteps||[]).length, changes:(rv.changes||[]).map(c=>({label:label(c.section), change:c.change})), hasChanges:!!(rv.changes||[]).length,
       canRevise:!stale && !!(rv.changes||[]).length, canUndo:!!rv.before,
       readers:(rv.readers||[]).map((r,i)=>{ const v=vc[r.verdict]; return { open:!!open[i], expanded:open[i]?'true':'false', toggleLabel:open[i]?'Hide':'Details', onToggle:()=>{ if(setOpen) setOpen(i); }, takeLine:r.takeaway?('“'+r.takeaway+'”'):(r.failed?'Didn’t answer':''), label:r.label, desc:r.who||r.desc, question:r.question||'', answer:r.answer||null, failed:!!r.failed, hasVerdict:!!v, verdictLabel:v?v[2]:'', vColor:v?v[0]:'var(--fg-muted)', vBg:v?v[1]:'transparent', why:r.why||null, takeaway:r.takeaway||null, lost:r.lost||null, inauthentic:r.inauthentic||null, reaction:r.reaction||null }; }) };
+  }
+
+  // ---------- podcasts ----------
+  // A podcast isn't scripted: the plan has hook ideas, an opening and a closing (written out or as beats), and topic cards
+  // with the questions worth asking. It's stored as ordinary sections, so versions, review and the Studio need nothing new.
+  PODCAST_QUESTIONS = [
+    {id:'pod_speakers', q:'Who’s going to speak, and what are their credentials?', why:'A host and a guest, or guests on their own. Their roles and experience shape every question.', options:[]},
+    {id:'pod_listeners', q:'Who’s listening, and what do they already believe about this?', why:'The best questions start from where listeners are.', options:[]},
+    {id:'pod_elephant', q:'What doesn’t usually get said about this? What would a skeptic, a competitor or a frustrated customer bring up?', why:'Talking about it is what turns a pitch into thought leadership and earns the audience’s respect.', options:[]},
+    {id:'pod_story', q:'Is there a story, a mistake or a surprise someone could tell?', why:'Stories are what people remember and pass on.', options:[]},
+    {id:'pod_limits', q:'Anything off the table?', why:'Optional. The conversation steers clear of it.', options:['Nothing','Competitors by name','Pricing','Roadmap dates']}
+  ];
+  POD_RULES = 'THE RULES FOR EVERY PODCAST\n- It is a conversation, not a presentation. One person reading a script sounds like a presentation, and listeners can tell. Write only what gets written (hook ideas, opening, closing); the middle is a guide for a real conversation.\n- Questions are open, short and specific. Each invites a story, an opinion or a disagreement. None can be answered by reading a slide or a press release.\n- Talk about what doesn’t usually get said. Every episode tackles at least one elephant in the room, and most topics have one: the skeptic’s question, what went wrong, what competitors or customers say, why anyone should believe this. That is what moves the speakers from salespeople to thought leaders and earns the audience’s respect. Phrase each one so it can be asked out loud, fairly.\n- Specifics beat claims: every topic should draw out a real example, number or story.\n- No marketing language, taglines or superlatives. Plain, warm and curious.\n- Respect anything the requester put off the table.';
+  podQuestion(id){ const d=this.PODCAST_QUESTIONS.find(x=>x.id===id); return {id:d.id, kind:'pod', q:d.q, why:d.why, options:d.options.slice(), answer:'', skipped:false}; }
+  looksLikePodcast(){ return /\bpodcasts?\b|\bepisodes?\b|\bfireside\b|\binterview(s|ing)?\b|\bin conversation\b|\bconversation (with|between)\b|\bpanel discussion\b/i.test(this.state.idea||''); }
+  isPodcast(){ const t=this.currentType(); return !!(t && t.kind==='podcast'); }
+  podAnswer(id){ const q=(this.state.questions||[]).find(x=>x.id===id); return (q && !q.skipped && String(q.answer||'').trim())||''; }
+  setPodAnswer(id, v){
+    const qs=(this.state.questions||[]).slice(); const i=qs.findIndex(q=>q.id===id); const blank=!String(v||'').trim();
+    if(i>=0) qs[i]={...qs[i], answer:v, skipped:blank}; else qs.push({...this.podQuestion(id), answer:v, skipped:blank});
+    this.setState({questions:qs, qIndex:i>=0?this.state.qIndex:Math.max(this.state.qIndex||0, qs.length)}, ()=>this.persist());
+  }
+  podMode(){ return this.state.podMode==='beats'?'beats':'written'; }
+  podEpisodeBlock(){ return '## THE EPISODE\nIdea: '+String(this.state.idea||'').trim()+'\n'+this.qaBlock()+this.sourceSection(12000); }
+  podFormatTopic(t){
+    if(!t || typeof t!=='object') return ''; const f=x=>String(x==null?'':x).trim(); const lines=[f(t.title)||'Untitled topic'];
+    if(f(t.why)) lines.push('Why listeners care: '+f(t.why));
+    if(f(t.question)) lines.push('Opening question: '+f(t.question));
+    const fu=(Array.isArray(t.followups)?t.followups:[]).map(f).filter(Boolean); if(fu.length){ lines.push('Follow-ups:'); fu.forEach(x=>lines.push('- '+x)); }
+    if(f(t.elephant)) lines.push('The elephant: '+f(t.elephant));
+    if(f(t.story)) lines.push('Story prompt: '+f(t.story));
+    const m=parseInt(t.minutes,10); if(m>0) lines.push('Time: about '+m+' min');
+    return lines.join('\n');
+  }
+  podFormatHooks(h){ const arr=(Array.isArray(h)?h:String(h||'').split('\n')).map(x=>String(x||'').replace(/^\s*(\d+[.)]|[-•*])\s*/,'').trim()).filter(Boolean).slice(0,4); return arr.map((x,i)=>(i+1)+'. '+x).join('\n'); }
+  podFormatPart(v, mode){ if(Array.isArray(v)) v=v.join('\n'); let t=String(v==null?'':v).trim(); if(mode==='beats') t=t.split('\n').map(x=>x.replace(/^\s*(\d+[.)]|[-•*])\s*/,'').trim()).filter(Boolean).map(x=>'- '+x).join('\n'); return t; }
+  podMinutes(text){ const m=String(text||'').match(/Time:\s*(?:about\s*|~\s*)?(\d+)/i); return m?parseInt(m[1],10):0; }
+  podTopicTitle(text){ return String(text||'').split('\n')[0].trim(); }
+  podPlannedMinutes(sections){ let m=0; (sections||this.state.sections||[]).forEach(x=>{ if(/^topic\d$/.test(x.id)) m+=this.podMinutes(x.text); else if(x.id==='opening'||x.id==='closing') m+=this.countWords(x.text)/150; }); return m; }
+  podPartAsk(id){
+    const beats=this.podMode()==='beats';
+    if(id==='hooks') return '2 or 3 hook ideas for the first 10 to 20 seconds: witty, short, attention-grabbing, built from the material (a provocative question, a surprising fact, a tease). One or two sentences each.';
+    if(id==='opening') return (beats?'3 to 5 short bullet beats for':'The spoken words for')+' whoever opens the show (the host, or the first speaker if there is no host): a welcome, who is speaking and why they’re worth hearing, and why this conversation now.'+(beats?'':' 60 to 110 words.');
+    if(id==='closing') return (beats?'3 to 5 short bullet beats':'The spoken words, 40 to 90 words')+' to close: one takeaway, thanks, and where listeners go next.';
+    return 'One topic: a short title, why listeners care (one sentence), the opening question, 2 or 3 follow-ups, the elephant (the honest question this topic invites, or empty if none fits), a story prompt, and rough minutes.';
+  }
+  assemblePodcastPrompt(n, locked){
+    const lockedBlock=Object.keys(locked||{}).length?('\n## PARTS ALREADY FINAL (keep them as they are; write the rest to fit around them)\n'+Object.entries(locked).map(([id,t])=>'['+((this.currentType().sections.find(x=>x.id===id)||{}).label||id)+']\n'+t).join('\n\n')+'\n'):'';
+    const beats=this.podMode()==='beats';
+    return 'You are a '+this.brandAdj()+' podcast producer planning one episode.\n\n'+this.POD_RULES+'\n\n## VOICE GUIDE (for the written parts; keep them conversational)\n'+this.voiceBlock().slice(0,3000)+'\n\n'+this.podEpisodeBlock()+lockedBlock
+      +'\n## WRITE\n- "hooks": '+this.podPartAsk('hooks')+'\n- "opening": '+this.podPartAsk('opening')+'\n- "topics": exactly '+n+' topics in a natural order, each {"title", "why", "question", "followups", "elephant", "story", "minutes"}. '+this.podPartAsk('topic')+' Topic minutes plus the opening and closing should come to about 20 to 30 minutes.\n- "closing": '+this.podPartAsk('closing')
+      +'\n\n## OUTPUT\nReturn JSON only: {"hooks": [""], "opening": "", "topics": [{"title": "", "why": "", "question": "", "followups": [""], "elephant": "", "story": "", "minutes": 5}], "closing": ""}'+(beats?'\n"opening" and "closing" are strings with one beat per line.':'');
+  }
+  async generatePodcast(){
+    const type=this.currentType(); if(this.state.generating || !this.requireProvider()) return;
+    const pid=this.state.projectId; const n=Math.max(1, Math.min(7, this.state.podShown||5));
+    const locked={}; this.state.sections.forEach(x=>{ if(x.locked && String(x.text||'').trim()) locked[x.id]=x.text; });
+    this.setState({view:'workspace', generating:true, genError:null});
+    try{
+      await this.ensureBriefs(); if(!this.stillOn(pid)) return;
+      const j=this.parseJSON(await this.generate(this.assemblePodcastPrompt(n, locked), {json:true}))||{};
+      if(!this.stillOn(pid)) return;
+      const mode=this.podMode(), topics=Array.isArray(j.topics)?j.topics:[];
+      const meG=this.me(); const byTeam=!!this.state.teamEdit && meG;
+      const val=id=>{ if(id==='hooks') return this.podFormatHooks(j.hooks); if(id==='opening'||id==='closing') return this.podFormatPart(j[id], mode); const k=parseInt(id.slice(5),10)-1; return k<n?this.podFormatTopic(topics[k]):''; };
+      const sections=type.sections.map(x=>locked[x.id]!=null?{...x, text:locked[x.id], locked:true, regenBusy:false}:{...x, text:val(x.id), locked:false, regenBusy:false, editedBy:byTeam?meG.email:'', handEdited:!!byTeam});
+      if(!sections.some(x=>!x.locked && x.text)) throw new Error('The model replied, but the plan didn’t come back in a form the app could read. Try again.');
+      this.setState({sections, generating:false, podShown:n}, ()=>this.persist());
+    }catch(e){ if(this.stillOn(pid)) this.setState({generating:false, genError:String((e&&e.message)||e)}); }
+  }
+  assemblePodSectionPrompt(sec, note){
+    const others=(this.state.sections||[]).filter(x=>x.id!==sec.id && String(x.text||'').trim()).map(x=>'['+x.label+']\n'+x.text).join('\n\n');
+    const topic=/^topic\d$/.test(sec.id);
+    const shape=sec.id==='hooks'?'{"hooks": [""]}':(topic?'{"title": "", "why": "", "question": "", "followups": [""], "elephant": "", "story": "", "minutes": 5}':'{"text": ""}');
+    return 'You are a '+this.brandAdj()+' podcast producer revising one part of an episode plan.\n\n'+this.POD_RULES+'\n\n'+this.podEpisodeBlock()
+      +(others?'\n## THE REST OF THE PLAN (for context; don’t repeat it'+(topic?', and don’t duplicate the other topics':'')+')\n'+others+'\n':'')
+      +(note?('\n## CURRENT VERSION OF THIS PART\n'+String(sec.text||'').trim()+'\n\n## REVISION NOTE (apply it, and keep what already works)\n'+note+'\n'):'')
+      +'\n## WRITE: '+(topic?sec.label:sec.label.toUpperCase())+'\n'+this.podPartAsk(topic?'topic':sec.id)+'\n\n## OUTPUT\nReturn JSON only: '+shape;
+  }
+  podSectionText(sec, j){ if(sec.id==='hooks') return this.podFormatHooks(j.hooks||j); if(sec.id==='opening'||sec.id==='closing') return this.podFormatPart(j.text!=null?j.text:'', this.podMode()); return this.podFormatTopic(j.topic||j); }
+  addPodTopic(){
+    const shown=this.state.podShown||5; if(shown>=7){ this.showToast('Seven topics at most.'); return; }
+    this.setState({podShown:shown+1}, ()=>{ this.persist(); const idx=this.state.sections.findIndex(x=>x.id==='topic'+(shown+1)); if(idx>=0 && !String(this.state.sections[idx].text||'').trim()) this.regenSection(idx); });
+  }
+  removePodTopic(id){
+    const k=parseInt(String(id).slice(5),10); const shown=this.state.podShown||5; if(shown<=1){ this.showToast('Keep at least one topic.'); return; }
+    const before=this.state.sections; const byId={}; before.forEach(x=>{ byId[x.id]=x; });
+    const sections=before.map(x=>{ const m=String(x.id).match(/^topic(\d)$/); if(!m) return x; const i=parseInt(m[1],10); if(i<k) return x; const next=byId['topic'+(i+1)];
+      return next?{...x, text:next.text, locked:!!next.locked, editedBy:next.editedBy||'', handEdited:!!next.handEdited}:{...x, text:'', locked:false, editedBy:'', handEdited:false}; });
+    this.setState({sections, podShown:shown-1}, ()=>this.persist());
+    this.showToast('Topic removed', {label:'Undo', fn:()=>this.setState({sections:before, podShown:shown}, ()=>this.persist())});
+  }
+  setPodMode(mode){
+    if(this.podMode()===mode) return; this.setState({podMode:mode}, ()=>this.persist());
+    const has=['opening','closing'].some(id=>String(((this.state.sections||[]).find(x=>x.id===id)||{}).text||'').trim());
+    if(has) this.showToast('Opening and closing will be '+(mode==='beats'?'beats':'written out')+' from now on.', {label:'Rewrite them now', fn:()=>{ ['opening','closing'].forEach(id=>{ const i=this.state.sections.findIndex(x=>x.id===id); if(i>=0) this.regenSection(i); }); }});
+  }
+  sectionsVM(){
+    const st=this.state; const pod=this.isPodcast(); const shown=st.podShown||5;
+    return (st.sections||[]).map((x,i)=>{ const v=this.sectionVM(x,i);
+      if(!pod) return {...v, ph:'Narration for this section…', showMeter:st.showHeads!==false, isPodTopic:false, podTime:''};
+      const tx=String(x.text||''); const rows=tx.split('\n').reduce((n,l)=>n+Math.max(1, Math.ceil(l.length/95)), 0);
+      const m=String(x.id).match(/^topic(\d)$/); const title=m?this.podTopicTitle(x.text):''; const mins=m?this.podMinutes(x.text):0;
+      return {...v, label:m?('Topic '+m[1]+(title?': '+title:'')):x.label, ph:m?'Topic title, then the questions to ask…':'Notes for this part…', readH:(Math.max(3, rows)*24+30)+'px', showMeter:false, isPodTopic:!!m, podTime:mins?('About '+mins+' min'):'', onRemoveTopic:()=>this.removePodTopic(x.id),
+        minH:st.showHeads===false?'0':(m?'230px':'110px'), hidden:!!m && parseInt(m[1],10)>shown && !String(x.text||'').trim()}; }).filter(v=>!v.hidden);
+  }
+  // Titles, show notes and clip ideas, written on request from the plan.
+  async writePodExtras(){
+    if(this.state.podBusy || !this.requireProvider()) return;
+    if(!(this.state.sections||[]).some(x=>String(x.text||'').trim())){ this.showToast('Plan the episode first.'); return; }
+    const pid=this.state.projectId; const plan=(this.state.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>'['+x.label+']\n'+x.text).join('\n\n');
+    this.setState({podBusy:'extras', podError:null});
+    try{
+      const j=this.parseJSON(await this.generate('You are a '+this.brandAdj()+' podcast producer. From this episode plan, write the extras.\n\n'+this.POD_RULES+'\n\n'+this.podEpisodeBlock()+'\n## THE EPISODE PLAN\n'+plan
+        +'\n\n## WRITE\n- "titles": 3 episode title options: specific, curious, no clickbait, under 70 characters.\n- "notes": show notes, 60 to 100 words: what the conversation covers and why it’s worth a listen, in plain words.\n- "clips": 3 or 4 moments likely to make good short clips (which question or topic will produce them, and why they’d travel), each with a one or two sentence social post.\n\n## OUTPUT\nReturn JSON only: {"titles": [""], "notes": "", "clips": [{"moment": "", "why": "", "post": ""}]}', {json:true, quick:true, timeoutMs:this.quickTimeout()}))||{};
+      if(!this.stillOn(pid)) return;
+      const f=x=>String(x==null?'':x).trim();
+      this.setState({podBusy:null, podExtras:{at:Date.now(), titles:(Array.isArray(j.titles)?j.titles:[]).map(f).filter(Boolean).slice(0,5), notes:f(j.notes), clips:(Array.isArray(j.clips)?j.clips:[]).filter(c=>c && f(c.moment)).slice(0,5).map(c=>({moment:f(c.moment), why:f(c.why), post:f(c.post)}))}}, ()=>this.persist());
+    }catch(e){ if(this.stillOn(pid)) this.setState({podBusy:null, podError:String((e&&e.message)||e)}); }
+  }
+  // The guest gets the topics, the opening questions and the hard questions; nothing scripted, so their answers stay fresh.
+  exportGuestSheet(){
+    const esc=x=>this.xmlEsc(x); const para=(text,o)=>{ o=o||{}; return '<w:p><w:pPr><w:spacing w:before="'+(o.before||0)+'" w:after="'+(o.after||80)+'"/></w:pPr><w:r><w:rPr>'+(o.bold?'<w:b/>':'')+(o.size?'<w:sz w:val="'+o.size+'"/>':'')+(o.color?'<w:color w:val="'+o.color+'"/>':'')+(o.italic?'<w:i/>':'')+'</w:rPr><w:t xml:space="preserve">'+esc(text)+'</w:t></w:r></w:p>'; };
+    const field=(text, label)=>{ const m=String(text||'').split('\n').find(l=>l.startsWith(label)); return m?m.slice(label.length).trim():''; };
+    let body=para('Guest prep',{bold:true,size:20,color:'0E7E84',after:20})+para(this.projectTitle(),{bold:true,size:40,color:'001F5F',after:120});
+    const sp=this.podAnswer('pod_speakers'); if(sp) body+=para('Speaking: '+sp,{size:22,color:'23272F',after:120});
+    body+=para('This is a conversation, not a presentation. Here’s what we’ll talk about, so nothing comes as a surprise. There’s no need to prepare answers: the best episodes sound like two people actually talking.',{size:22,color:'23272F',italic:true,after:240});
+    (this.state.sections||[]).filter(x=>/^topic\d$/.test(x.id) && String(x.text||'').trim()).forEach((x,i)=>{
+      body+=para((i+1)+'. '+this.podTopicTitle(x.text),{bold:true,size:26,color:'001F5F',before:200,after:60});
+      const q=field(x.text,'Opening question:'); if(q) body+=para('We’ll start with: '+q,{size:22,color:'23272F',after:60});
+      const el=field(x.text,'The elephant:'); if(el) body+=para('We may also ask: '+el,{size:22,color:'23272F',after:60});
+    });
+    this.downloadBlob((this.projectTitle().replace(/[^a-z0-9]+/gi,'-').replace(/^-+|-+$/g,'').toLowerCase()||'episode')+'-guest-prep.docx', this.docxBlob(body));
+    this.setState({scriptExportOpen:false}); this.showToast('Exported the guest prep sheet');
   }
 
   // ---------- ticket: the request system's "new request" form, filled from the brief ----------
@@ -3874,7 +4079,7 @@ class Component extends DCLogic {
   assembleTicketPrompt(fields){
     const st=this.state; const t=this.currentType(); const f=st.submitForm||{}; const concept=this.conceptBlock();
     const refs=(st.references||[]).filter(r=>r.brief).map(r=>'- '+r.name+': '+r.brief).join('\n');
-    const script=(st.sections||[]).map(x=>x.label+':\n'+String(x.text||'').trim()).join('\n\n');
+    const script=(st.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>x.label+':\n'+String(x.text||'').trim()).join('\n\n');
     const spec=fields.map(x=>{ let l='- "'+x.key+'" ('+x.label+'): ';
       l+=x.source==='title'?('a request title of at most '+(x.max||60)+' characters, specific enough to find later.'):(x.guide||'Fill it in from the brief.');
       if((x.options||[]).length) l+=' '+(x.type==='multiselect'?'Pick any that apply from':'Pick exactly one of')+': '+JSON.stringify(x.options)+'.';
@@ -4096,8 +4301,8 @@ go();
     const pack=this.state.ticketPack; const ctx={ticket:c.ticket||{}, submitForm:c.submitForm||{}, typeId:c.typeId, email:sel.ownerEmail};
     const ticket=pack?pack.fields.map(f=>{ const v=this.ticketValueIn(ctx, f); return this.emptyVal(f, v)?'':(f.label+': '+this.ticketCopyText(f, v)); }).filter(Boolean).join('\n'):'';
     const sf=c.submitForm||{};
-    const script=(c.sections||[]).map(x=>{ const d=t&&t.sections.find(y=>y.id===x.id); return (d?d.label:x.id)+':\n'+String(x.text||'').trim(); }).join('\n\n');
-    return ['Title: '+(c.title||sel.title||'Untitled video'), 'Requested by: '+sel.ownerEmail, 'Video type: '+(t?(t.label+' (target '+t.runtime+')'):'not chosen'), 'Script length: '+words+' words'+(t&&words?(', about '+this.mmss(words/t.wpm*60)):''), 'Delivered by: '+(sel.speaker||'not said'),
+    const script=(c.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>{ const d=t&&t.sections.find(y=>y.id===x.id); return (d?d.label:x.id)+':\n'+String(x.text||'').trim(); }).join('\n\n');
+    return ['Title: '+(c.title||sel.title||'Untitled video'), 'Requested by: '+sel.ownerEmail, 'Video type: '+(t?(t.label+' (target '+t.runtime+')'):'not chosen'), (t&&t.kind==='podcast')?('Planned length: about '+Math.round(this.podPlannedMinutes(c.sections||[]))+' min'):('Script length: '+words+' words'+(t&&words?(', about '+this.mmss(words/t.wpm*60)):'')), 'Delivered by: '+(sel.speaker||'not said'),
       '\n## IDEA\n'+String(c.idea||sel.idea||'').trim(), qa?'\n## INTAKE ANSWERS\n'+qa:'', concept?'\n## CONCEPT\n'+concept:'', refs?'\n## REFERENCE DOCUMENTS\n'+refs:'',
       '\n## SUBMISSION DETAILS\nNeeded by: '+(sf.neededBy||'not given')+'\nWhere it will be used: '+(sf.whereRun||'not given')+'\nApprover: '+(sf.approver||'not given')+(sf.approvalBy?' (approval by '+sf.approvalBy+')':'')+'\nNotes: '+(String(sf.notes||'').trim()||'none'),
       ticket?'\n## TICKET\n'+ticket:'', '\n## SCRIPT\n'+(script||'(no script yet)')].filter(Boolean).join('\n');
@@ -4395,9 +4600,9 @@ go();
   resetVoice(){ this.setState({dVoice:this.state.voiceDefault}); }
 
   // ---------- navigation ----------
-  canStep2(){ const t=this.currentType(); return !!(t && t.id!=='executive' && this.state.sections.some(s=>s.text&&s.text.trim())); }
+  canStep2(){ const t=this.currentType(); return !!(t && !t.noBroll && this.state.sections.some(s=>s.text&&s.text.trim())); }
   canStep3(){ return this.state.scenes.length>0; }
-  goScenes(){ if(!this.state.advanced) return; const t=this.currentType(); if(t&&t.id==='executive'){ this.setState({view:'scenes'}); return; } if(!this.canStep2()){ this.showToast('Generate a script first'); return; } this.setState({view:'scenes'}, ()=>this.persist()); }
+  goScenes(){ if(!this.state.advanced) return; const t=this.currentType(); if(t&&t.noBroll){ this.setState({view:'scenes'}); return; } if(!this.canStep2()){ this.showToast('Generate a script first'); return; } this.setState({view:'scenes'}, ()=>this.persist()); }
   goShots(){ if(!this.state.advanced) return; if(!this.canStep3()){ this.showToast('Generate scenes first'); return; } this.setState({view:'shots'}, ()=>this.persist()); }
 
   // ---------- view models ----------
@@ -4453,7 +4658,7 @@ go();
 
   renderVals(){
     const st=this.state; const showCoaching=this.props.showCoaching!==false; const type=this.currentType();
-    const isExec=type&&type.id==='executive';
+    const isExec=!!(type&&type.noBroll);
     const shareOn=this.canShare() && !st.teamEdit; const stepOf={intake:1, questions:2, type:3, concept:3, workspace:4, scenes:5, shots:6, submit:st.advanced?7:5, studio:0}; const step=stepOf[st.view]||0;
     const hasIdea=!!(st.idea||'').trim(), hasScript=st.sections.some(s=>(s.text||'').trim());
     const mkStep=(n,label,active,enabled,onClick,title)=>({ n, label, title, onClick:enabled?onClick:(()=>this.showToast(title||'Not available yet')), pillBg:active?'rgba(16,165,172,0.10)':'transparent', pillBorder:active?'rgba(16,165,172,0.35)':'var(--border-hairline)', numBg:active?'var(--c-emerald)':(enabled?'var(--c-grey-200)':'var(--c-grey-100)'), numColor:active?'#fff':'var(--c-grey-700)', labelColor:active?'var(--c-navy)':'var(--fg-muted)', cursor:enabled?'pointer':'not-allowed', opacity:enabled?'1':'0.5' });
@@ -4464,7 +4669,7 @@ go();
       mkStep(4,'Script',step===4,hasScript,()=>this.setState({view:'workspace'},()=>this.persist()),'Pick a type and generate the script first')
     ];
     if(st.advanced) steps.push(
-      mkStep(5,'Scenes',step===5,this.canStep2()||isExec,()=>this.goScenes(), isExec?'Executive videos carry no b-roll':'Generate a script first'),
+      mkStep(5,'Scenes',step===5,this.canStep2()||isExec,()=>this.goScenes(), isExec?'This video type has no b-roll':'Generate a script first'),
       mkStep(6,'Shots',step===6,this.canStep3(),()=>this.goShots(),'Generate scenes first'));
     if(shareOn) steps.push(mkStep(st.advanced?7:5,st.ticketPack?'Ticket':'Submit',step===(st.advanced?7:5),hasScript,()=>this.goSubmit(),'Write the script first'));
     if(this._lastView!==st.view){ const first=this._lastView===undefined; this._lastView=st.view; if(!first && typeof document!=='undefined' && typeof setTimeout==='function' && typeof document.querySelector==='function') setTimeout(()=>{ try{ window.scrollTo(0,0); document.querySelectorAll('main').forEach(m=>{ m.scrollTop=0; }); }catch(e){} const h=document.querySelector('main h1'); if(h && !(document.activeElement && document.activeElement.closest && document.activeElement.closest('[role=dialog],[data-gate]'))){ h.setAttribute('tabindex','-1'); h.focus({preventScroll:true}); } }, 80); }
@@ -4523,7 +4728,7 @@ go();
       isSubmit:st.view==='submit', isStudio:st.view==='studio', onBackToScript:()=>this.setState({view:'workspace'},()=>this.persist()),
       ...(()=>{ const cd=st.cloudDoc; const t=type; const sv=cd?this.statusOf(cd.status):null; const sent=!!(cd && cd.status!=='drafting');
         const words=st.sections.reduce((a,x)=>a+this.countWords(x.text),0); const secs=t?words/t.wpm*60:0; const concept=this.conceptBlock(); const pk=st.ticketPack; const pkName=pk?(pk.name||'request'):'';
-        const rows=[{label:'Title', value:this.projectTitle()}, {label:'Video type', value:t?t.label:'Not chosen'}, {label:'Delivered by', value:this.speakerAnswer()||'Not said'}, {label:'Length', value:words?(words+' words, about '+this.mmss(secs)):'No script yet'}];
+        const rows=[{label:'Title', value:this.projectTitle()}, {label:'Video type', value:t?t.label:'Not chosen'}, {label:'Delivered by', value:this.speakerAnswer()||'Not said'}, {label:'Length', value:!words?'No script yet':(t && t.kind==='podcast')?('About '+Math.round(this.podPlannedMinutes())+' min planned'):(words+' words, about '+this.mmss(secs))}];
         if(concept) rows.push({label:'Concept', value:concept});
         const refs=(st.references||[]).map(r=>r.name).filter(Boolean); rows.push({label:'Reference documents', value:refs.length?refs.join(', '):'None'});
         const msgs=st.myMsgs||[]; const lastTeam=[...msgs].reverse().find(m=>m.authorIsTeam && !m.system); const lastMine=[...msgs].reverse().find(m=>!m.authorIsTeam);
@@ -4597,7 +4802,7 @@ go();
         const typeDef=sel?this.TYPES.find(t=>t.id===sel.typeId):null;
         const ver=st.studioVersionSel!=='current'?(st.studioVersions||[]).find(v=>v.id===st.studioVersionSel):null;
         const curSecs=(c&&c.sections)||[]; const label=id=>{ const d=typeDef&&typeDef.sections.find(s=>s.id===id); return d?d.label:id; };
-        const shown=ver?(ver.sections||[]):curSecs.map(s=>({id:s.id, label:label(s.id), text:s.text||''}));
+        const shown=(ver?(ver.sections||[]):curSecs.map(s=>({id:s.id, label:label(s.id), text:s.text||''}))).filter(s=>!(typeDef && typeDef.kind==='podcast') || String(s.text||'').trim());
         const curMap={}; curSecs.forEach(s=>curMap[s.id]=s.text||'');
         const qa=((c&&c.questions)||[]).map(x=>{ const ans=!x.skipped && String(x.answer||'').trim(); return {q:(x.kind==='team'?'Team question: ':'')+x.q, a:ans?x.answer.trim():'Skipped', color:ans?'var(--c-navy)':'var(--fg-subtle)'}; })
           .concat(sel?(sel.teamQuestions||[]).filter(t=>!(((c&&c.questions)||[]).some(x=>x.id==='team_'+t.id))).map(t=>({q:'Team question: '+t.q, a:t.answer||'Waiting for an answer', color:t.answer?'var(--c-navy)':'var(--c-orange)'})):[]);
@@ -4718,7 +4923,7 @@ go();
       onDropKey:(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); const i=e.currentTarget.querySelector('input[type=file]'); if(i) i.click(); } },
       onRefFile:(e)=>{ const fs=e.target.files?Array.from(e.target.files):[]; e.target.value=''; this.onRefFiles(fs); }, onDragOver:(e)=>e.preventDefault(), onDrop:(e)=>{ e.preventDefault(); const fs=e.dataTransfer.files?Array.from(e.dataTransfer.files):[]; if(fs.length) this.onRefFiles(fs); },
       generateDisabled:!canGen, generateBg:canGen?'var(--c-emerald)':'var(--c-grey-300)', generateCursor:canGen?'pointer':'not-allowed',
-      generateHint:!st.idea.trim()?'Add an idea to begin.':(!type?'Choose a video type.':(this.hasProvider()?(type.id==='overview'?'Ready. Next you’ll pick a concept, then it drafts the script in your brand voice'+(st.advanced?' with '+engineName:'')+'.':'Ready. This drafts every section in your brand voice'+(st.advanced?' with '+engineName:'')+'.'):(st.provider==='gemini'?'Add your Gemini key in Settings, or switch engines.':'Built-in Claude isn’t available here — pick Gemini or Local in Settings.'))), onGenerate:()=>{ if(canGen) this.onGenerateClick(); }, generateLabel:(type&&type.id==='overview')?'Next: pick a concept':'Generate script',
+      generateHint:!st.idea.trim()?'Add an idea to begin.':(!type?'Choose a video type.':(this.hasProvider()?(type.id==='overview'?'Ready. Next you’ll pick a concept, then it drafts the script in your brand voice'+(st.advanced?' with '+engineName:'')+'.':(type.kind==='podcast'?'Ready. This plans the hook ideas, opening, closing and topics, with the questions worth asking'+(st.advanced?' with '+engineName:'')+'.':'Ready. This drafts every section in your brand voice'+(st.advanced?' with '+engineName:'')+'.')):(st.provider==='gemini'?'Add your Gemini key in Settings, or switch engines.':'Built-in Claude isn’t available here — pick Gemini or Local in Settings.'))), onGenerate:()=>{ if(canGen) this.onGenerateClick(); }, generateLabel:(type&&type.id==='overview')?'Next: pick a concept':((type&&type.kind==='podcast')?'Plan the episode':'Generate script'),
 
       // intake → questions → type
       onIntakeNext:()=>this.intakeNext(), intakeDisabled:!hasIdea, intakeBg:hasIdea?'var(--c-emerald)':'var(--c-grey-300)', intakeCursor:hasIdea?'pointer':'not-allowed',
@@ -4753,7 +4958,22 @@ go();
       scriptExportOpen:st.scriptExportOpen, onToggleExport:()=>this.setState({scriptExportOpen:!st.scriptExportOpen}), onExportDocx:()=>this.exportDocx(), onExportPdf:()=>this.exportPdf(),
       totalWords, wordCap, totalColor, totalPct, estLabel:this.mmss(estSec), timingColor, timingNote, timingBandStart:this.clamp(rMin/tScale*100,0,100), timingBandWidth:this.clamp((rMax-rMin)/tScale*100,0,100), timingPct:this.clamp(estSec/tScale*100,0,100),
       readColor, readLabel:readTotal>0?(readTotal+' flag'+(readTotal===1?'':'s')):'Clean', readIcon:readTotal>0?'<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><path d="M12 9v4M12 17h.01"></path>':'<path d="M20 6 9 17l-5-5"></path>', readHint:readTotal>0?'Some sentences run long':'No over-long sentences',
-      sections:st.sections.map((s,i)=>this.sectionVM(s,i)),
+      reviewIntro:this.isPodcast()?'Three AI listeners read your episode plan as the people who’d tune in. Would they want to hear this conversation, does it ask what they’re actually wondering, and does it sound real? You get their reactions and a recommendation for what to change.':'Three AI readers hear your script the way real viewers would, with nothing but the words. Did they get the message, get lost, or stop believing it? You get their reactions and a recommendation for what to change.',
+      sections:this.sectionsVM(),
+      ...(()=>{ const pod=this.isPodcast(); const typeIsPod=!!(type && type.kind==='podcast');
+        const mins=pod?this.podPlannedMinutes():0; const lenColor=!mins?'#6F7480':(mins>30?'#F76923':'#0E7E84'); const scale=42; const ex=st.podExtras;
+        return { isPod:pod, notPod:!pod, podTypeOn:typeIsPod && st.view==='type',
+          podQs:this.PODCAST_QUESTIONS.map(d=>({ q:d.q, why:d.why, value:((st.questions||[]).find(q=>q.id===d.id)||{}).answer||'', onChange:(e)=>this.setPodAnswer(d.id, e.target.value) })),
+          podLenLabel:mins?('~'+Math.round(mins)+' min'):'—', podLenColor:lenColor, podLenPct:this.clamp(mins/scale*100,0,100), podBandStart:this.clamp(20/scale*100,0,100), podBandWidth:this.clamp(10/scale*100,0,100),
+          podWrittenOn:this.podMode()==='written'?'true':'false', podBeatsOn:this.podMode()==='beats'?'true':'false',
+          podWrittenBg:this.podMode()==='written'?'var(--c-navy)':'var(--c-white)', podWrittenColor:this.podMode()==='written'?'#fff':'var(--c-navy)', podBeatsBg:this.podMode()==='beats'?'var(--c-navy)':'var(--c-white)', podBeatsColor:this.podMode()==='beats'?'#fff':'var(--c-navy)',
+          onPodWritten:()=>this.setPodMode('written'), onPodBeats:()=>this.setPodMode('beats'),
+          podCanAdd:pod && !st.generating && (st.sections||[]).some(x=>String(x.text||'').trim()) && (st.podShown||5)<7, onAddTopic:()=>this.addPodTopic(),
+          podExtrasOn:pod && !st.generating && (st.sections||[]).some(x=>String(x.text||'').trim()), podExtrasBusy:!!st.podBusy, podExtrasOpacity:st.podBusy?'0.6':'1',
+          podExtrasLabel:st.podBusy?'Writing…':(ex?'Rewrite them':'Write them'), onPodExtras:()=>this.writePodExtras(), podError:st.podError||null,
+          podExtrasHas:!!ex, podTitles:((ex&&ex.titles)||[]).map(t=>({text:t, onCopy:()=>this.copyText(t)})), podNotes:(ex&&ex.notes)||'', onCopyPodNotes:()=>this.copyText((ex&&ex.notes)||''),
+          podClips:((ex&&ex.clips)||[]).map(c=>({moment:c.moment, why:c.why||null, post:c.post||null, onCopy:()=>this.copyText(c.post||'')})),
+          exportDocxLabel:pod?'Host run sheet (.docx)':'Word (.docx)', onExportGuest:()=>this.exportGuestSheet() }; })(),
 
       // scenes
       industry:st.industry, onIndustry:(e)=>this.setState({industry:e.target.value},()=>this.persist()), targetShotSeconds:st.targetShotSeconds, onTargetShot:(e)=>this.setState({targetShotSeconds:this.clamp(Number(e.target.value)||4,3,5)},()=>this.persist()),
