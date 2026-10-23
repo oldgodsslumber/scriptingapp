@@ -153,7 +153,7 @@
 
       <section style="background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:24px">
         <label style="font-size:15px;font-weight:700;color:var(--c-navy)">Reference material <span style="font-weight:400;color:var(--fg-muted)">· optional</span></label>
-        <p style="margin:6px 0 14px;font-size:13px;color:var(--fg-muted)">Drop one or more .docx, .pptx, .pdf, .txt or .md files. Each is read in your browser. The questions in the next step are drawn from them, and the script uses them for facts.</p>
+        <p style="margin:6px 0 14px;font-size:13px;color:var(--fg-muted)">Drop one or more .docx, .pptx, .pdf, .txt or .md files, or add a web page. The questions in the next step are drawn from them, and the script uses them for facts.</p>
         <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">
           <sc-for list="{{ references }}" as="r" hint-placeholder-count="2">
             <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:var(--radius-md);background:var(--c-grey-50);border:1px solid var(--border-hairline)">
@@ -175,6 +175,11 @@
           <span style="font-size:12px;color:var(--fg-muted)">{{ refStatus }}</span>
           <input type="file" multiple accept=".docx,.pptx,.pdf,.txt,.md" onChange="{{ onRefFile }}" style="display:none"/>
         </label>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <input type="url" value="{{ refUrl }}" onChange="{{ onRefUrl }}" onKeyDown="{{ onRefUrlKey }}" placeholder="Or paste a web page link, e.g. https://www.example.com/product" aria-label="Web page link" style="flex:1;min-width:240px;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+          <button onClick="{{ onAddRefUrl }}" disabled="{{ refUrlBusy }}" style="padding:10px 16px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;opacity:{{ refUrlOpacity }}">{{ refUrlLabel }}</button>
+        </div>
+        <div style="font-size:12px;color:var(--fg-muted);margin-top:6px">Public pages only. For a page that needs a sign-in (an intranet page, say), save it as a PDF and attach the file.</div>
       </section>
 
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;position:sticky;bottom:0;padding:16px 0;background:linear-gradient(to top,var(--bg-app) 70%,transparent)">
@@ -342,6 +347,7 @@
             </button>
           </sc-for>
         </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg-muted)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--c-violet)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"></path></svg>More video types are coming soon.</div>
         <sc-if value="{{ pickResult }}" hint-placeholder-val="{{ null }}">
           <div style="margin-top:16px;padding:14px 16px;border-radius:var(--radius-md);background:rgba(95,103,185,0.07);border:1px solid rgba(95,103,185,0.25);display:flex;gap:12px;align-items:flex-start">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--c-violet)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg>
@@ -543,10 +549,23 @@
 
     <div style="max-width:1140px;margin:0 auto;padding:26px 28px 90px">
       <sc-if value="{{ generating }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:80px 20px;text-align:center">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--c-emerald)" stroke-width="2" stroke-linecap="round" style="animation:vsgspin 0.9s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
-          <div style="font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--c-navy)">Writing your {{ typeLabel }} script…</div>
-          <div style="font-size:14px;color:var(--fg-muted);max-width:420px">Drafting each section on-voice, against the word budgets. This takes a few seconds.</div>
+        <div style="display:flex;flex-wrap:wrap;gap:28px;align-items:center;padding:40px 0">
+          <aside aria-label="How this page works" style="flex:1 1 300px;max-width:400px;background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:20px 22px">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c-emerald);margin-bottom:8px">While you wait: how this page works</div>
+            <ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font-size:13px;line-height:1.5;color:var(--c-navy)">
+              <li style="margin:0"><b>Edit anything.</b> Each box is one part of the script; click in and type.</li>
+              <li style="margin:0"><b>Regenerate</b> rewrites one part. The <b>lock</b> keeps a part as it is when you regenerate all.</li>
+              <li style="margin:0"><b>The bars</b> show each part’s length against its target; the totals at the top show the whole video’s length.</li>
+              <li style="margin:0"><b>Section headers: off</b> hides the labels and counts so you can read it straight through.</li>
+              <li style="margin:0"><b>Audience review</b>, at the bottom, has three AI readers react to the script and suggest changes.</li>
+              <li style="margin:0">When it reads right, <b>{{ tipNext }}</b> at the top takes you to the last step.</li>
+            </ol>
+          </aside>
+          <div style="flex:2 1 300px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:40px 20px;text-align:center">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--c-emerald)" stroke-width="2" stroke-linecap="round" style="animation:vsgspin 0.9s linear infinite"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>
+            <div style="font-family:var(--font-display);font-size:20px;font-weight:600;color:var(--c-navy)">Writing your {{ typeLabel }} script…</div>
+            <div style="font-size:14px;color:var(--fg-muted);max-width:420px">Drafting each section on-voice, against the word budgets. This takes a few seconds.</div>
+          </div>
         </div>
       </sc-if>
       <sc-if value="{{ genError }}" hint-placeholder-val="{{ null }}">
@@ -623,6 +642,7 @@
         </sc-for>
       </div>
 
+      <sc-if value="{{ rvShow }}" hint-placeholder-val="{{ true }}">
       <section aria-label="Audience review" style="margin-top:24px;background:var(--c-white);border:1px solid var(--border-hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:22px;display:flex;flex-direction:column;gap:14px">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">
           <div style="flex:1;min-width:240px">
@@ -665,6 +685,7 @@
               </div>
             </sc-if>
       </section>
+      </sc-if>
     </div>
   </main>
   </sc-if>
@@ -1813,9 +1834,9 @@ class Component extends DCLogic {
         {feeds:'closing', q:'What is the next step for the viewer?'}
       ] },
     { id:'executive', label:'Executive', wpm:127, runtime:'75–90 s', runtimeSec:[75,90], wordCap:165,
-      desc:'An executive speaking: a thank-you, company context, why {brand}, and a statement of support. Warm and personal.',
+      desc:'One of {brand}’s own executives{execsParen} speaking to camera: a thank-you, company context, why {brand}, and a statement of support. Warm and personal.',
       // Without this the prompt framed every type as company narration, so an executive's remarks came back as marketing copy.
-      delivery:'First-person remarks spoken on camera by the executive named in the Intro speaker answer — usually a client or partner leader. “We” and “our” mean their organization; refer to {brand} by name. Use the voice guide for plain, spoken clarity, but make it sound like this person talking, not {brand} marketing copy: no {brand} taglines or product superlatives unless the prep answers supply them.',
+      delivery:'First-person remarks spoken on camera by one of {brand}’s own executives{execsParen}: the person named in the Intro speaker answer. “We” and “our” mean {brand}. Use the voice guide for plain, spoken clarity, but make it sound like this person talking, not marketing copy: no taglines or product superlatives unless the prep answers supply them.',
       sections:[
         {id:'introSpeaker', label:'Intro speaker', band:[8,32], sweet:11, coaching:'Who is speaking, and their role.'},
         {id:'thanks', label:'Excitement / thank you', band:[11,62], sweet:22, coaching:'What you are thanking the audience or partner for.'},
@@ -1865,7 +1886,7 @@ class Component extends DCLogic {
     teamScripts:[], teamEmails:[], teamAddInput:'',
     authState:'boot', authEmail:'', authInput:'', authBusy:false, authError:null, cloudOk:false, isAdmin:false, quota:null, orgBrand:null, logoSrc:'assets/logo.svg',
     showHeads:true, signInOrg:'', signInDomain:'', review:null, reviewPick:[], reviewBusy:null, reviewError:null,
-    bpName:'', bpVoice:'', bpLogo:'', bpTheme:'', bpBusy:false, tkText:'', tkDraft:'', tkBusy:false,
+    bpName:'', bpVoice:'', bpLogo:'', bpTheme:'', bpBusy:false, refUrl:'', refUrlBusy:false, tkText:'', tkDraft:'', tkBusy:false,
     ticketPack:null, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null,
     kickoff:null, kbDraft:null, kbBusy:null, kbError:null,
     title:'', titleManual:false, questions:[], qIndex:0, qRead:'', qKey:'', busySince:0, dKeyShow:false, qAsked:false, qBusy:false, qError:null, pickKey:'',
@@ -1962,7 +1983,8 @@ class Component extends DCLogic {
   applyBrand(name){
     if(!this._typesTpl) this._typesTpl=JSON.stringify(this.TYPES);
     const b=(name||'').trim() || 'the company';
-    this.TYPES=JSON.parse(this._typesTpl.split('{brand}').join(JSON.stringify(b).slice(1,-1)));
+    const ex=String(this._execs||'').trim();
+    this.TYPES=JSON.parse(this._typesTpl.split('{brand}').join(JSON.stringify(b).slice(1,-1)).split('{execsParen}').join(JSON.stringify(ex?(' ('+ex+')'):'').slice(1,-1)));
   }
   countWords(t){ const s=(t||'').trim(); return s?s.split(/\s+/).length:0; }
   longSentences(t){ const parts=(t||'').split(/(?<=[.!?])\s+/).map(x=>x.trim()).filter(Boolean); return parts.filter(p=>this.countWords(p)>28).length; }
@@ -2143,7 +2165,7 @@ class Component extends DCLogic {
     if(/^["“‘']/.test(t) && /["”’']$/.test(t)) t=t.slice(1,-1).trim();
     return t;
   }
-  assemblePickPrompt(){ const b=this.brandNoun(); return 'Classify this video idea into exactly one '+this.brandAdj()+' video type.\nTypes:\n- overview: crisp high-level flyover of '+b+' for a broad first-time audience (~60–90s).\n- explainer: problem → product → three-step how-it-works → result (~90s–2min).\n- executive: an executive speaking — thank-you, company context, why '+b+', support statement (~75–90s).\n\nIdea: '+this.state.idea+'\n'+this.qaBlock()+this.speakerWeight()+'\nAlso give "title": a short working title for the video, 3 to 8 words, specific to it, with no quotes.\n\nReturn ONLY JSON: {"type":"overview|explainer|executive","rationale":"one short sentence","title":""}'; }
+  assemblePickPrompt(){ const b=this.brandNoun(); return 'Classify this video idea into exactly one '+this.brandAdj()+' video type.\nTypes:\n- overview: crisp high-level flyover of '+b+' for a broad first-time audience (~60–90s).\n- explainer: problem → product → three-step how-it-works → result (~90s–2min).\n- executive: one of '+b+'’s own executives'+(this._execs?' ('+this._execs+')':'')+' speaking to camera — thank-you, company context, why '+b+', support statement (~75–90s).\n\nIdea: '+this.state.idea+'\n'+this.qaBlock()+this.speakerWeight()+'\nAlso give "title": a short working title for the video, 3 to 8 words, specific to it, with no quotes.\n\nReturn ONLY JSON: {"type":"overview|explainer|executive","rationale":"one short sentence","title":""}'; }
   speakerWeight(){ const sp=this.speakerAnswer(); return sp?('\n## WHO THEY ENVISION DELIVERING IT (a preference to weigh, not a requirement)\n'+sp+'\nWeigh it with the content. A voiceover narrator fits Overview or Explainer. An executive points to Executive when the content is remarks, thanks, or a statement of support, but an executive can also front an Overview. Someone from '+this.brandNoun()+', such as a product marketing manager, usually fits Explainer or Overview. Pick the type whose structure best fits the content. If the speaker shaped the choice, say so in the rationale; if a different speaker would serve the video better, suggest it there in a friendly way.\n'):''; }
 
   // ---------- STEP 2 prompt ----------
@@ -2625,6 +2647,27 @@ class Component extends DCLogic {
   async onRefFile(file){ if(!file) return; const pid=this.state.projectId;
     if(!/\.(docx|pptx|pdf|txt|md)$/i.test(file.name)){ this.setState({refStatus:file.name+' isn’t a document this can read. Use .docx, .pptx, .pdf, .txt or .md.'}); return; }
     if((this.state.references||[]).some(r=>r.name===file.name && (r.size==null || r.size===file.size))){ this.setState({refStatus:file.name+' is already attached.'}); return; } this.setState({refStatus:'Parsing '+file.name+'…'}); try{ const text=await this.parseReference(file); if(!this.stillOn(pid)) return; if(!text.trim()) throw new Error(/\.(txt|md)$/i.test(file.name)?'the file is empty':'no text found (scanned or image-only?)'); const references=(this.state.references||[]).concat([{id:this.uid('ref'), name:file.name, size:file.size, text}]); this.setState({references, refStatus:'.docx · .pptx · .pdf · .txt · .md'}, ()=>this.persist()); }catch(e){ this.setState({refStatus:'Could not parse '+file.name+': '+(e.message||e)}); } }
+  // A web page joins the reference documents. The server reads it (most sites don't let a browser read them); without
+  // the server, the browser tries directly, which works only where the site allows it.
+  async addWebReference(){
+    const raw=String(this.state.refUrl||'').trim(); if(!raw || this.state.refUrlBusy) return;
+    let url; try{ url=new URL(/^https?:\/\//i.test(raw)?raw:'https://'+raw); }catch(e){ this.setState({refStatus:'That doesn’t look like a web address.'}); return; }
+    if(!/^https?:$/.test(url.protocol)){ this.setState({refStatus:'Use an ordinary http or https link.'}); return; }
+    if((this.state.references||[]).some(r=>r.url===url.href)){ this.setState({refStatus:'That page is already attached.'}); return; }
+    const pid=this.state.projectId; this.setState({refUrlBusy:true, refStatus:'Reading '+url.hostname+'…'});
+    try{
+      let page;
+      if(this.canShare()) page=(await this.callFn('fetchPage', {url:url.href}, 60000)).data||{};
+      else { let r; try{ r=await fetch(url.href); }catch(e){ throw new Error('that site doesn’t let a browser read it directly.'); } if(!r.ok) throw new Error('the site answered with an error ('+r.status+').'); page={url:url.href, ...this.pageText(await r.text())}; }
+      if(!this.stillOn(pid)) return;
+      const text=String(page.text||'').trim();
+      if(text.length<80) throw new Error('there was almost no readable text on it.');
+      const host=(()=>{ try{ return new URL(page.url||url.href).hostname; }catch(e){ return url.hostname; } })();
+      const references=(this.state.references||[]).concat([{id:this.uid('ref'), name:(page.title?page.title+' ('+host+')':host), url:page.url||url.href, text:text.slice(0,200000)}]);
+      this.setState({references, refUrl:'', refUrlBusy:false, refStatus:'.docx · .pptx · .pdf · .txt · .md'}, ()=>this.persist());
+    }catch(e){ if(!this.stillOn(pid)) return; this.setState({refUrlBusy:false, refStatus:'Couldn’t read that page: '+this.cloudMessage(e)}); }
+  }
+  pageText(html){ const d=new DOMParser().parseFromString(String(html||''),'text/html'); d.querySelectorAll('script,style,noscript,svg,nav,footer,form').forEach(x=>x.remove()); return {title:String(d.title||'').trim(), text:String(d.body?(d.body.innerText||d.body.textContent||''):'').replace(/\n{3,}/g,'\n\n').trim()}; }
   removeReference(id){ const references=(this.state.references||[]).filter(r=>r.id!==id); this.setState({references}, ()=>this.persist()); }
   clipDoc(text, cap){ text=(text||''); cap=cap||8000; if(text.length<=cap) return text; const head=Math.floor(cap*0.6), tail=cap-head-40; return text.slice(0,head).trim()+'\n\n…[middle of source omitted]…\n\n'+text.slice(text.length-tail).trim(); }
   refMaterial(rawCapPerDoc){
@@ -3036,7 +3079,9 @@ class Component extends DCLogic {
     b=b||{};
     const name=String(b.name||'').trim();
     const patch={orgBrand:b, logoSrc:b.logo||'assets/logo.svg'};
-    if(name){ patch.brand=name; this.applyBrand(name); }
+    this._execs=String(b.executives||'').trim();
+    if(name) patch.brand=name;
+    this.applyBrand(name||this.state.brand||'');
     if(b.voiceDoc){ patch.voiceDefault=b.voiceDoc; if(!(this.state.voiceDoc||'').trim()) patch.dVoice=b.voiceDoc; }
     this.setTheme(b.themeCss||'');
     this.setState(patch); this.relabelSections();
@@ -3045,7 +3090,7 @@ class Component extends DCLogic {
   }
   clearOrgBrand(){
     try{ localStorage.removeItem('vsg_org_brand'); }catch(e){}
-    const local=this.lsGet('vsg_brand',''); this.applyBrand(local);
+    const local=this.lsGet('vsg_brand',''); this._execs=''; this.applyBrand(local);
     this.setTheme('');
     this.setState({orgBrand:null, ticketPack:null, tkText:'', logoSrc:'assets/logo.svg', brand:local, dBrand:local, voiceDefault:this._sampleVoice||'', dVoice:this.state.voiceDoc||this._sampleVoice||''});
     this.relabelSections();
@@ -4523,6 +4568,8 @@ go();
           rvPickNote:pick.length?(pick.length+' of 3 picked. '+(pick.length<3?((3-pick.length)===1?'The third is chosen at random.':'The other two are chosen at random.'):'Unpick one to swap.')):'Pick up to three readers, or leave it and three are chosen at random.',
           rvChips:this.REVIEW_READERS.map(r=>{ const on=pick.includes(r.id); const rr=this.reviewReader(r.id); return { label:rr.label, title:rr.desc, on:on?'true':'false', bg:on?'rgba(95,103,185,0.14)':'var(--c-white)', border:on?'var(--c-violet)':'var(--border-hairline)', color:on?'var(--c-violet)':'var(--c-navy)', weight:on?'700':'500',
             onToggle:()=>{ const p=this.state.reviewPick||[]; if(p.includes(r.id)) this.setState({reviewPick:p.filter(x=>x!==r.id)}, ()=>this.persist()); else if(p.length>=3) this.showToast('Three readers at most. Unpick one first.'); else this.setState({reviewPick:p.concat([r.id])}, ()=>this.persist()); } }; }) }; })(),
+      rvShow:!st.generating && (st.sections||[]).some(x=>(x.text||'').trim()),
+      tipNext:this.canShare() && !st.teamEdit?(st.ticketPack?'Next: ticket':'Next: submit'):'Export',
       showHeads:st.showHeads!==false, headsPressed:st.showHeads!==false?'true':'false', headsLabel:'Section headers: '+(st.showHeads!==false?'on':'off'),
       readCard:st.showHeads!==false?'':'border-color:transparent;box-shadow:none;background:transparent', readPad:st.showHeads!==false?'18px 20px':'0',
       secPad:st.showHeads!==false?'10px 0':'4px 0', secRule:st.showHeads!==false?'1px solid var(--divider)':'none',
@@ -4543,7 +4590,9 @@ go();
       // intake
       idea:st.idea, onIdea:(e)=>this.setState({idea:e.target.value},()=>this.persist()), types, hasType:!!type, typeLabel:type?type.label:'',
       pickLabel:st.pickBusy?'Recommending…':'Recommend again', onPickForMe:()=>this.doPickForMe(), pickResult:st.pickResult, pickError:st.pickError, prepList,
-      references:(st.references||[]).map(r=>({ id:r.id, name:r.name, charLabel:((r.text?r.text.length:0).toLocaleString())+' characters'+((r.brief||'').trim()?' · distilled ✓':(r.briefBusy?' · summarizing…':(r.briefFailed?' · summary failed, using raw text':' · distilled on generate'))), briefFailed:!!r.briefFailed && !r.briefBusy && !(r.brief||'').trim(), onRetry:()=>this.retryBrief(r.id), onRemove:()=>this.removeReference(r.id) })), refStatus:st.refStatus,
+      refUrl:st.refUrl||'', onRefUrl:(e)=>this.setState({refUrl:e.target.value}), onRefUrlKey:(e)=>{ if(e.key==='Enter'){ e.preventDefault(); this.addWebReference(); } }, onAddRefUrl:()=>this.addWebReference(),
+      refUrlBusy:!!st.refUrlBusy, refUrlOpacity:st.refUrlBusy?'0.6':'1', refUrlLabel:st.refUrlBusy?'Reading…':'Add page',
+      references:(st.references||[]).map(r=>({ id:r.id, name:r.name, charLabel:(r.url?((()=>{ try{ return new URL(r.url).hostname+' · '; }catch(e){ return ''; } })()):'')+((r.text?r.text.length:0).toLocaleString())+' characters'+((r.brief||'').trim()?' · distilled ✓':(r.briefBusy?' · summarizing…':(r.briefFailed?' · summary failed, using raw text':' · distilled on generate'))), briefFailed:!!r.briefFailed && !r.briefBusy && !(r.brief||'').trim(), onRetry:()=>this.retryBrief(r.id), onRemove:()=>this.removeReference(r.id) })), refStatus:st.refStatus,
       onDropKey:(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); const i=e.currentTarget.querySelector('input[type=file]'); if(i) i.click(); } },
       onRefFile:(e)=>{ const fs=e.target.files?Array.from(e.target.files):[]; e.target.value=''; this.onRefFiles(fs); }, onDragOver:(e)=>e.preventDefault(), onDrop:(e)=>{ e.preventDefault(); const fs=e.dataTransfer.files?Array.from(e.dataTransfer.files):[]; if(fs.length) this.onRefFiles(fs); },
       generateDisabled:!canGen, generateBg:canGen?'var(--c-emerald)':'var(--c-grey-300)', generateCursor:canGen?'pointer':'not-allowed',

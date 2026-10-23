@@ -18,7 +18,7 @@ const GEMINI_KEY = defineSecret('GEMINI_KEY');
 
 const BRAND_DOC = 'brand/main';
 const TICKET_DOC = 'config/ticket';
-const LIMITS = { name: 80, voiceDoc: 200000, logo: 400000, themeCss: 100000, ticketForm: 100000, prompt: 400000 };
+const LIMITS = { name: 80, executives: 200, voiceDoc: 200000, logo: 400000, themeCss: 100000, ticketForm: 100000, prompt: 400000 };
 
 function emailOf(auth) { return String((auth && auth.token && auth.token.email) || '').trim().toLowerCase(); }
 function domainOk(email) {
@@ -53,7 +53,7 @@ function readSeed() { try { return require('./brand-seed.json'); } catch (e) { r
 async function seedBrand() {
   const seed = readSeed(); if (!seed) return;
   const patch = {};
-  for (const k of ['name', 'voiceDoc', 'logo', 'themeCss']) {
+  for (const k of ['name', 'executives', 'voiceDoc', 'logo', 'themeCss']) {
     if (typeof seed[k] === 'string' && seed[k] && seed[k].length <= LIMITS[k]) patch[k] = seed[k];
   }
   if (!Object.keys(patch).length) return;
@@ -117,7 +117,7 @@ exports.getBrand = onCall(async (request) => {
   ]);
   const b = snap.exists ? snap.data() : {}; const t = ticket.exists ? ticket.data() : {};
   return {
-    brand: { name: b.name || '', voiceDoc: b.voiceDoc || '', logo: b.logo || '', themeCss: b.themeCss || '', updatedAt: b.updatedAt ? b.updatedAt.toMillis() : 0 },
+    brand: { name: b.name || '', executives: b.executives || '', voiceDoc: b.voiceDoc || '', logo: b.logo || '', themeCss: b.themeCss || '', updatedAt: b.updatedAt ? b.updatedAt.toMillis() : 0 },
     ticketForm: t.form || '', ticketUpdatedAt: t.updatedAt ? t.updatedAt.toMillis() : 0,
     isAdmin: await isTeam(email),
     dailyLimit: DAILY_LIMIT.value(),
@@ -145,7 +145,7 @@ exports.saveBrand = onCall(async (request) => {
   if (!(await isTeam(email))) throw new HttpsError('permission-denied', 'Only the team can change the brand pack.');
   const d = request.data || {};
   const patch = {};
-  for (const k of ['name', 'voiceDoc', 'logo', 'themeCss']) {
+  for (const k of ['name', 'executives', 'voiceDoc', 'logo', 'themeCss']) {
     if (d[k] === undefined) continue;
     if (typeof d[k] !== 'string') throw new HttpsError('invalid-argument', k + ' must be text.');
     if (d[k].length > LIMITS[k]) throw new HttpsError('invalid-argument', k + ' is too large.');
@@ -166,6 +166,73 @@ exports.saveTicketForm = onCall(async (request) => {
   if (form.trim()) ticketFormProblem(form);
   await db.doc(TICKET_DOC).set({ form: form.trim(), seeded: true, updatedAt: FieldValue.serverTimestamp(), updatedBy: email }, { merge: true });
   return { ok: true };
+});
+
+// ----- reading a web page as reference material -----
+// The browser can't read most sites (they don't allow it), so the server fetches the page and returns its text.
+// Only the public web: no private, loopback or link-local addresses (which would reach inside Google's network), no
+// odd ports, and every redirect is checked the same way.
+const dns = require('node:dns').promises;
+const net = require('node:net');
+function privateIp(ip) {
+  const x = String(ip).toLowerCase();
+  if (x.startsWith('::ffff:')) return privateIp(x.slice(7));
+  if (net.isIPv4(x)) {
+    const [a, b] = x.split('.').map(Number);
+    return a === 0 || a === 10 || a === 127 || a >= 224 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127);
+  }
+  return x === '::' || x === '::1' || x.startsWith('fc') || x.startsWith('fd') || x.startsWith('fe80');
+}
+async function publicUrl(raw) {
+  let u; try { u = new URL(raw); } catch (e) { throw new HttpsError('invalid-argument', 'That isn’t a web address.'); }
+  if (!['http:', 'https:'].includes(u.protocol) || u.username || u.password || (u.port && !['80', '443'].includes(u.port))) throw new HttpsError('invalid-argument', 'Use an ordinary http or https link.');
+  const host = u.hostname.replace(/^\[|\]$/g, '');
+  if (/^localhost$/i.test(host) || /\.(internal|local|localhost)$/i.test(host)) throw new HttpsError('permission-denied', 'That address isn’t on the public web.');
+  let addrs;
+  if (net.isIP(host)) addrs = [{ address: host }];
+  else { try { addrs = await dns.lookup(host, { all: true }); } catch (e) { throw new HttpsError('not-found', 'That site couldn’t be found.'); } }
+  if (!addrs.length || addrs.some(a => privateIp(a.address))) throw new HttpsError('permission-denied', 'That address isn’t on the public web.');
+  return u;
+}
+function decodeEntities(s) {
+  const map = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', mdash: '—', ndash: '–', hellip: '…' };
+  return s.replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (m, e) => {
+    if (e[0] === '#') { const n = e[1].toLowerCase() === 'x' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10); return Number.isFinite(n) && n > 0 && n < 0x110000 ? String.fromCodePoint(n) : ' '; }
+    return map[e.toLowerCase()] ?? m;
+  });
+}
+function htmlToText(html) {
+  const title = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || '';
+  let s = html.replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<(script|style|noscript|svg|template|iframe|nav|footer|form)\b[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<br\s*\/?>/gi, '\n').replace(/<\/(p|div|li|h[1-6]|tr|section|article|blockquote|header)>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ');
+  s = decodeEntities(s).replace(/[ \t\f\v\r]+/g, ' ').replace(/ *\n */g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  return { title: decodeEntities(title).replace(/\s+/g, ' ').trim(), text: s };
+}
+exports.fetchPage = onCall({ timeoutSeconds: 60, memory: '256MiB' }, async (request) => {
+  requireMember(request);
+  let u = await publicUrl(String((request.data || {}).url || '').trim());
+  let res = null;
+  for (let hop = 0; hop < 5; hop++) {
+    const ctrl = new AbortController(); const timer = setTimeout(() => ctrl.abort(), 15000);
+    try {
+      res = await fetch(u.href, { redirect: 'manual', signal: ctrl.signal, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; VideoScriptGenerator/1.0)', Accept: 'text/html,application/xhtml+xml,text/plain;q=0.9,*/*;q=0.5' } });
+    } catch (e) { throw new HttpsError('unavailable', 'The site didn’t answer.'); } finally { clearTimeout(timer); }
+    const loc = res.status >= 300 && res.status < 400 && res.headers.get('location');
+    if (!loc) break;
+    u = await publicUrl(new URL(loc, u).href); res = null;
+  }
+  if (!res) throw new HttpsError('unavailable', 'The page kept redirecting.');
+  if (res.status === 401 || res.status === 403) throw new HttpsError('permission-denied', 'That page needs a sign-in, so it can’t be read from here.');
+  if (!res.ok) throw new HttpsError('unavailable', 'The site answered with an error (' + res.status + ').');
+  const type = String(res.headers.get('content-type') || '');
+  if (!/text\/html|application\/xhtml|text\/plain/i.test(type)) throw new HttpsError('invalid-argument', 'That link isn’t a web page' + (/pdf/i.test(type) ? ' (it’s a PDF: download it and attach the file instead)' : '') + '.');
+  const reader = res.body.getReader(); const chunks = []; let size = 0;
+  for (;;) { const { done, value } = await reader.read(); if (done) break; size += value.length; chunks.push(Buffer.from(value)); if (size > 3e6) { try { await reader.cancel(); } catch (e) { /* stopped reading */ } break; } }
+  const raw = Buffer.concat(chunks).toString('utf8');
+  const page = /text\/plain/i.test(type) ? { title: '', text: raw.trim() } : htmlToText(raw);
+  return { url: u.href, title: page.title.slice(0, 200), text: page.text.slice(0, 200000) };
 });
 
 // A Gemini call with the shared key, counted against the person's daily allowance.
