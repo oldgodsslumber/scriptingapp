@@ -481,6 +481,7 @@
                 </div>
               </sc-if>
             </div>
+            <button onClick="{{ onToggleHeads }}" aria-pressed="{{ headsPressed }}" title="Section names, coaching and word counts" style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer">{{ headsLabel }}</button>
             <button onClick="{{ onRegenAll }}" style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--radius-sm);background:transparent;border:1px solid var(--border-hairline);color:var(--c-navy);font-size:13px;font-weight:600;cursor:pointer">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="{{ regenAllSpin }}"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg>
               {{ regenAllLabel }}
@@ -564,7 +565,8 @@
 
       <div style="display:flex;flex-direction:column;gap:16px">
         <sc-for list="{{ sections }}" as="s" hint-placeholder-count="4">
-          <section style="background:var(--c-white);border:1px solid {{ s.cardBorder }};border-radius:var(--radius-lg);box-shadow:var(--shadow-1);overflow:hidden">
+          <section style="background:var(--c-white);border:1px solid {{ s.cardBorder }};border-radius:var(--radius-lg);box-shadow:var(--shadow-1);overflow:hidden;{{ readCard }}">
+            <sc-if value="{{ showHeads }}" hint-placeholder-val="{{ true }}">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border-hairline);background:{{ s.headBg }}">
               <div style="display:flex;align-items:center;gap:12px;min-width:0">
                 <span style="font-family:var(--font-display);font-weight:600;font-size:17px;color:var(--c-navy)">{{ s.label }}</span>
@@ -588,11 +590,13 @@
                 </button>
               </div>
             </div>
-            <div style="padding:18px 20px">
-              <sc-if value="{{ showCoaching }}" hint-placeholder-val="{{ true }}">
+            </sc-if>
+            <div style="padding:{{ readPad }}">
+              <sc-if value="{{ showCoachingNow }}" hint-placeholder-val="{{ true }}">
                 <p style="margin:0 0 12px;font-size:13px;font-style:italic;color:var(--fg-muted);line-height:1.5">{{ s.coaching }}</p>
               </sc-if>
-              <textarea value="{{ s.text }}" onChange="{{ s.onInput }}" placeholder="Narration for this section…" style="width:100%;min-height:{{ s.minH }};padding:14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:15px;line-height:1.6;color:var(--fg-default);background:var(--c-grey-50);outline:none"></textarea>
+              <textarea value="{{ s.text }}" onChange="{{ s.onInput }}" placeholder="Narration for this section…" style="width:100%;min-height:{{ s.minH }};height:{{ s.readH }};padding:14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:15px;line-height:1.6;color:var(--fg-default);background:var(--c-grey-50);outline:none"></textarea>
+              <sc-if value="{{ showHeads }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;align-items:center;gap:16px;margin-top:14px;flex-wrap:wrap">
                 <div style="flex:1;min-width:220px">
                   <div style="height:6px;border-radius:999px;background:var(--c-grey-100);position:relative;overflow:hidden">
@@ -607,6 +611,7 @@
                   <span style="font-size:11px;font-weight:700;color:{{ s.statusColor }};background:{{ s.statusBg }};padding:3px 10px;border-radius:999px">{{ s.statusText }}</span>
                 </div>
               </div>
+              </sc-if>
               <sc-if value="{{ s.longWarn }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex;align-items:center;gap:7px;margin-top:10px;font-size:12px;color:var(--c-orange)">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><path d="M12 9v4M12 17h.01"></path></svg>
@@ -1292,6 +1297,48 @@
                 </div>
                 <textarea value="{{ kbAgenda }}" onChange="{{ onKbAgenda }}" onBlur="{{ onKbAgendaBlur }}" aria-label="Discovery call agenda" placeholder="Questions to ask on the call, one per line" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;background:var(--c-white);min-height:110px;line-height:1.5;font-size:13px"></textarea>
               </div>
+            </section>
+
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+                <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px;margin:0">Script</div>
+                <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                <button onClick="{{ onToggleHeads }}" aria-pressed="{{ headsPressed }}" style="padding:6px 10px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">{{ headsLabel }}</button>
+                <select value="{{ sd.versionSel }}" onChange="{{ onSdVersion }}" aria-label="Script version" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;width:auto;padding:6px 10px;font-size:13px">
+                  <sc-for list="{{ sd.versionOptions }}" as="o"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
+                </select>
+                </span>
+              </div>
+              <sc-if value="{{ sd.loading }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--fg-subtle)">Loading…</div></sc-if>
+<sc-if value="{{ sd.single }}" hint-placeholder-val="{{ true }}">
+              <sc-for list="{{ sd.sections }}" as="sec" hint-placeholder-count="3">
+                <div style="padding:{{ secPad }};border-top:{{ secRule }}">
+                  <sc-if value="{{ showHeads }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c-emerald)">{{ sec.label }}<sc-if value="{{ sec.changed }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:rgba(255,200,54,0.22);color:#8A6A00;letter-spacing:0;text-transform:none">changed since this version</span></sc-if></div></sc-if>
+                  <div style="margin-top:4px;font-size:14px;line-height:1.55;color:var(--c-navy);white-space:pre-wrap">{{ sec.text }}</div>
+                </div>
+              </sc-for>
+              </sc-if>
+              <sc-if value="{{ sd.compare }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;margin-bottom:8px;border-radius:var(--radius-md);background:var(--c-grey-50);border:1px solid var(--border-hairline)">
+                  <span style="font-size:12px;color:var(--fg-muted)">{{ sd.compareNote }}</span>
+                  <button onClick="{{ onRestoreVersion }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Restore this version</button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-muted)"><span>{{ sd.compareLabel }}</span><span>Now</span></div>
+                <sc-for list="{{ sd.compareRows }}" as="row" hint-placeholder-count="3">
+                  <div style="padding:10px 0;border-top:1px solid var(--divider)">
+                    <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ row.labelColor }}">{{ row.label }}{{ row.tag }}</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;font-size:14px;line-height:1.55;color:var(--c-navy)">
+                      <div><sc-for list="{{ row.oldSegs }}" as="g" hint-placeholder-count="3"><span style="background:{{ g.bg }};text-decoration:{{ g.deco }}">{{ g.text }}</span></sc-for></div>
+                      <div><sc-for list="{{ row.newSegs }}" as="g" hint-placeholder-count="3"><span style="background:{{ g.bg }};text-decoration:{{ g.deco }}">{{ g.text }}</span></sc-for></div>
+                    </div>
+                  </div>
+                </sc-for>
+              </sc-if>
+              <sc-if value="{{ sd.noSections }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--fg-subtle)">No script yet.</div></sc-if>
+            </div>
+
+
+            <section aria-label="Call notes" style="border:1px solid rgba(95,103,185,0.35);border-radius:var(--radius-lg);background:rgba(95,103,185,0.04);padding:18px;display:flex;flex-direction:column;gap:12px">
               <div>
                 <label style="display:block;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:4px">Call notes</label>
                 <textarea value="{{ kbNotes }}" onChange="{{ onKbNotes }}" onBlur="{{ onKbNotesBlur }}" aria-label="Call notes" placeholder="What you learned on the call. Team only." style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;background:var(--c-white);min-height:110px;line-height:1.5;font-size:13px"></textarea>
@@ -1336,41 +1383,6 @@
               </sc-for>
             </div>
             </sc-if>
-
-            <div>
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px">
-                <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px;margin:0">Script</div>
-                <select value="{{ sd.versionSel }}" onChange="{{ onSdVersion }}" aria-label="Script version" style="width:100%;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:14px;color:var(--fg-default);background:var(--c-grey-50);outline:none;width:auto;padding:6px 10px;font-size:13px">
-                  <sc-for list="{{ sd.versionOptions }}" as="o"><option value="{{ o.id }}">{{ o.label }}</option></sc-for>
-                </select>
-              </div>
-              <sc-if value="{{ sd.loading }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--fg-subtle)">Loading…</div></sc-if>
-<sc-if value="{{ sd.single }}" hint-placeholder-val="{{ true }}">
-              <sc-for list="{{ sd.sections }}" as="sec" hint-placeholder-count="3">
-                <div style="padding:10px 0;border-top:1px solid var(--divider)">
-                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--c-emerald)">{{ sec.label }}<sc-if value="{{ sec.changed }}" hint-placeholder-val="{{ false }}"><span style="display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;background:rgba(255,200,54,0.22);color:#8A6A00;letter-spacing:0;text-transform:none">changed since this version</span></sc-if></div>
-                  <div style="margin-top:4px;font-size:14px;line-height:1.55;color:var(--c-navy);white-space:pre-wrap">{{ sec.text }}</div>
-                </div>
-              </sc-for>
-              </sc-if>
-              <sc-if value="{{ sd.compare }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 12px;margin-bottom:8px;border-radius:var(--radius-md);background:var(--c-grey-50);border:1px solid var(--border-hairline)">
-                  <span style="font-size:12px;color:var(--fg-muted)">{{ sd.compareNote }}</span>
-                  <button onClick="{{ onRestoreVersion }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">Restore this version</button>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 14px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fg-muted)"><span>{{ sd.compareLabel }}</span><span>Now</span></div>
-                <sc-for list="{{ sd.compareRows }}" as="row" hint-placeholder-count="3">
-                  <div style="padding:10px 0;border-top:1px solid var(--divider)">
-                    <div style="font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:{{ row.labelColor }}">{{ row.label }}{{ row.tag }}</div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:4px;font-size:14px;line-height:1.55;color:var(--c-navy)">
-                      <div><sc-for list="{{ row.oldSegs }}" as="g" hint-placeholder-count="3"><span style="background:{{ g.bg }};text-decoration:{{ g.deco }}">{{ g.text }}</span></sc-for></div>
-                      <div><sc-for list="{{ row.newSegs }}" as="g" hint-placeholder-count="3"><span style="background:{{ g.bg }};text-decoration:{{ g.deco }}">{{ g.text }}</span></sc-for></div>
-                    </div>
-                  </div>
-                </sc-for>
-              </sc-if>
-              <sc-if value="{{ sd.noSections }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;color:var(--fg-subtle)">No script yet.</div></sc-if>
-            </div>
 
             <div style="display:flex;flex-direction:column;gap:10px">
               <div style="font-size:14px;font-weight:700;color:var(--c-navy);margin:0 0 8px;margin:0">Messages and notes</div>
@@ -1497,8 +1509,9 @@
           <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--fg-muted)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--c-emerald)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:vsgspin 0.9s linear infinite"><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"></path></svg> One moment…</div>
         </sc-if>
         <sc-if value="{{ gateAskEmail }}" hint-placeholder-val="{{ false }}">
-          <input type="email" autofocus="true" value="{{ authInput }}" onChange="{{ onAuthInput }}" onKeyDown="{{ onAuthKey }}" placeholder="you@company.com" autocomplete="email" autocapitalize="off" spellcheck="false" aria-label="Work email" style="width:100%;padding:12px 14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:15px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
+          <input type="email" autofocus="true" value="{{ authInput }}" onChange="{{ onAuthInput }}" onKeyDown="{{ onAuthKey }}" placeholder="{{ authPlaceholder }}" autocomplete="email" autocapitalize="off" spellcheck="false" aria-label="Work email" style="width:100%;padding:12px 14px;border:1px solid var(--border-hairline);border-radius:var(--radius-md);font-size:15px;color:var(--fg-default);background:var(--c-grey-50);outline:none"/>
           <button onClick="{{ onAuthSubmit }}" disabled="{{ authBusy }}" style="width:100%;padding:13px 18px;border-radius:var(--radius-md);background:var(--c-emerald);border:none;color:#fff;font-size:15px;font-weight:700;cursor:pointer;opacity:{{ authBtnOpacity }}">{{ authBtnLabel }}</button>
+          <sc-if value="{{ gateOnlyNote }}" hint-placeholder-val="{{ null }}"><div role="note" style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:var(--radius-md);background:rgba(255,200,54,0.12);border:1px solid rgba(255,200,54,0.55);font-size:13px;line-height:1.5;color:var(--c-navy)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8A6A00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><path d="M12 9v4M12 17h.01"></path></svg><span>{{ gateOnlyNote }}</span></div></sc-if>
         </sc-if>
         <sc-if value="{{ gateSent }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-wrap:wrap;gap:14px">
@@ -1777,6 +1790,7 @@ class Component extends DCLogic {
     studioTab:'scripts', studioFilter:'active', studioSearch:'', studioSel:null, studioContent:null, studioLoading:false, studioMsgs:[], studioVersions:[], studioVersionSel:'current',
     teamScripts:[], teamEmails:[], teamAddInput:'',
     authState:'boot', authEmail:'', authInput:'', authBusy:false, authError:null, cloudOk:false, isAdmin:false, quota:null, orgBrand:null, logoSrc:'assets/logo.svg',
+    showHeads:true, signInOrg:'', signInDomain:'',
     bpName:'', bpVoice:'', bpLogo:'', bpTheme:'', bpBusy:false, tkText:'', tkDraft:'', tkBusy:false,
     ticketPack:null, ticket:{values:{}, edited:{}, notes:{}, unsure:[], srcKey:'', at:0}, ticketBusy:false, ticketError:null, caseDraft:null,
     kickoff:null, kbDraft:null, kbBusy:null, kbError:null,
@@ -1815,7 +1829,7 @@ class Component extends DCLogic {
     const fEndpoint=this.lsGet('vsg_foundry_endpoint','http://localhost:8757/v1'), fModel=this.lsGet('vsg_foundry_model','qwen3-14b'), fThink=this.lsGet('vsg_foundry_think','1')!=='0';
     let provider=this.lsGet('vsg_provider',null); if(!provider || (provider==='claude' && !this.claudeAvailable())){ provider=this.claudeAvailable()?'claude':'gemini'; }
     const temp=parseFloat(this.lsGet('vsg_gemini_temp','0.7')), voice=this.lsGet('vsg_voice_doc',null);
-    const advanced=this.lsGet('vsg_advanced','0')==='1';
+    const advanced=this.lsGet('vsg_advanced','0')==='1'; this.setState({showHeads:this.lsGet('vsg_section_heads','1')!=='0'});
     const brand=this.lsGet('vsg_brand',''); this.applyBrand(brand);
     const [voiceDefault, scenePromptTpl, shotPromptTpl]=await Promise.all([
       this.loadAsset('assets/voice-guide.md'), this.loadAsset('assets/Scene_Prompt_v5.md'), this.loadAsset('assets/Shot_Prompt_v2.md')]);
@@ -2294,11 +2308,11 @@ class Component extends DCLogic {
   assembleQuestionsPrompt(more){
     const answered=this.answeredQA(); const skipped=(this.state.questions||[]).filter(q=>!answered.includes(q));
     const src=this.refMaterial(8000);
-    return 'You are a '+this.brandAdj()+' video producer doing intake with someone who wants a short video. Read their idea'+(src?' and the reference documents they attached':'')+', then ask the follow-up questions whose answers would most improve the script.\n\n## VIDEO TYPES WE MAKE\n'+this.typesBrief()+'\n\n## IDEA\n'+this.state.idea+'\n'
+    return 'You are a '+this.brandAdj()+' video producer doing intake with someone who wants a short video. Read their idea'+(src?' and the reference documents they attached':'')+', then ask the follow-up questions whose answers would most improve the script.\n\n## VIDEO TYPES WE MAKE (background for you only; never ask the person to pick one)\n'+this.typesBrief()+'\n\n## IDEA\n'+this.state.idea+'\n'
       +(src?'\n## REFERENCE DOCUMENTS (read these closely; the video will be built from them)\n'+src+'\n':'')
       +(answered.length?'\n## ALREADY ANSWERED (do not ask again)\n'+answered.map(q=>'Q: '+q.q+'\nA: '+q.answer.trim()).join('\n\n')+'\n':'')
       +(skipped.length?'\n## ALREADY ASKED AND SKIPPED (do not ask again or rephrase)\n'+skipped.map(q=>'- '+q.q).join('\n')+'\n':'')
-      +'\n## TASK\nAsk '+(more?'up to 4 more':'5 to 7')+' short, specific questions, most important first. Ask only what the idea'+(src?' and source material':'')+' do not already answer, and never generic questions like "what is your video about?". Good targets: who the audience is and what they already know; the one message they should remember; concrete proof (numbers, named customers, outcomes); the action viewers should take; anything ambiguous in the idea. Do not ask who will deliver, narrate or present the video; that is asked separately. One thing per question, answerable in a sentence, in plain language. Phrase each one as gathering their ideas and preferences, not as a final decision: "Do you have a customer story in mind?", not "Which customer will be featured?". Nothing they say is locked in; the video team may recommend changes later. The person can skip any question, so asking is cheap.\n'
+      +'\n## TASK\nAsk '+(more?'up to 4 more':'5 to 7')+' short, specific questions, most important first. Ask only what the idea'+(src?' and source material':'')+' do not already answer, and never generic questions like "what is your video about?". Good targets: who the audience is and what they already know; the one message they should remember; concrete proof (numbers, named customers, outcomes); the action viewers should take; anything ambiguous in the idea. Do not ask who will deliver, narrate or present the video; that is asked separately. Never ask which video type, format, style or length they want, and never list our video types as choices: assume they don’t know them and need guiding; the app recommends a type afterwards from their answers. Instead ask what a producer would ask to guide them there: what is prompting the video and why now (a launch, an event, a campaign, a customer win); where and how people will watch it (on stage, on a web page, in social, in a sales conversation); whether it should introduce the big picture, explain how something works step by step, or carry a personal message from someone; who should appear in it; and how much the audience needs explained. One thing per question, answerable in a sentence, in plain language. Phrase each one as gathering their ideas and preferences, not as a final decision: "Do you have a customer story in mind?", not "Which customer will be featured?". Nothing they say is locked in; the video team may recommend changes later. The person can skip any question, so asking is cheap.\n'
       +(src?'Use the reference documents to make the questions informed and specific. Where they offer choices (several customer stories, metrics, products, features, or angles), ask which to feature and name the candidates, e.g. "The deck cites two bank results. Which should lead?". Where they leave gaps (who the video is for, the one message, the action to take), ask about those. Never ask for a fact the documents already state, and if the documents and the idea disagree, ask which is right.\n':'')
       +'For each question, give 2 to 4 short example answers in "options", drawn from '+(src?'the reference documents and the idea':'the idea')+', when examples would help; otherwise an empty list. Give "why": one short clause on how the answer shapes the script.\n'
       +(more?'If the brief already covers what the script needs, return an empty "questions" list.\n':'')
@@ -2889,8 +2903,15 @@ class Component extends DCLogic {
       const saved=this.lsGet('vsg_signin_email','');
       if(saved) this.finishSignIn(saved); else this.setState({authState:'confirm', authError:null});
     }
+    this.loadSignInInfo();
     this._unsubAuth=authM.onAuthStateChanged(auth, u=>this.onAuthUser(u));
   }
+  // Who may sign in, shown before anyone has: the organization's name and its email domain (cached for the next visit).
+  async loadSignInInfo(){
+    try{ const c=JSON.parse(this.lsGet('vsg_signin_info','')||'null'); if(c) this.applySignInInfo(c); }catch(e){}
+    try{ const r=(await this.callFn('signInInfo', {}, 20000)).data||{}; this.lsSet('vsg_signin_info', JSON.stringify(r)); this.applySignInInfo(r); }catch(e){}
+  }
+  applySignInInfo(r){ this.setState({signInOrg:String(r.org||'').trim(), signInDomain:String(r.domain||'').trim()}); if(r.logo && !this.state.orgBrand) this.setState({logoSrc:r.logo}); }
   callFn(name, data, timeout){ const f=this._fb.fnM.httpsCallable(this._fb.fns, name, {timeout:timeout||60000}); return f(data||{}); }
   cloudMessage(e){ const m=String((e&&e.message)||e||''); return (!m||m==='internal')?'the server didn’t answer. Try again in a moment.':m; }
   async onAuthUser(u){
@@ -2969,7 +2990,7 @@ class Component extends DCLogic {
     this.setState({authBusy:true, authError:null});
     try{
       const ok=((await this.callFn('checkEmail', {email})).data||{}).ok;
-      if(!ok){ this.setState({authBusy:false, authError:'That address can’t sign in here. Use your work email.'}); return; }
+      if(!ok){ const d=this.state.signInDomain; this.setState({authBusy:false, authError:d?('Only @'+d+' addresses can sign in'+(this.state.signInOrg?', because this app is for '+this.state.signInOrg+' employees':'')+'. Use your @'+d+' email.'):'That address can’t sign in here. Use your work email.'}); return; }
       await this._fb.authM.sendSignInLinkToEmail(this._fb.auth, email, {url:location.origin+location.pathname, handleCodeInApp:true});
       this.lsSet('vsg_signin_email', email);
       this.setState({authBusy:false, authState:'sent', authEmail:email});
@@ -3909,7 +3930,7 @@ class Component extends DCLogic {
     const scale=Math.max(max, wc, s.sweet)*1.35 || 1; const longN=this.longSentences(s.text);
     const me=this.me(); const teamEdited=!!s.editedBy && (!me || s.editedBy!==me.email || !this.state.teamEdit);
     return { lockTitle:s.locked?'Unlock this section':'Lock this section so Regenerate all keeps it', editedByTeam:!!s.editedBy, editedNote:s.editedBy?(me&&s.editedBy===me.email?'Edited by you':('Edited by '+this.nameOf(s.editedBy)+(teamEdited?' (video team)':''))):'',
-      id:s.id, label:s.label, coaching:s.coaching, text:s.text||'', onInput:(e)=>this.editSection(i,e.target.value), onToggleLock:()=>this.toggleLock(i), onRegen:()=>this.regenSection(i), locked:!!s.locked, lockColor:s.locked?'#334190':'#6F7480', lockPath:s.locked?'M7 11V7a5 5 0 0 1 10 0v4':'M7 11V7a5 5 0 0 1 9.9-1', regenSpin:s.regenBusy?'animation:vsgspin 0.9s linear infinite':'', wordCount:wc, sweet:s.sweet, bandLabel:min+'–'+max, statusText, statusColor, statusBg, cardBorder:(wc>max)?'rgba(247,105,35,0.35)':'var(--border-hairline)', headBg:s.locked?'rgba(95,103,185,0.05)':'var(--c-white)', fillPct:this.clamp(wc/scale*100,0,100), bandStartPct:this.clamp(min/scale*100,0,100), bandWidthPct:this.clamp((max-min)/scale*100,0,100), sweetPct:this.clamp(s.sweet/scale*100,0,100), minH:(max>30?'150px':'96px'), longWarn:longN>0, longLabel:longN+' long sentence'+(longN===1?'':'s') };
+      id:s.id, label:s.label, coaching:s.coaching, text:s.text||'', onInput:(e)=>this.editSection(i,e.target.value), onToggleLock:()=>this.toggleLock(i), onRegen:()=>this.regenSection(i), locked:!!s.locked, lockColor:s.locked?'#334190':'#6F7480', lockPath:s.locked?'M7 11V7a5 5 0 0 1 10 0v4':'M7 11V7a5 5 0 0 1 9.9-1', regenSpin:s.regenBusy?'animation:vsgspin 0.9s linear infinite':'', wordCount:wc, sweet:s.sweet, bandLabel:min+'–'+max, statusText, statusColor, statusBg, cardBorder:(wc>max)?'rgba(247,105,35,0.35)':'var(--border-hairline)', headBg:s.locked?'rgba(95,103,185,0.05)':'var(--c-white)', fillPct:this.clamp(wc/scale*100,0,100), bandStartPct:this.clamp(min/scale*100,0,100), bandWidthPct:this.clamp((max-min)/scale*100,0,100), sweetPct:this.clamp(s.sweet/scale*100,0,100), minH:this.state.showHeads===false?'0':(max>30?'150px':'96px'), readH:this.state.showHeads===false?(Math.max(2, Math.ceil(String(s.text||'').length/95)+String(s.text||'').split('\n').length-1)*24+30)+'px':'auto', longWarn:longN>0, longLabel:longN+' long sentence'+(longN===1?'':'s') };
   }
   sceneVM(sc,i,cov){
     const reg=this.REGISTERS[sc.tonal_register]||this.REGISTERS.momentum; const imp=this.IMPACTS[sc.impact]||this.IMPACTS.general;
@@ -4168,7 +4189,9 @@ class Component extends DCLogic {
       showGate:(()=>{ const on=['boot','checking','signedOut','sent','confirm','denied'].includes(st.authState); this.syncInert(on?'gate':(st.confirmOpen?'confirm':(st.settingsOpen?'dialog':false))); return on; })(),
       gateChecking:st.authState==='checking'||st.authState==='boot', gateAskEmail:st.authState==='signedOut'||st.authState==='confirm', gateSent:st.authState==='sent', gateDenied:st.authState==='denied',
       gateTitle:{boot:'Loading', checking:'Signing you in', signedOut:'Sign in', sent:'Check your email', confirm:'Finish signing in', denied:'This account can’t sign in'}[st.authState]||'Sign in',
-      gateText:{boot:'', checking:'Checking your sign-in.', signedOut:'Enter your work email and we’ll send you a link to sign in. No password, nothing to set up.', sent:'We sent a sign-in link to '+st.authEmail+'. Open it in this browser to continue. If it isn’t there in a minute, check your junk folder.', confirm:'You opened the link in a different browser. Enter the email address it was sent to.', denied:(st.authEmail||'That address')+' isn’t allowed to use this app. Sign in with your work email.'}[st.authState]||'',
+      gateText:{boot:'', checking:'Checking your sign-in.', signedOut:(st.signInDomain?('For '+(st.signInOrg?st.signInOrg+' employees':'people at '+st.signInDomain)+'. Enter your @'+st.signInDomain+' email and we’ll send you a link to sign in. No password, nothing to set up.'):'Enter your work email and we’ll send you a link to sign in. No password, nothing to set up.'), sent:'We sent a sign-in link to '+st.authEmail+'. Open it in this browser to continue. If it isn’t there in a minute, check your junk folder.', confirm:'You opened the link in a different browser. Enter the email address it was sent to.', denied:(st.authEmail||'That address')+' isn’t allowed to use this app. Sign in with your work email.'}[st.authState]||'',
+      authPlaceholder:st.signInDomain?('you@'+st.signInDomain):'you@company.com',
+      gateOnlyNote:(st.signInDomain && !st.authError)?('Only @'+st.signInDomain+' email addresses can sign in. '+(st.signInOrg?'This app is for '+st.signInOrg+' employees; ':'')+'other addresses won’t get a link.'):null,
       authInput:st.authInput, onAuthInput:(e)=>this.setState({authInput:e.target.value, authError:null}), onAuthKey:(e)=>{ if(e.key==='Enter'){ e.preventDefault(); this.authSubmit(); } },
       onAuthSubmit:()=>this.authSubmit(), authBusy:st.authBusy, authBtnOpacity:st.authBusy?'0.6':'1',
       authBtnLabel:st.authBusy?(st.authState==='confirm'?'Signing in…':'Sending…'):(st.authState==='confirm'?'Finish signing in':'Email me a sign-in link'),
@@ -4176,7 +4199,11 @@ class Component extends DCLogic {
 
       steps, appTitle:st.advanced?'Video Script & B-Roll Generator':'Video Script Generator', advanced:st.advanced, simpleMode:!st.advanced,
       isIntake:st.view==='intake', isQuestions:st.view==='questions', isTypeStep:st.view==='type', isWorkspace:st.view==='workspace', isScenes:st.view==='scenes', isShots:st.view==='shots',
-      settingsOpen:st.settingsOpen, toast:st.toast, showCoaching,
+      settingsOpen:st.settingsOpen, toast:st.toast, showCoaching, showCoachingNow:showCoaching && st.showHeads!==false,
+      showHeads:st.showHeads!==false, headsPressed:st.showHeads!==false?'true':'false', headsLabel:'Section headers: '+(st.showHeads!==false?'on':'off'),
+      readCard:st.showHeads!==false?'':'border-color:transparent;box-shadow:none;background:transparent', readPad:st.showHeads!==false?'18px 20px':'0',
+      secPad:st.showHeads!==false?'10px 0':'4px 0', secRule:st.showHeads!==false?'1px solid var(--divider)':'none',
+      onToggleHeads:()=>{ const on=st.showHeads===false; this.lsSet('vsg_section_heads', on?'1':'0'); this.setState({showHeads:on}); },
       hasToastAction:!!st.toastAction, toastActionLabel:(st.toastAction||{}).label||'', onToastAction:()=>{ const a=st.toastAction; clearTimeout(this._tt); this.setState({toast:null, toastAction:null}); if(a&&a.fn) a.fn(); },
       onOpenSettings:()=>this.openSettings(), onCloseSettings:()=>this.closeSettings(), stop:(e)=>e.stopPropagation(),
       onBackdropDown:(e)=>{ const t=e.target; this._sdown=!!(t&&t.getAttribute&&t.getAttribute('data-sc-backdrop')); }, onBackdropClick:(e)=>{ const t=e.target; const onBd=!!(t&&t.getAttribute&&t.getAttribute('data-sc-backdrop')); if(this._sdown&&onBd) this.closeSettings(); this._sdown=false; },

@@ -98,6 +98,14 @@ exports.checkEmail = onCall(async (request) => {
   return { ok: domainOk(email) };
 });
 
+// Shown on the sign-in screen, before anyone signs in: who the app is for (the allowed email domain and the
+// organization's name) and its logo. Nothing else from the brand pack is public.
+exports.signInInfo = onCall(async () => {
+  const domain = ALLOWED_DOMAIN.value().trim().toLowerCase().replace(/^@/, '');
+  const snap = await db.doc(BRAND_DOC).get(); const b = snap.exists ? snap.data() : {};
+  return { domain, org: String(b.name || ''), logo: String(b.logo || '') };
+});
+
 // The brand pack and the ticket form, plus whether this person may edit them and how much of today's allowance is left.
 exports.getBrand = onCall(async (request) => {
   const email = requireMember(request);
