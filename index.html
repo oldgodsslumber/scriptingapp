@@ -616,7 +616,7 @@
 
       <div style="display:flex;flex-direction:column;gap:16px">
         <sc-for list="{{ sections }}" as="s" hint-placeholder-count="4">
-          <section style="background:var(--c-white);border:1px solid {{ s.cardBorder }};border-radius:var(--radius-lg);box-shadow:var(--shadow-1);overflow:hidden;{{ readCard }}">
+          <section data-sec="{{ s.id }}" style="background:var(--c-white);border:1px solid {{ s.cardBorder }};border-radius:var(--radius-lg);box-shadow:{{ s.cardShadow }};transition:box-shadow .3s;overflow:hidden;{{ readCard }}">
             <sc-if value="{{ showHeads }}" hint-placeholder-val="{{ true }}">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border-hairline);background:{{ s.headBg }}">
               <div style="display:flex;align-items:center;gap:12px;min-width:0">
@@ -741,9 +741,9 @@
                 <sc-if value="{{ rv.intended }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;color:var(--fg-muted)"><b style="color:var(--c-navy)">The message you meant:</b> {{ rv.intended }}</div></sc-if>
                 <div style="font-size:14px;line-height:1.55;color:var(--c-navy);white-space:pre-wrap">{{ rv.plan }}</div>
                 <sc-if value="{{ rv.hasSteps }}" hint-placeholder-val="{{ false }}"><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:1.5;color:var(--c-navy)"><sc-for list="{{ rv.steps }}" as="st" hint-placeholder-count="2"><li>{{ st.text }}</li></sc-for></ol></sc-if>
-                <sc-if value="{{ rv.hasChanges }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Sections to change</div><sc-for list="{{ rv.changes }}" as="ch" hint-placeholder-count="2"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>{{ ch.label }}:</b> {{ ch.change }}</div></sc-for></div></sc-if>
-                <sc-if value="{{ rv.canRevise }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onRevise }}" disabled="{{ rvBusy }}" style="align-self:flex-start;padding:10px 16px;border-radius:var(--radius-sm);background:var(--c-violet);border:1px solid var(--c-violet);color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ rvBtnOpacity }}">{{ rvReviseLabel }}</button></sc-if>
-                <sc-if value="{{ rv.canUndo }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button onClick="{{ onUndoRevise }}" disabled="{{ rvBusy }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer">Undo the revision</button><span style="font-size:12px;color:var(--fg-muted)">Puts back the text the readers heard.</span></div></sc-if>
+                <sc-if value="{{ rv.hasFixes }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Fixes</span><span style="font-size:12px;color:var(--fg-muted)">{{ rv.fixHint }}</span></div><sc-for list="{{ rv.fixes }}" as="fx" hint-placeholder-count="2"><div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);background:var(--c-white);opacity:{{ fx.opacity }}"><button role="checkbox" aria-checked="{{ fx.checked }}" aria-label="{{ fx.boxLabel }}" onClick="{{ fx.onToggle }}" disabled="{{ fx.noToggle }}" style="flex-shrink:0;width:20px;height:20px;margin-top:1px;border-radius:5px;border:2px solid {{ fx.boxBorder }};background:{{ fx.boxBg }};display:flex;align-items:center;justify-content:center;cursor:{{ fx.boxCursor }};padding:0"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ fx.tickOpacity }}"><path d="M20 6 9 17l-5-5"></path></svg></button><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><b style="font-size:13px;color:var(--c-navy)">{{ fx.label }}</b><span title="{{ fx.sourceTitle }}" style="font-size:12px;color:var(--fg-muted)">{{ fx.source }}</span><sc-if value="{{ fx.status }}" hint-placeholder-val="{{ null }}"><span style="font-size:12px;font-weight:700;color:{{ fx.statusColor }}">{{ fx.status }}</span></sc-if></div><sc-if value="{{ fx.editing }}" hint-placeholder-val="{{ false }}"><textarea value="{{ fx.draft }}" onChange="{{ fx.onNote }}" rows="3" aria-label="Instruction for this fix" style="width:100%;padding:8px 10px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:13px;line-height:1.5;color:var(--fg-default);background:var(--c-grey-50);outline:none;resize:vertical"></textarea></sc-if><sc-if value="{{ fx.notEditing }}" hint-placeholder-val="{{ true }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy);white-space:pre-wrap">{{ fx.note }}<sc-if value="{{ fx.edited }}" hint-placeholder-val="{{ false }}"><span style="color:var(--fg-muted);font-size:12px">  (edited)</span></sc-if></div></sc-if><sc-if value="{{ fx.hand }}" hint-placeholder-val="{{ null }}"><div style="font-size:12px;color:#8A6A00">{{ fx.hand }}</div></sc-if><div style="display:flex;gap:14px;flex-wrap:wrap"><sc-if value="{{ fx.canEdit }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fx.onEdit }}" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer">{{ fx.editLabel }}</button></sc-if><sc-if value="{{ fx.canReset }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fx.onReset }}" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer">Use the suggestion</button></sc-if><sc-if value="{{ fx.canUndo }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fx.onUndo }}" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer">Undo this fix</button></sc-if><sc-if value="{{ fx.canRemove }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fx.onRemove }}" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer">Remove</button></sc-if><sc-if value="{{ fx.canJump }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fx.onJump }}" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer">Jump to it</button></sc-if></div></div></div></sc-for></div></sc-if><sc-if value="{{ rv.addClosed }}" hint-placeholder-val="{{ false }}"><button onClick="{{ rv.onAddOpen }}" style="align-self:flex-start;background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer;font-size:13px">+ Add your own fix</button></sc-if><sc-if value="{{ rv.addOpen }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px dashed rgba(95,103,185,0.5);border-radius:var(--radius-sm);background:var(--c-white)"><div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Your own fix</div><select value="{{ rv.addSection }}" onChange="{{ rv.onAddSection }}" aria-label="Section to change" style="padding:8px 10px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:13px;background:var(--c-white);color:var(--fg-default);outline:none"><option value="">Which section?</option><sc-for list="{{ rv.addOptions }}" as="o"><option value="{{ o.id }}">{{ o.label }}</option></sc-for></select><textarea value="{{ rv.addNote }}" onChange="{{ rv.onAddNote }}" rows="2" aria-label="What should change" placeholder="What should change? e.g. Name the insurer and say how much faster claims got." style="width:100%;padding:8px 10px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:13px;line-height:1.5;color:var(--fg-default);background:var(--c-grey-50);outline:none;resize:vertical"></textarea><div style="display:flex;gap:8px"><button onClick="{{ rv.onAddFix }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--c-violet);border:1px solid var(--c-violet);color:#fff;font-size:12px;font-weight:700;cursor:pointer">Add fix</button><button onClick="{{ rv.onAddCancel }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer">Cancel</button></div></div></sc-if>
+                <sc-if value="{{ rv.canRevise }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onRevise }}" disabled="{{ rv.reviseOff }}" style="align-self:flex-start;padding:10px 16px;border-radius:var(--radius-sm);background:var(--c-violet);border:1px solid var(--c-violet);color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ rv.reviseOpacity }}">{{ rv.reviseLabel }}</button></sc-if>
+                <sc-if value="{{ rv.canUndo }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><button onClick="{{ onUndoRevise }}" disabled="{{ rvBusy }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer">Undo all fixes</button><span style="font-size:12px;color:var(--fg-muted)">Puts back the text the readers heard.</span></div></sc-if>
               </div>
             </sc-if>
       </section>
@@ -1498,7 +1498,7 @@
                 <sc-if value="{{ sdRv.intended }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;color:var(--fg-muted)"><b style="color:var(--c-navy)">The message you meant:</b> {{ sdRv.intended }}</div></sc-if>
                 <div style="font-size:14px;line-height:1.55;color:var(--c-navy);white-space:pre-wrap">{{ sdRv.plan }}</div>
                 <sc-if value="{{ sdRv.hasSteps }}" hint-placeholder-val="{{ false }}"><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:4px;font-size:13px;line-height:1.5;color:var(--c-navy)"><sc-for list="{{ sdRv.steps }}" as="st" hint-placeholder-count="2"><li>{{ st.text }}</li></sc-for></ol></sc-if>
-                <sc-if value="{{ sdRv.hasChanges }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Sections to change</div><sc-for list="{{ sdRv.changes }}" as="ch" hint-placeholder-count="2"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>{{ ch.label }}:</b> {{ ch.change }}</div></sc-for></div></sc-if>
+                <sc-if value="{{ sdRv.hasFixes }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Fixes</span><span style="font-size:12px;color:var(--fg-muted)">{{ sdRv.fixHint }}</span></div><sc-for list="{{ sdRv.fixes }}" as="fx" hint-placeholder-count="2"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><span style="font-weight:700;color:{{ fx.roColor }}">{{ fx.roMark }}</span><b>{{ fx.label }}:</b> {{ fx.note }}<span style="color:var(--fg-muted)">{{ fx.roSource }}</span></div></sc-for></div></sc-if>
               </div>
             </sc-if>
             </div>
@@ -1860,7 +1860,7 @@
               <sc-if value="{{ rv.intended }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;color:var(--fg-muted)"><b style="color:var(--c-navy)">The message you meant:</b> {{ rv.intended }}</div></sc-if>
               <div style="font-size:15px;line-height:1.6;color:var(--c-navy);white-space:pre-wrap">{{ rv.plan }}</div>
               <sc-if value="{{ rv.hasSteps }}" hint-placeholder-val="{{ false }}"><ol style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px;line-height:1.5;color:var(--c-navy)"><sc-for list="{{ rv.steps }}" as="st" hint-placeholder-count="2"><li>{{ st.text }}</li></sc-for></ol></sc-if>
-              <sc-if value="{{ rv.hasChanges }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:6px"><div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Sections to change</div><sc-for list="{{ rv.changes }}" as="ch" hint-placeholder-count="2"><div style="font-size:14px;line-height:1.5;color:var(--c-navy)"><b>{{ ch.label }}:</b> {{ ch.change }}</div></sc-for></div></sc-if>
+              <sc-if value="{{ rv.hasFixes }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:8px"><div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap"><span style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Fixes</span><span style="font-size:12px;color:var(--fg-muted)">{{ rv.fixHint }}</span></div><sc-for list="{{ rv.fixes }}" as="fx" hint-placeholder-count="2"><div style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);background:var(--c-white);opacity:{{ fx.opacity }}"><button role="checkbox" aria-checked="{{ fx.checked }}" aria-label="{{ fx.boxLabel }}" onClick="{{ fx.onToggle }}" disabled="{{ fx.noToggle }}" style="flex-shrink:0;width:20px;height:20px;margin-top:1px;border-radius:5px;border:2px solid {{ fx.boxBorder }};background:{{ fx.boxBg }};display:flex;align-items:center;justify-content:center;cursor:{{ fx.boxCursor }};padding:0"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:{{ fx.tickOpacity }}"><path d="M20 6 9 17l-5-5"></path></svg></button><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><div style="display:flex;align-items:baseline;gap:8px;flex-wrap:wrap"><b style="font-size:14px;color:var(--c-navy)">{{ fx.label }}</b><span title="{{ fx.sourceTitle }}" style="font-size:12px;color:var(--fg-muted)">{{ fx.source }}</span><sc-if value="{{ fx.status }}" hint-placeholder-val="{{ null }}"><span style="font-size:12px;font-weight:700;color:{{ fx.statusColor }}">{{ fx.status }}</span></sc-if></div><sc-if value="{{ fx.editing }}" hint-placeholder-val="{{ false }}"><textarea value="{{ fx.draft }}" onChange="{{ fx.onNote }}" rows="3" aria-label="Instruction for this fix" style="width:100%;padding:8px 10px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:13px;line-height:1.5;color:var(--fg-default);background:var(--c-grey-50);outline:none;resize:vertical"></textarea></sc-if><sc-if value="{{ fx.notEditing }}" hint-placeholder-val="{{ true }}"><div style="font-size:14px;line-height:1.5;color:var(--c-navy);white-space:pre-wrap">{{ fx.note }}<sc-if value="{{ fx.edited }}" hint-placeholder-val="{{ false }}"><span style="color:var(--fg-muted);font-size:12px">  (edited)</span></sc-if></div></sc-if><sc-if value="{{ fx.hand }}" hint-placeholder-val="{{ null }}"><div style="font-size:12px;color:#8A6A00">{{ fx.hand }}</div></sc-if><div style="display:flex;gap:14px;flex-wrap:wrap"><sc-if value="{{ fx.canEdit }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fx.onEdit }}" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer">{{ fx.editLabel }}</button></sc-if><sc-if value="{{ fx.canReset }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fx.onReset }}" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer">Use the suggestion</button></sc-if><sc-if value="{{ fx.canUndo }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fx.onUndo }}" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer">Undo this fix</button></sc-if><sc-if value="{{ fx.canRemove }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fx.onRemove }}" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer">Remove</button></sc-if><sc-if value="{{ fx.canJump }}" hint-placeholder-val="{{ false }}"><button onClick="{{ fx.onJump }}" style="background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer">Jump to it</button></sc-if></div></div></div></sc-for></div></sc-if><sc-if value="{{ rv.addClosed }}" hint-placeholder-val="{{ false }}"><button onClick="{{ rv.onAddOpen }}" style="align-self:flex-start;background:none;border:none;padding:0;font-size:12px;font-weight:600;color:var(--c-violet);cursor:pointer;font-size:13px">+ Add your own fix</button></sc-if><sc-if value="{{ rv.addOpen }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:8px;padding:10px 12px;border:1px dashed rgba(95,103,185,0.5);border-radius:var(--radius-sm);background:var(--c-white)"><div style="font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--fg-muted)">Your own fix</div><select value="{{ rv.addSection }}" onChange="{{ rv.onAddSection }}" aria-label="Section to change" style="padding:8px 10px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:13px;background:var(--c-white);color:var(--fg-default);outline:none"><option value="">Which section?</option><sc-for list="{{ rv.addOptions }}" as="o"><option value="{{ o.id }}">{{ o.label }}</option></sc-for></select><textarea value="{{ rv.addNote }}" onChange="{{ rv.onAddNote }}" rows="2" aria-label="What should change" placeholder="What should change? e.g. Name the insurer and say how much faster claims got." style="width:100%;padding:8px 10px;border:1px solid var(--border-hairline);border-radius:var(--radius-sm);font-size:13px;line-height:1.5;color:var(--fg-default);background:var(--c-grey-50);outline:none;resize:vertical"></textarea><div style="display:flex;gap:8px"><button onClick="{{ rv.onAddFix }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--c-violet);border:1px solid var(--c-violet);color:#fff;font-size:12px;font-weight:700;cursor:pointer">Add fix</button><button onClick="{{ rv.onAddCancel }}" style="padding:8px 14px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer">Cancel</button></div></div></sc-if>
             </sc-if>
           </div>
           <div style="flex:1.3 1 380px;padding:18px 20px;background:var(--c-grey-50)">
@@ -1878,7 +1878,7 @@
           <span><sc-if value="{{ walkPrevShow }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onWalkPrev }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:9px 14px;font-size:13px">← Back</button></sc-if></span>
           <span style="display:flex;gap:8px;flex-wrap:wrap">
             <sc-if value="{{ walkReader }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onWalkNext }}" style="padding:9px 16px;border-radius:var(--radius-sm);background:var(--c-emerald);border:1px solid var(--c-emerald);color:#fff;font-size:13px;font-weight:700;cursor:pointer">{{ walkNextLabel }}</button></sc-if>
-            <sc-if value="{{ walkCanRevise }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onWalkRevise }}" style="padding:9px 16px;border-radius:var(--radius-sm);background:var(--c-violet);border:1px solid var(--c-violet);color:#fff;font-size:13px;font-weight:700;cursor:pointer">Revise the script this way</button></sc-if>
+            <sc-if value="{{ walkCanRevise }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onWalkRevise }}" style="padding:9px 16px;border-radius:var(--radius-sm);background:var(--c-violet);border:1px solid var(--c-violet);color:#fff;font-size:13px;font-weight:700;cursor:pointer" disabled="{{ rv.reviseOff }}">{{ rv.reviseLabel }}</button></sc-if>
             <sc-if value="{{ walkSum }}" hint-placeholder-val="{{ false }}"><button onClick="{{ onWalkClose }}" style="padding:7px 12px;border-radius:var(--radius-sm);background:var(--c-white);border:1px solid var(--border-hairline);color:var(--c-navy);font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;padding:9px 16px;font-size:13px">Done</button></sc-if>
           </span>
         </div>
@@ -3811,8 +3811,8 @@ class Component extends DCLogic {
       +'2. "verdicts": for each reader (use the id before the colon), whether their takeaway matches it: "got", "partly" or "missed", with one short reason.\n'
       +'3. "nextSteps": 2 or 3 concrete next steps, most important first, each pointing at a line or section. When several readers point at the same line or problem, that agreement is the strongest signal: say it once, with how many noticed, rather than repeating it. Use each reader’s own question and answer for the rest.\n'
       +'4. "plan": one short paragraph recommending how to change the script.\n'
-      +'5. "changes": the sections that should change (section ids from the brackets; at most 4; only where the feedback justifies it), each with a specific instruction a scriptwriter can follow. Keep what works; don’t rewrite for its own sake. If the script already works, return an empty list and say so in the plan.\n\n'
-      +'Return JSON only: {"intended": "", "verdicts": [{"id": "", "verdict": "got|partly|missed", "why": ""}], "nextSteps": [""], "plan": "", "changes": [{"section": "", "change": ""}]}';
+      +'5. "changes": the sections that should change (section ids from the brackets; at most 4; only where the feedback justifies it), each with a specific instruction a scriptwriter can follow, and "by": the ids of the readers whose feedback it answers. Keep what works; don’t rewrite for its own sake. If the script already works, return an empty list and say so in the plan.\n\n'
+      +'Return JSON only: {"intended": "", "verdicts": [{"id": "", "verdict": "got|partly|missed", "why": ""}], "nextSteps": [""], "plan": "", "changes": [{"section": "", "change": "", "by": [""]}]}';
   }
   assemblePodReviewSummaryPrompt(readers, plan){
     return 'You are a '+this.brandAdj()+' podcast producer reviewing listener feedback on a draft episode plan, to decide how to take it forward.\n\n'+this.POD_RULES+'\n\n'
@@ -3822,8 +3822,8 @@ class Component extends DCLogic {
       +'2. "verdicts": for each listener (use the id before the colon), whether what they expect to take away matches it: "got", "partly" or "missed", with one short reason.\n'
       +'3. "nextSteps": 2 or 3 concrete next steps, most important first, each pointing at a hook, topic or question. When several listeners point at the same topic or question, that agreement is the strongest signal: say it once, with how many noticed. Favor changes to what gets asked: a sharper or more honest question, a follow-up that draws out proof or a story, a topic swapped for one listeners actually wonder about. Never suggest scripting the answers or polishing the bullets.\n'
       +'4. "plan": one short paragraph recommending how to change the episode plan, including which hook to lead with.\n'
-      +'5. "changes": the parts that should change (part ids from the brackets; at most 4; only where the feedback justifies it), each with a specific instruction a producer can follow. Keep what works; don’t rewrite for its own sake. If the plan already works, return an empty list and say so in the plan.\n\n'
-      +'Return JSON only: {"intended": "", "verdicts": [{"id": "", "verdict": "got|partly|missed", "why": ""}], "nextSteps": [""], "plan": "", "changes": [{"section": "", "change": ""}]}';
+      +'5. "changes": the parts that should change (part ids from the brackets; at most 4; only where the feedback justifies it), each with a specific instruction a producer can follow, and "by": the ids of the listeners whose feedback it answers. Keep what works; don’t rewrite for its own sake. If the plan already works, return an empty list and say so in the plan.\n\n'
+      +'Return JSON only: {"intended": "", "verdicts": [{"id": "", "verdict": "got|partly|missed", "why": ""}], "nextSteps": [""], "plan": "", "changes": [{"section": "", "change": "", "by": [""]}]}';
   }
   async runReview(){
     const st=this.state; if(st.reviewBusy) return;
@@ -3847,35 +3847,112 @@ class Component extends DCLogic {
     if(!this.stillOn(pid)) return;
     const verdicts={}; (Array.isArray(sum.verdicts)?sum.verdicts:[]).forEach(v=>{ if(v && v.id) verdicts[v.id]={verdict:['got','partly','missed'].includes(v.verdict)?v.verdict:'', why:txt(v.why,300)}; });
     const ids=(this.state.sections||[]).map(x=>x.id);
-    const changes=(Array.isArray(sum.changes)?sum.changes:[]).filter(c=>c && ids.includes(c.section) && String(c.change||'').trim()).slice(0,4).map(c=>({section:c.section, change:txt(c.change,600)}));
+    const changes=(Array.isArray(sum.changes)?sum.changes:[]).filter(c=>c && ids.includes(c.section) && String(c.change||'').trim()).slice(0,4).map(c=>({section:c.section, change:txt(c.change,600), by:(Array.isArray(c.by)?c.by:[]).map(String).filter(id=>ok.some(r=>r.id===id)).slice(0,3)}));
     const review={at:Date.now(), srcKey:key, readers:out.map(r=>({...r, verdict:(verdicts[r.id]||{}).verdict||'', why:(verdicts[r.id]||{}).why||''})), intended:txt(sum.intended,400),
       nextSteps:(Array.isArray(sum.nextSteps)?sum.nextSteps:[]).map(x=>txt(x,400)).filter(Boolean).slice(0,3), plan:sumFailed?'The summary didn’t come back, so there is no recommendation this time. The readers’ reactions are below.':txt(sum.plan,1500), changes};
     this.setState({review, reviewBusy:null, rvOpen:{}}, ()=>this.persist());
     if(this.state.view==='workspace') this.openWalk(0);
   }
-  // Rewrites only the sections the summary named, each with its instruction. The previous text is one click away.
+  // The fix list is the summary's changes plus any the requester adds. Ticked fixes are revised, a section at a time
+  // (several fixes on one section go in one rewrite); each revised fix keeps the text it replaced, so it can be undone.
+  reviewStale(rv, sections, typeId){ if(!rv || !rv.srcKey) return false; const k=this.reviewSrcKeyOf(sections, typeId); return rv.srcKey!==k && rv.revisedKey!==k; }
+  fixOn(c){ return !!c && c.on!==false; }
+  fixNote(c){ return String((c && c.note!=null)?c.note:((c && c.change)||'')).trim(); }
+  setFixes(fn){ const rv=this.state.review; if(!rv) return; this.setState({review:{...rv, changes:fn((rv.changes||[]).map(c=>({...c})))}}, ()=>this.persist()); }
+  toggleFix(i){ this.setFixes(cs=>{ if(cs[i]) cs[i].on=!this.fixOn(cs[i]); return cs; }); }
+  editFixNote(i, v){ this.setFixes(cs=>{ if(cs[i]) cs[i].note=String(v); return cs; }); }
+  resetFixNote(i){ this.setFixes(cs=>{ if(cs[i]) delete cs[i].note; return cs; }); this.setState({rvEditFix:null}); }
+  removeFix(i){ this.setFixes(cs=>{ cs.splice(i,1); return cs; }); this.setState({rvEditFix:null}); }
+  addOwnFix(){
+    const st=this.state; const sec=st.rvAddSection||''; const note=String(st.rvAddNote||'').trim();
+    if(!sec || !note){ this.showToast('Pick a section and say what should change.'); return; }
+    if(((st.review||{}).changes||[]).length>=12){ this.showToast('That’s plenty of fixes for one round. Revise some first.'); return; }
+    this.setFixes(cs=>cs.concat([{section:sec, change:note, custom:true, on:true, by:[]}]));
+    this.setState({rvAddOpen:false, rvAddNote:'', rvAddSection:''});
+  }
+  jumpToSection(id){
+    if(this.state.rvWalk!=null) this.closeWalk();
+    if(typeof document==='undefined' || typeof setTimeout!=='function') return;
+    setTimeout(()=>{ const el=document.querySelector('[data-sec="'+id+'"]'); if(el && el.scrollIntoView) el.scrollIntoView({behavior:'smooth', block:'center'}); }, 80);
+    this.setState({flashSec:id}); clearTimeout(this._flashT); this._flashT=setTimeout(()=>this.setState({flashSec:null}), 1800);
+  }
   async reviseFromReview(){
-    const rv=this.state.review; if(!rv || !(rv.changes||[]).length || this.state.reviewBusy) return;
-    const targets=rv.changes.map(c=>({c, idx:this.state.sections.findIndex(x=>x.id===c.section)})).filter(x=>x.idx>=0);
-    const locked=targets.filter(x=>this.state.sections[x.idx].locked), todo=targets.filter(x=>!this.state.sections[x.idx].locked);
-    if(!todo.length){ this.showToast('The sections to change are locked. Unlock them first.'); return; }
-    const hand=todo.filter(x=>this.state.sections[x.idx].handEdited);
-    if(hand.length && !this._reviseOk){ this.askConfirm('Rewrite sections you edited?', 'This rewrites '+hand.map(x=>this.state.sections[x.idx].label).join(', ')+', which you changed by hand. You can undo it right after.', 'Revise', ()=>{ this._reviseOk=true; this.reviseFromReview().finally(()=>{ this._reviseOk=false; }); }); return; }
+    const rv=this.state.review; if(!rv || this.state.reviewBusy) return;
+    const secs=this.state.sections; const groups={};
+    (rv.changes||[]).forEach((c,i)=>{ if(!this.fixOn(c) || c.state==='done' || !this.fixNote(c)) return; const idx=secs.findIndex(x=>x.id===c.section); if(idx<0) return;
+      const g=groups[c.section]||(groups[c.section]={idx, notes:[], is:[]}); g.notes.push(this.fixNote(c)); g.is.push(i); });
+    const all=Object.values(groups); const locked=all.filter(g=>secs[g.idx].locked), todo=all.filter(g=>!secs[g.idx].locked);
+    if(!all.length){ this.showToast('Tick at least one fix to revise.'); return; }
+    if(!todo.length){ this.showToast('The sections you ticked are locked. Unlock them first.'); return; }
+    const hand=todo.filter(g=>secs[g.idx].handEdited);
+    if(hand.length && !this._reviseOk){ this.askConfirm('Rewrite sections you edited?', 'This rewrites '+hand.map(g=>secs[g.idx].label).join(', ')+', which you changed by hand. You can undo it right after.', 'Revise', ()=>{ this._reviseOk=true; this.reviseFromReview().finally(()=>{ this._reviseOk=false; }); }); return; }
     if(!this.requireProvider()) return;
-    const before=this.state.sections.map(x=>({id:x.id, text:x.text, handEdited:!!x.handEdited, editedBy:x.editedBy||''})); const pid=this.state.projectId;
+    const snap=secs.map(x=>({id:x.id, text:x.text||'', handEdited:!!x.handEdited, editedBy:x.editedBy||''})); const pid=this.state.projectId;
     if(this.canShare()) this.saveVersion('beforeRevise');
-    this.setState({reviewBusy:'revise'});
-    await Promise.all(todo.map(x=>this.regenSection(x.idx, x.c.change)));
+    this.setState({reviewBusy:'revise', rvEditFix:null});
+    await Promise.all(todo.map(g=>this.regenSection(g.idx, g.notes.length>1?g.notes.map(n=>'- '+n).join('\n'):g.notes[0])));
     if(!this.stillOn(pid)) return;
-    // The text before the revision stays with the review, so it can be undone until the next review.
-    this.setState({reviewBusy:null, review:{...this.state.review, revisedAt:Date.now(), before}}, ()=>this.persist());
-    this.showToast('Revised '+todo.length+' section'+(todo.length===1?'':'s')+(locked.length?(' (skipped '+locked.length+' locked)'):'')+'. Get fresh feedback to see how it lands.', {label:'Undo', fn:()=>this.undoRevise(pid)});
+    const was={}; snap.forEach(b=>{ was[b.id]=b; });
+    const now=this.state.sections; const cur=this.state.review||rv; const changes=(cur.changes||[]).map(c=>({...c})); const at=Date.now(); const rn=(cur.rounds||0)+1; const did=[];
+    todo.forEach(g=>{ const id=secs[g.idx].id; const after=(now.find(x=>x.id===id)||{}).text; if(after==null || after===was[id].text) return;
+      did.push(id); g.is.forEach(i=>{ if(changes[i]) Object.assign(changes[i], {state:'done', doneAt:at, round:rn, prev:was[id]}); }); });
+    const review={...cur, changes, rounds:did.length?rn:(cur.rounds||0), revisedAt:did.length?at:(cur.revisedAt||0), before:cur.before||(did.length?snap:null), revisedKey:this.reviewSrcKeyOf(now, this.state.selectedTypeId)};
+    this.setState({reviewBusy:null, review}, ()=>this.persist());
+    if(!did.length){ this.showToast('Those sections came back unchanged. Try again, or edit the instructions.'); return; }
+    const round=changes.map((c,i)=>(c.state==='done' && c.round===rn)?i:-1).filter(i=>i>=0);
+    this.showToast('Revised '+did.length+' section'+(did.length===1?'':'s')+(locked.length?(' (skipped '+locked.length+' locked)'):'')+'. Get fresh feedback to see how it lands.', {label:'Undo', fn:()=>this.undoFixes(round, pid)});
+  }
+  // Undoing a fix puts its section back as it was before that fix, along with any later fix to the same section.
+  undoFixes(is, pid){
+    if(pid && !this.stillOn(pid)) return; const rv=this.state.review; if(!rv) return;
+    const changes=(rv.changes||[]).map(c=>({...c})); const back={};
+    is.forEach(i=>{ const c=changes[i]; if(!c || c.state!=='done' || !c.prev) return; const b=back[c.section]; if(!b || (c.round||0)<b.round) back[c.section]={round:c.round||0, prev:c.prev}; });
+    if(!Object.keys(back).length) return;
+    changes.forEach(c=>{ const b=back[c.section]; if(b && c.state==='done' && (c.round||0)>=b.round){ delete c.state; delete c.doneAt; delete c.round; delete c.prev; } });
+    const sections=this.state.sections.map(x=>{ const b=back[x.id]; return b?{...x, text:b.prev.text, handEdited:!!b.prev.handEdited, editedBy:b.prev.editedBy||''}:x; });
+    const any=changes.some(c=>c.state==='done');
+    this.setState({sections, review:{...rv, changes, before:any?(rv.before||null):null, revisedAt:any?(rv.revisedAt||0):0, revisedKey:this.reviewSrcKeyOf(sections, this.state.selectedTypeId)}}, ()=>this.persist());
+    const n=Object.keys(back).length; this.showToast('Undone. '+(n===1?'That section is':n+' sections are')+' back to how '+(n===1?'it was':'they were')+'.');
   }
   undoRevise(pid){
     if(pid && !this.stillOn(pid)) return; const rv=this.state.review; if(!rv || !rv.before) return;
     const m={}; rv.before.forEach(b=>{ m[b.id]=b; });
-    this.setState({sections:this.state.sections.map(x=>m[x.id]?{...x, text:m[x.id].text, handEdited:m[x.id].handEdited, editedBy:m[x.id].editedBy}:x), review:{...rv, before:null, revisedAt:0}}, ()=>this.persist());
-    this.showToast('Revision undone. The script is back to how the readers heard it.');
+    const changes=(rv.changes||[]).map(c=>{ const x={...c}; delete x.state; delete x.doneAt; delete x.round; delete x.prev; return x; });
+    this.setState({sections:this.state.sections.map(x=>m[x.id]?{...x, text:m[x.id].text, handEdited:m[x.id].handEdited, editedBy:m[x.id].editedBy}:x), review:{...rv, changes, rounds:0, before:null, revisedAt:0, revisedKey:''}}, ()=>this.persist());
+    this.showToast('All fixes undone. The script is back to how the readers heard it.');
+  }
+  // The fix list as the Script page (edit) and the Studio (read only) show it.
+  fixesVM(rv, sections, stale, edit, label){
+    const st=this.state; const busy=st.reviewBusy; const pod=(sections||[]).some(x=>/^topic\d$/.test(x.id)); const noun=pod?'part':'section';
+    const readers=rv.readers||[];
+    const fixes=(rv.changes||[]).map((c,i)=>{
+      const sec=(sections||[]).find(x=>x.id===c.section); const done=c.state==='done'; const locked=!!(sec && sec.locked); const gone=!sec;
+      const avail=!!edit && !stale && !done && !locked && !gone; const on=this.fixOn(c); const ticked=avail && on;
+      const by=(c.by||[]).map(id=>(readers.find(r=>r.id===id)||{}).label).filter(Boolean);
+      const edited=c.note!=null && this.fixNote(c)!==String(c.change||'').trim(); const editing=avail && st.rvEditFix===i;
+      return { section:c.section, label:label(c.section), note:this.fixNote(c), draft:String(c.note!=null?c.note:(c.change||'')), edited, ticked, done,
+        source:c.custom?'Your own fix':(by.length?('Raised by '+by.length+' reader'+(by.length===1?'':'s')):''), sourceTitle:by.join(', '),
+        checked:(ticked||done)?'true':'false', boxLabel:'Include this fix: '+label(c.section), noToggle:!avail, onToggle:()=>this.toggleFix(i),
+        boxBg:done?'var(--c-emerald)':(ticked?'var(--c-violet)':'var(--c-white)'), boxBorder:done?'var(--c-emerald)':(ticked?'var(--c-violet)':'var(--c-grey-300, #C9CDD6)'), boxCursor:avail?'pointer':'default', tickOpacity:(ticked||done)?'1':'0',
+        status:done?'Revised':(!edit||stale?'':(locked?'Locked. Unlock it to revise.':(gone?'That section is gone.':''))), statusColor:done?'#0B6B3A':'#8A6A00',
+        hand:avail && sec && sec.handEdited?'You edited this section by hand; revising rewrites it.':'',
+        opacity:(done||!edit)?'1':(avail?(on?'1':'0.6'):'0.55'),
+        editing, notEditing:!editing, canEdit:avail, editLabel:editing?'Done editing':'Edit the instruction', onEdit:()=>this.setState({rvEditFix:editing?null:i}), onNote:(e)=>this.editFixNote(i, e.target.value),
+        canReset:avail && edited && !c.custom, onReset:()=>this.resetFixNote(i), canUndo:!!edit && done && !!c.prev, onUndo:()=>this.undoFixes([i]),
+        canRemove:!!edit && !!c.custom && !done, onRemove:()=>this.removeFix(i), canJump:!!edit && !gone, onJump:()=>this.jumpToSection(c.section),
+        roMark:done?'Applied · ':(!on?'Skipped · ':(rv.revisedAt?'Not applied · ':'')), roColor:done?'#0B6B3A':'var(--fg-muted)', roSource:c.custom?' (the requester’s own fix)':(edited?' (instruction edited)':'') };
+    });
+    const avail=fixes.filter(f=>!f.noToggle).length, nOn=fixes.filter(f=>f.ticked).length, nDone=fixes.filter(f=>f.done).length;
+    const n=new Set(fixes.filter(f=>f.ticked).map(f=>f.section)).size; const unt=(rv.changes||[]).filter(c=>!this.fixOn(c) && c.state!=='done').length;
+    const hint=edit?(avail?(nOn+' of '+avail+' ticked'):(nDone && nDone===fixes.length?'All revised':'')):(nDone?('Applied '+nDone+' of '+fixes.length+(rv.revisedAt?(' · '+this.relTime(rv.revisedAt)):'')):(unt?(unt+' unticked'):''));
+    const addOn=!!edit && !stale;
+    return { fixes, hasFixes:!!fixes.length, hasChanges:!!fixes.length, fixHint:hint,
+      reviseN:n, reviseLabel:busy==='revise'?'Revising…':(n?('Revise '+n+' '+noun+(n===1?'':'s')):'Tick a fix to revise'), reviseOff:!!busy || !n, reviseOpacity:(busy || !n)?'0.55':'1',
+      canRevise:!!edit && !stale && avail>0,
+      canAdd:addOn, addOpen:addOn && !!st.rvAddOpen, addClosed:addOn && !st.rvAddOpen, addSection:st.rvAddSection||'', addNote:st.rvAddNote||'',
+      addOptions:(sections||[]).filter(x=>String(x.text||'').trim()).map(x=>({id:x.id, label:x.label})),
+      onAddOpen:()=>this.setState({rvAddOpen:true, rvAddSection:'', rvAddNote:''}), onAddSection:(e)=>this.setState({rvAddSection:e.target.value}), onAddNote:(e)=>this.setState({rvAddNote:e.target.value}),
+      onAddFix:()=>this.addOwnFix(), onAddCancel:()=>this.setState({rvAddOpen:false, rvAddNote:'', rvAddSection:''}) };
   }
   REVIEW_VERDICTS = {got:['#0B6B3A','rgba(30,150,90,0.14)','Got it'], partly:['#8A6A00','rgba(255,200,54,0.24)','Partly'], missed:['#C4471A','rgba(247,105,35,0.14)','Missed it']};
   openWalk(i){ this.setState({rvWalk:i||0}); this.focusInto('[data-walk] [role=dialog]'); }
@@ -3903,7 +3980,7 @@ class Component extends DCLogic {
     const marks=[]; const found={lost:false, false:false};
     if(r){ this.reviewQuotes(r.lost).forEach(q=>marks.push({q, k:'lost', tag:this.isPodcast()?'← would skip ahead here':'← got lost here', bg:'rgba(247,105,35,0.22)', tagColor:'#C4471A'}));
       this.reviewQuotes(r.inauthentic).forEach(q=>marks.push({q, k:'false', tag:'← didn’t ring true', bg:'rgba(255,200,54,0.42)', tagColor:'#7A5C00'})); }
-    const changeIds=onSum?(rv.changes||[]).map(c=>c.section):[];
+    const changeIds=onSum?(rv.changes||[]).filter(c=>this.fixOn(c) && c.state!=='done').map(c=>c.section):[];
     const secs=(st.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>{
       const text=String(x.text); const ranges=[];
       marks.forEach(m=>{ const at=this.locateQuote(text, m.q); if(at && !ranges.some(g=>at[0]<g[1] && at[1]>g[0])){ ranges.push([at[0], at[1], m]); found[m.k]=true; } });
@@ -3919,19 +3996,19 @@ class Component extends DCLogic {
       walkWho:r?(r.who||r.desc||''):'', walkQ:(r && r.question)||null, walkA:(r && r.answer)||null, walkTake:(r && r.takeaway)||null, walkWhy:(r && r.why)||null, walkFailed:!!(r && r.failed),
       walkHasV:!!v, walkVLabel:v?v[2]:'', walkVColor:v?v[0]:'var(--fg-muted)', walkVBg:v?v[1]:'transparent',
       walkLost:(r && r.lost)||null, walkLostLabel:this.isPodcast()?'Would skip ahead:':'Got lost:', walkFalse:(r && r.inauthentic)||null, walkLostNote:found.lost?'  (highlighted in the script)':'', walkFalseNote:found.false?'  (highlighted in the script)':'', walkReact:(r && r.reaction)||null,
-      walkSecs:secs, walkStale:stale, walkRightTitle:(this.isPodcast()?'Your episode plan':'Your script')+(onSum?' · sections to change are marked':' · what this reader flagged is highlighted'),
+      walkSecs:secs, walkStale:stale, walkRightTitle:(this.isPodcast()?'Your episode plan':'Your script')+(onSum?' · ticked fixes are marked':' · what this reader flagged is highlighted'),
       walkPrevShow:idx>0, onWalkPrev:()=>this.setState({rvWalk:idx-1}), walkNextLabel:idx===n-1?'How to take it forward →':'Next reader →', onWalkNext:()=>this.setState({rvWalk:idx+1}),
-      onWalkClose:()=>this.closeWalk(), walkCanRevise:onSum && !stale && !!(rv.changes||[]).length, onWalkRevise:()=>{ this.closeWalk(); this.reviseFromReview(); } };
+      onWalkClose:()=>this.closeWalk(), walkCanRevise:onSum && !this.reviewStale(rv, st.sections, st.selectedTypeId) && (rv.changes||[]).some(c=>c.state!=='done'), onWalkRevise:()=>{ this.closeWalk(); this.reviseFromReview(); } };
   }
   // What both the Script page and the Studio show; `open` says which readers are expanded.
-  reviewVM(rv, sections, typeId, open, setOpen){
-    if(!rv) return {has:false, readers:[], steps:[], changes:[]};
+  reviewVM(rv, sections, typeId, open, setOpen, edit){
+    if(!rv) return {has:false, readers:[], steps:[], changes:[], fixes:[], addOptions:[]};
     const vc=this.REVIEW_VERDICTS; open=open||{};
-    const stale=!!rv.srcKey && rv.srcKey!==this.reviewSrcKeyOf(sections, typeId);
+    const stale=this.reviewStale(rv, sections, typeId);
     const type=this.TYPES.find(t=>t.id===typeId); const label=id=>{ const x=(sections||[]).find(y=>y.id===id); const d=type && type.sections.find(y=>y.id===id); return (x && x.label) || (d && d.label) || id; };
     return { has:true, stale, when:'Read '+this.relTime(rv.at)+(rv.revisedAt?(' · revised '+this.relTime(rv.revisedAt)):''), intended:rv.intended||null, plan:rv.plan||'',
-      steps:(rv.nextSteps||[]).map(t=>({text:t})), hasSteps:!!(rv.nextSteps||[]).length, changes:(rv.changes||[]).map(c=>({label:label(c.section), change:c.change})), hasChanges:!!(rv.changes||[]).length,
-      canRevise:!stale && !!(rv.changes||[]).length, canUndo:!!rv.before,
+      steps:(rv.nextSteps||[]).map(t=>({text:t})), hasSteps:!!(rv.nextSteps||[]).length, ...this.fixesVM(rv, sections, stale, edit, label),
+      canUndo:!!edit && !!rv.before,
       readers:(rv.readers||[]).map((r,i)=>{ const v=vc[r.verdict]; return { lostLabel:(type && type.kind==='podcast')?'Would skip ahead:':'Got lost:', open:!!open[i], expanded:open[i]?'true':'false', toggleLabel:open[i]?'Hide':'Details', onToggle:()=>{ if(setOpen) setOpen(i); }, takeLine:r.takeaway?('“'+r.takeaway+'”'):(r.failed?'Didn’t answer':''), label:r.label, desc:r.who||r.desc, question:r.question||'', answer:r.answer||null, failed:!!r.failed, hasVerdict:!!v, verdictLabel:v?v[2]:'', vColor:v?v[0]:'var(--fg-muted)', vBg:v?v[1]:'transparent', why:r.why||null, takeaway:r.takeaway||null, lost:r.lost||null, inauthentic:r.inauthentic||null, reaction:r.reaction||null }; }) };
   }
 
@@ -4658,7 +4735,7 @@ go();
     const scale=Math.max(max, wc, s.sweet)*1.35 || 1; const longN=this.longSentences(s.text);
     const me=this.me(); const teamEdited=!!s.editedBy && (!me || s.editedBy!==me.email || !this.state.teamEdit);
     return { lockTitle:s.locked?'Unlock this section':'Lock this section so Regenerate all keeps it', editedByTeam:!!s.editedBy, editedNote:s.editedBy?(me&&s.editedBy===me.email?'Edited by you':('Edited by '+this.nameOf(s.editedBy)+(teamEdited?' (video team)':''))):'',
-      id:s.id, label:s.label, coaching:s.coaching, text:s.text||'', onInput:(e)=>this.editSection(i,e.target.value), onToggleLock:()=>this.toggleLock(i), onRegen:()=>this.regenSection(i), locked:!!s.locked, lockColor:s.locked?'#334190':'#6F7480', lockPath:s.locked?'M7 11V7a5 5 0 0 1 10 0v4':'M7 11V7a5 5 0 0 1 9.9-1', regenSpin:s.regenBusy?'animation:vsgspin 0.9s linear infinite':'', wordCount:wc, sweet:s.sweet, bandLabel:min+'–'+max, statusText, statusColor, statusBg, cardBorder:(wc>max)?'rgba(247,105,35,0.35)':'var(--border-hairline)', headBg:s.locked?'rgba(95,103,185,0.05)':'var(--c-white)', fillPct:this.clamp(wc/scale*100,0,100), bandStartPct:this.clamp(min/scale*100,0,100), bandWidthPct:this.clamp((max-min)/scale*100,0,100), sweetPct:this.clamp(s.sweet/scale*100,0,100), minH:this.state.showHeads===false?'0':(max>30?'150px':'96px'), readH:this.state.showHeads===false?(Math.max(2, Math.ceil(String(s.text||'').length/95)+String(s.text||'').split('\n').length-1)*24+30)+'px':'auto', longWarn:longN>0, longLabel:longN+' long sentence'+(longN===1?'':'s') };
+      id:s.id, label:s.label, coaching:s.coaching, text:s.text||'', onInput:(e)=>this.editSection(i,e.target.value), onToggleLock:()=>this.toggleLock(i), onRegen:()=>this.regenSection(i), locked:!!s.locked, lockColor:s.locked?'#334190':'#6F7480', lockPath:s.locked?'M7 11V7a5 5 0 0 1 10 0v4':'M7 11V7a5 5 0 0 1 9.9-1', regenSpin:s.regenBusy?'animation:vsgspin 0.9s linear infinite':'', wordCount:wc, sweet:s.sweet, bandLabel:min+'–'+max, statusText, statusColor, statusBg, cardShadow:this.state.flashSec===s.id?'0 0 0 3px rgba(95,103,185,0.55), var(--shadow-1)':'var(--shadow-1)', cardBorder:this.state.flashSec===s.id?'var(--c-violet)':((wc>max)?'rgba(247,105,35,0.35)':'var(--border-hairline)'), headBg:s.locked?'rgba(95,103,185,0.05)':'var(--c-white)', fillPct:this.clamp(wc/scale*100,0,100), bandStartPct:this.clamp(min/scale*100,0,100), bandWidthPct:this.clamp((max-min)/scale*100,0,100), sweetPct:this.clamp(s.sweet/scale*100,0,100), minH:this.state.showHeads===false?'0':(max>30?'150px':'96px'), readH:this.state.showHeads===false?(Math.max(2, Math.ceil(String(s.text||'').length/95)+String(s.text||'').split('\n').length-1)*24+30)+'px':'auto', longWarn:longN>0, longLabel:longN+' long sentence'+(longN===1?'':'s') };
   }
   sceneVM(sc,i,cov){
     const reg=this.REGISTERS[sc.tonal_register]||this.REGISTERS.momentum; const imp=this.IMPACTS[sc.impact]||this.IMPACTS.general;
@@ -4930,7 +5007,7 @@ go();
       isIntake:st.view==='intake', isQuestions:st.view==='questions', isTypeStep:st.view==='type', isWorkspace:st.view==='workspace', isScenes:st.view==='scenes', isShots:st.view==='shots',
       settingsOpen:st.settingsOpen, toast:st.toast, showCoaching, showCoachingNow:showCoaching && st.showHeads!==false,
       ...(()=>{ const pick=st.reviewPick||[]; const busy=st.reviewBusy;
-        return { rv:this.reviewVM(st.review, st.sections, st.selectedTypeId, st.rvOpen, i=>this.setState({rvOpen:{...(this.state.rvOpen||{}), [i]:!(this.state.rvOpen||{})[i]}})), onOpenWalk:()=>this.openWalk(0), ...this.walkVals(), rvBusy:!!busy, rvBtnOpacity:busy?'0.6':'1', rvError:st.reviewError||null,
+        return { rv:this.reviewVM(st.review, st.sections, st.selectedTypeId, st.rvOpen, i=>this.setState({rvOpen:{...(this.state.rvOpen||{}), [i]:!(this.state.rvOpen||{})[i]}}), true), onOpenWalk:()=>this.openWalk(0), ...this.walkVals(), rvBusy:!!busy, rvBtnOpacity:busy?'0.6':'1', rvError:st.reviewError||null,
           rvBusyText:{readers:'Your readers are listening to the script…', summary:'Pulling their feedback together…', revise:'Revising the sections…'}[busy]||'',
           rvBtnLabel:busy==='readers'?'Readers are listening…':(busy==='summary'?'Summing up…':(busy==='revise'?'Revising…':(st.review?'Get fresh feedback':'Get audience feedback'))),
           rvReviseLabel:busy==='revise'?'Revising…':'Revise the script this way', onRunReview:()=>this.runReview(), onRevise:()=>this.reviseFromReview(), onUndoRevise:()=>this.undoRevise(),
