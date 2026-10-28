@@ -728,8 +728,8 @@
                       <sc-if value="{{ r.answer }}" hint-placeholder-val="{{ null }}"><div style="padding:8px 10px;border-radius:var(--radius-sm);background:rgba(95,103,185,0.06);border-left:3px solid var(--c-violet)"><div style="font-size:12px;font-weight:700;color:var(--c-violet);line-height:1.4">{{ r.question }}</div><div style="margin-top:3px;font-size:13px;line-height:1.5;color:var(--c-navy);white-space:pre-wrap">{{ r.answer }}</div></div></sc-if>
                       <sc-if value="{{ r.takeaway }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Took away:</b> “{{ r.takeaway }}”</div></sc-if>
                       <sc-if value="{{ r.why }}" hint-placeholder-val="{{ null }}"><div style="font-size:12px;line-height:1.45;color:{{ r.vColor }}">{{ r.why }}</div></sc-if>
-                      <sc-if value="{{ r.lost }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>{{ r.lostLabel }}</b> {{ r.lost }}</div></sc-if>
-                      <sc-if value="{{ r.inauthentic }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Didn’t ring true:</b> {{ r.inauthentic }}</div></sc-if>
+                      <sc-if value="{{ r.lost }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>{{ r.lostLabel }}</b> {{ r.lost }}<sc-if value="{{ r.lostSame }}" hint-placeholder-val="{{ null }}"><span style="color:var(--fg-muted);font-size:12px">  {{ r.lostSame }}</span></sc-if></div></sc-if>
+                      <sc-if value="{{ r.inauthentic }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>{{ r.falseLabel }}</b> {{ r.inauthentic }}<sc-if value="{{ r.falseSame }}" hint-placeholder-val="{{ null }}"><span style="color:var(--fg-muted);font-size:12px">  {{ r.falseSame }}</span></sc-if></div></sc-if>
                       <sc-if value="{{ r.reaction }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.55;color:var(--fg-default);font-style:italic;white-space:pre-wrap">{{ r.reaction }}</div></sc-if>
                     </div>
                     </sc-if>
@@ -1485,8 +1485,8 @@
                       <sc-if value="{{ r.answer }}" hint-placeholder-val="{{ null }}"><div style="padding:8px 10px;border-radius:var(--radius-sm);background:rgba(95,103,185,0.06);border-left:3px solid var(--c-violet)"><div style="font-size:12px;font-weight:700;color:var(--c-violet);line-height:1.4">{{ r.question }}</div><div style="margin-top:3px;font-size:13px;line-height:1.5;color:var(--c-navy);white-space:pre-wrap">{{ r.answer }}</div></div></sc-if>
                       <sc-if value="{{ r.takeaway }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Took away:</b> “{{ r.takeaway }}”</div></sc-if>
                       <sc-if value="{{ r.why }}" hint-placeholder-val="{{ null }}"><div style="font-size:12px;line-height:1.45;color:{{ r.vColor }}">{{ r.why }}</div></sc-if>
-                      <sc-if value="{{ r.lost }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>{{ r.lostLabel }}</b> {{ r.lost }}</div></sc-if>
-                      <sc-if value="{{ r.inauthentic }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>Didn’t ring true:</b> {{ r.inauthentic }}</div></sc-if>
+                      <sc-if value="{{ r.lost }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>{{ r.lostLabel }}</b> {{ r.lost }}<sc-if value="{{ r.lostSame }}" hint-placeholder-val="{{ null }}"><span style="color:var(--fg-muted);font-size:12px">  {{ r.lostSame }}</span></sc-if></div></sc-if>
+                      <sc-if value="{{ r.inauthentic }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.5;color:var(--c-navy)"><b>{{ r.falseLabel }}</b> {{ r.inauthentic }}<sc-if value="{{ r.falseSame }}" hint-placeholder-val="{{ null }}"><span style="color:var(--fg-muted);font-size:12px">  {{ r.falseSame }}</span></sc-if></div></sc-if>
                       <sc-if value="{{ r.reaction }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.55;color:var(--fg-default);font-style:italic;white-space:pre-wrap">{{ r.reaction }}</div></sc-if>
                     </div>
                     </sc-if>
@@ -1852,8 +1852,8 @@
               <sc-if value="{{ walkA }}" hint-placeholder-val="{{ null }}"><div style="padding:10px 12px;border-radius:var(--radius-sm);background:rgba(95,103,185,0.06);border-left:3px solid var(--c-violet)"><div style="font-size:13px;font-weight:700;color:var(--c-violet);line-height:1.4">{{ walkQ }}</div><div style="margin-top:4px;font-size:14px;line-height:1.55;color:var(--c-navy);white-space:pre-wrap">{{ walkA }}</div></div></sc-if>
               <sc-if value="{{ walkTake }}" hint-placeholder-val="{{ null }}"><div style="font-size:14px;line-height:1.55;color:var(--c-navy)"><b>Took away:</b> “{{ walkTake }}”</div></sc-if>
               <sc-if value="{{ walkWhy }}" hint-placeholder-val="{{ null }}"><div style="font-size:13px;line-height:1.45;color:{{ walkVColor }}">{{ walkWhy }}</div></sc-if>
-              <sc-if value="{{ walkLost }}" hint-placeholder-val="{{ null }}"><div style="font-size:14px;line-height:1.55;color:var(--c-navy);padding-left:10px;border-left:3px solid rgba(247,105,35,0.6)"><b>{{ walkLostLabel }}</b> {{ walkLost }}<span style="color:var(--fg-muted)">{{ walkLostNote }}</span></div></sc-if>
-              <sc-if value="{{ walkFalse }}" hint-placeholder-val="{{ null }}"><div style="font-size:14px;line-height:1.55;color:var(--c-navy);padding-left:10px;border-left:3px solid rgba(214,160,0,0.75)"><b>Didn’t ring true:</b> {{ walkFalse }}<span style="color:var(--fg-muted)">{{ walkFalseNote }}</span></div></sc-if>
+              <sc-if value="{{ walkLost }}" hint-placeholder-val="{{ null }}"><div style="font-size:14px;line-height:1.55;color:var(--c-navy);padding-left:10px;border-left:3px solid rgba(247,105,35,0.6)"><b>{{ walkLostLabel }}</b> {{ walkLost }}<span style="color:var(--fg-muted)">{{ walkLostNote }}{{ walkLostSame }}</span></div></sc-if>
+              <sc-if value="{{ walkFalse }}" hint-placeholder-val="{{ null }}"><div style="font-size:14px;line-height:1.55;color:var(--c-navy);padding-left:10px;border-left:3px solid rgba(214,160,0,0.75)"><b>{{ walkFalseLabel }}</b> {{ walkFalse }}<span style="color:var(--fg-muted)">{{ walkFalseNote }}{{ walkFalseSame }}</span></div></sc-if>
               <sc-if value="{{ walkReact }}" hint-placeholder-val="{{ null }}"><div style="font-size:14px;line-height:1.6;color:var(--fg-default);font-style:italic;white-space:pre-wrap">{{ walkReact }}</div></sc-if>
             </sc-if>
             <sc-if value="{{ walkSum }}" hint-placeholder-val="{{ false }}">
@@ -3763,6 +3763,18 @@ class Component extends DCLogic {
     {id:'partner', label:'The partner', who:'Someone at a partner firm who would retell this story to your own clients.', cares:'whether you could repeat the point and the proof in your own words', skips:'internal detail your clients won’t care about', q:'Retell the point in two sentences, as you would to a client. What was hard to retell?', pod:{q:'Would you send this episode to a client? Say why in two sentences, as you would to them.'}},
     {id:'customer', label:'The existing customer', who:'Someone who already uses {brand}.', cares:'what is new or relevant for you', skips:'the basics you already know', q:'What’s new for you here, and does anything not match your experience?'}
   ];
+  // What each reader flags and how they sound. The two flags are stored as `lost` and `inauthentic` (older reviews
+  // used those meanings for everyone); here each reader asks them through their own lens, so agreement means something.
+  REVIEW_LENS = {
+    target:{lost:['Stopped fitting me', 'the {line} where it stopped being about your real situation'], fake:['Wouldn’t fly with my team', 'the {line} someone doing your job would doubt'], voice:'Like someone who does this job every day: concrete, about your own team, systems and numbers.'},
+    newcomer:{lost:['Got lost', 'the first {line} where you lost the thread or met a word or idea nobody explained'], fake:['Assumed I knew', 'the {line} that assumes you already know or believe something you don’t'], voice:'Curious and plain-spoken. You ask the questions an outsider would ask.'},
+    skeptic:{lost:['Skipped a step', 'the {line} where the argument jumps over something you’d need to see'], fake:['Don’t believe it', 'the claim you believe least, and the proof that would change your mind'], voice:'Dry, specific and unimpressed. You’ve heard every version of this.'},
+    scroller:{lost:['Would swipe away', 'the {line} where you’d have stopped watching'], fake:['Felt like filler', 'the {line} that felt like filler'], voice:'Casual and quick, like a text to a friend.', length:'2 or 3', pod:{lost:['Would skip ahead', 'the {line} where you’d skip ahead or switch off']}},
+    exec:{lost:['Lost the point', 'the {line} where it lost the business point'], fake:['Wouldn’t survive the CFO', 'the claim or number that wouldn’t survive your CFO’s questions'], voice:'Blunt and brief. Outcomes, cost and timing; no detail.', length:'2 or 3'},
+    colleague:{lost:['Not accurate', 'the {line} that is inaccurate, overstated or easy to misread'], fake:['Not how we talk', 'the {line} that doesn’t sound like {brand}'], voice:'An insider: you use {brand}’s own product names and terms.'},
+    partner:{lost:['Couldn’t retell it', 'the {line} you couldn’t repeat to a client in your own words'], fake:['Client would push back', 'the {line} your client would push back on'], voice:'Practical. You’re already picturing the client conversation.'},
+    customer:{lost:['Nothing new for me', 'the {line} where you couldn’t tell what’s new for you'], fake:['Not my experience', 'the {line} that doesn’t match your experience of {brand}'], voice:'You compare everything to what you already run.'}
+  };
   reviewAudience(){ const pod=this.isPodcast() && this.podAnswer('pod_listeners'); if(pod) return String(pod).trim(); const a=this.answeredQA().find(q=>/audience|who (will|is going to) (watch|see|listen)|who’s listening|who is (it|this|the video) for/i.test(q.q)); return a?String(a.answer).trim():''; }
   reviewReader(id){
     const base=this.REVIEW_READERS.find(x=>x.id===id); if(!base) return null; const pod=this.isPodcast(); const r=pod && base.pod?{...base, ...base.pod}:base;
@@ -3770,7 +3782,8 @@ class Component extends DCLogic {
     let who=r.who||'';
     if(id==='target'){ const a=this.reviewAudience(); const what=pod?'episode':'video'; who=a?('One of the people this '+what+' is made for: '+a.replace(/[.\s]+$/,'')+'.'):('A typical '+(pod?'listener':'viewer')+' this '+what+' is aimed at. The topic: '+String(this.state.idea||'').trim().slice(0,240)); }
     who=b(who);
-    return {id, label:id==='colleague'&&name?('The '+name+' colleague'):(id==='target'&&pod?'Your target listener':r.label), who, cares:b(r.cares), skips:b(r.skips), question:b(r.q), desc:who+' You care about '+b(r.cares)+'.'};
+    const L0=this.REVIEW_LENS[id]||{}; const L=pod && L0.pod?{...L0, ...L0.pod}:L0; const unit=pod?'topic or question':'line'; const ask=x=>x?b(x[1].replace(/\{line\}/g, unit)):'';
+    return {id, lostLabel:L.lost?L.lost[0]:'', lostAsk:ask(L.lost), falseLabel:L.fake?L.fake[0]:'', falseAsk:ask(L.fake), voice:b(L.voice||''), length:L.length||'3 to 5', label:id==='colleague'&&name?('The '+name+' colleague'):(id==='target'&&pod?'Your target listener':r.label), who, cares:b(r.cares), skips:b(r.skips), question:b(r.q), desc:who+' You care about '+b(r.cares)+'.'};
   }
   reviewSrcKeyOf(sections, typeId){ return this.hashOf(this.stable({t:typeId||'', s:(sections||[]).map(x=>String(x.text||''))})); }
   assembleReaderPrompt(r){
@@ -3778,10 +3791,10 @@ class Component extends DCLogic {
     const script=(this.state.sections||[]).map(x=>String(x.text||'').trim()).filter(Boolean).join('\n\n');
     if(t && t.kind==='podcast') return this.assemblePodReaderPrompt(r, where, sp);
     return 'You are a viewer giving honest, first-person feedback on a short video before it is made. Stay in character the whole time.\n\n'
-      +'## WHO YOU ARE\n'+r.who+'\nYou care about: '+r.cares+'.\nYou don’t care about: '+r.skips+'.\n\n'
+      +'## WHO YOU ARE\n'+r.who+'\nYou care about: '+r.cares+'.\nYou don’t care about: '+r.skips+'.'+(r.voice?('\nHow you talk: '+r.voice):'')+'\n\n'
       +((t && t.kind==='podcast')?('You are deciding whether to listen to a podcast episode of about '+t.runtime+(where?(', shared '+where):'')+'.'+(sp?(' Speaking: '+sp.replace(/[.\s]+$/,'')+'.'):'')+' Below is the episode plan: hook ideas, the opening, the topics and questions the speakers will discuss, and the closing. The conversation itself isn’t scripted, so judge the plan as a listener would: would you press play, keep listening, and believe it? You haven’t seen any brief.\n\n'):('You will watch a '+(t?(t.label.toLowerCase()+' video of about '+t.runtime):'short video')+(where?(', shown '+where):'')+'.'+(sp?(' It is delivered by '+sp.replace(/[.\s]+$/,'').toLowerCase()+'.'):'')+' This narration is everything you get; you have not seen any brief and don’t know what the makers intended.\n\n'))
-      +((t && t.kind==='podcast')?('## THE EPISODE PLAN\n'+(this.state.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>'['+x.label+']\n'+String(x.text).trim()).join('\n\n')):('## THE NARRATION\n'+script))+'\n\n## TASK\nReact as this viewer would, not as a copywriter. Other viewers are giving feedback too, each from their own angle, so spend your words on what matters to you. If a flaw would be obvious to anyone, mention it in one sentence at most and say how it hits you specifically; then move on to what only someone like you would notice. Quote the narration’s exact words when you point at something.\n'
-      +'Return JSON only: {"takeaway": "one sentence, in your own words: what this video wants you to remember", "yourAnswer": "your answer to: '+r.question.replace(/"/g,'\'')+'", "lost": "the exact line where you got lost or confused, and why; or an empty string", "inauthentic": "the exact line that felt least believable to someone like you, and why; or an empty string", "reaction": "3 to 5 sentences of your honest reaction, in the first person, in your own voice"}';
+      +((t && t.kind==='podcast')?('## THE EPISODE PLAN\n'+(this.state.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>'['+x.label+']\n'+String(x.text).trim()).join('\n\n')):('## THE NARRATION\n'+script))+'\n\n## TASK\nReact as this viewer would, not as a copywriter.\n'+this.readerOwnAngle('viewer', 'the narration’s exact words')
+      +'Return JSON only: {"takeaway": "one sentence, in your own words: what this video wants you to remember", "yourAnswer": "your answer to: '+r.question.replace(/"/g,'\'')+'", "lost": "'+this.readerFlagAsk(r, 'lost', 'the exact line where you got lost or confused')+'", "inauthentic": "'+this.readerFlagAsk(r, 'fake', 'the exact line that felt least believable to someone like you')+'", "reaction": "'+(r.length||'3 to 5')+' sentences of your honest reaction, in the first person, in your own voice"}';
   }
   // A podcast plan is mostly notes: options for the hook, prompts for an unscripted conversation and producer notes.
   // The reader judges the conversation those prompts will produce, not the wording of the bullets.
@@ -3789,7 +3802,7 @@ class Component extends DCLogic {
     const t=this.currentType(); const beats=this.podMode()==='beats';
     const plan=(this.state.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>'['+x.label+']\n'+String(x.text).trim()).join('\n\n');
     return 'You are a listener giving honest, first-person feedback on a podcast episode before it is recorded. Stay in character the whole time.\n\n'
-      +'## WHO YOU ARE\n'+r.who+'\nYou care about: '+r.cares+'.\nYou don’t care about: '+r.skips+'.\n\n'
+      +'## WHO YOU ARE\n'+r.who+'\nYou care about: '+r.cares+'.\nYou don’t care about: '+r.skips+'.'+(r.voice?('\nHow you talk: '+r.voice):'')+'\n\n'
       +'You are deciding whether to listen to an episode of about '+t.runtime+(where?(', shared '+where):'')+'.'+(sp?(' Speaking: '+sp.replace(/[.\s]+$/,'')+'.'):'')+' You haven’t seen any brief.\n\n'
       +'## HOW TO READ THE PLAN\nThis is a plan for an unscripted conversation, mostly bullet points. Imagine the episode it will produce, and judge that.\n'
       +'- Hook ideas are alternatives; only one will open the episode. Say which one would make you press play.\n'
@@ -3797,16 +3810,25 @@ class Component extends DCLogic {
       +'- Each topic has a title, an opening question, follow-ups, often an honest question (“The elephant”), and a story prompt. The questions will be asked out loud; the answers aren’t written yet. Judge whether each question would draw out something worth hearing: a story, an opinion, a number, a disagreement.\n'
       +'- “Why listeners care”, “Story prompt” and “Time” lines are notes for the speakers. You never hear them, so don’t react to their wording; react to what they say the conversation will cover.\n'
       +'- Don’t ask for more polish, full sentences or a script. A plan this rough is how it should look.\n\n'
-      +'## THE EPISODE PLAN\n'+plan+'\n\n## TASK\nReact as this listener would, not as a producer. Other listeners are giving feedback too, each from their own angle, so spend your words on what matters to you. If a flaw would be obvious to anyone, mention it in one sentence at most and say how it hits you specifically; then move on to what only someone like you would notice. When you point at something, quote the topic title or the question exactly as written.\n'
-      +'Return JSON only: {"takeaway": "one sentence, in your own words: what you expect to come away with from this episode", "yourAnswer": "your answer to: '+r.question.replace(/"/g,'\'')+'", "lost": "the exact topic title or question where you would skip ahead or switch off, and why; or an empty string", "inauthentic": "the exact question, claim or hook that sounds most like a sales pitch or that you wouldn’t believe, and why; or an empty string", "reaction": "3 to 5 sentences of your honest reaction, in the first person, in your own voice: would you press play, would you keep listening, and what would you want them to ask that they don’t?"}';
+      +'## THE EPISODE PLAN\n'+plan+'\n\n## TASK\nReact as this listener would, not as a producer.\n'+this.readerOwnAngle('listener', 'the topic title or the question exactly as written')
+      +'Return JSON only: {"takeaway": "one sentence, in your own words: what you expect to come away with from this episode", "yourAnswer": "your answer to: '+r.question.replace(/"/g,'\'')+'", "lost": "'+this.readerFlagAsk(r, 'lost', 'the exact topic title or question where you would skip ahead or switch off')+'", "inauthentic": "'+this.readerFlagAsk(r, 'fake', 'the exact question, claim or hook that sounds most like a sales pitch or that you wouldn’t believe')+'", "reaction": "'+(r.length||'3 to 5')+' sentences of your honest reaction, in the first person, in your own voice: would you press play, would you keep listening, and what would you want them to ask that they don’t?"}';
   }
+  // Readers run side by side and can't see each other, so each is steered to its own angle; agreement then means something.
+  readerOwnAngle(who, quoteHow){
+    return '- Other '+who+'s are reacting too, each from their own angle. Give the feedback only someone like you would give.\n'
+      +'- Lead with what matters to you. If there’s a flaw anyone would spot, don’t open with it: mention it once, briefly, in your own terms and for your own reason.\n'
+      +'- Your two flags are your own. Point at what your angle catches. If another '+who+' would flag the same spot, that’s fine when it’s truly yours to flag, but give a reason only someone like you would give. Leave a flag empty rather than make a complaint anyone could make.\n'
+      +'- Write each flag as '+quoteHow+' in quotes, then “ — ”, then why.\n';
+  }
+  readerFlagAsk(r, k, fallback){ const a=k==='lost'?r.lostAsk:r.falseAsk; return (a||fallback)+', and why; or an empty string'; }
+  readerFlagLines(r){ return '\n'+(r.lostLabel||'Got lost at')+': '+(r.lost||'nothing')+'\n'+(r.falseLabel||'Didn’t ring true')+': '+(r.inauthentic||'nothing'); }
   assembleReviewSummaryPrompt(readers){
     const t=this.currentType();
     const script=(this.state.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>'['+x.id+'] '+x.label+':\n'+String(x.text||'').trim()).join('\n\n');
     if(t && t.kind==='podcast') return this.assemblePodReviewSummaryPrompt(readers, script);
     return 'You are a video producer reviewing audience feedback on a draft '+this.brandAdj()+' '+(t?t.label+' ':'')+'script, to decide how to take it forward.\n\n'
       +'## WHAT THE REQUESTER WANTED\nIdea: '+String(this.state.idea||'').trim()+'\n'+this.qaBlock()+'\n## THE SCRIPT (section ids in brackets)\n'+script+'\n\n'
-      +'## AUDIENCE FEEDBACK\n'+readers.map(r=>'### '+r.id+': '+r.label+' ('+r.desc+')\nTook away: '+(r.takeaway||'(nothing)')+(r.question?('\nAsked "'+r.question+'": '+(r.answer||'(no answer)')):'')+'\nGot lost at: '+(r.lost||'nowhere')+'\nDidn’t ring true: '+(r.inauthentic||'nothing')+'\nReaction: '+(r.reaction||'')).join('\n\n')+'\n\n'
+      +'## AUDIENCE FEEDBACK\n'+readers.map(r=>'### '+r.id+': '+r.label+' ('+r.desc+')\nTook away: '+(r.takeaway||'(nothing)')+(r.question?('\nAsked "'+r.question+'": '+(r.answer||'(no answer)')):'')+this.readerFlagLines(r)+'\nReaction: '+(r.reaction||'')).join('\n\n')+'\n\n'
       +'## TASK\n1. "intended": the key message the requester meant, in one sentence, from their idea and answers.\n'
       +'2. "verdicts": for each reader (use the id before the colon), whether their takeaway matches it: "got", "partly" or "missed", with one short reason.\n'
       +'3. "nextSteps": 2 or 3 concrete next steps, most important first, each pointing at a line or section. When several readers point at the same line or problem, that agreement is the strongest signal: say it once, with how many noticed, rather than repeating it. Use each reader’s own question and answer for the rest.\n'
@@ -3817,7 +3839,7 @@ class Component extends DCLogic {
   assemblePodReviewSummaryPrompt(readers, plan){
     return 'You are a '+this.brandAdj()+' podcast producer reviewing listener feedback on a draft episode plan, to decide how to take it forward.\n\n'+this.POD_RULES+'\n\n'
       +'## WHAT THE REQUESTER WANTED\nIdea: '+String(this.state.idea||'').trim()+'\n'+this.qaBlock()+'\n## THE EPISODE PLAN (part ids in brackets)\nIt is a plan for an unscripted conversation: hook options, '+(this.podMode()==='beats'?'opening and closing beats':'a written opening and closing')+', and topics with the questions to ask. “Why listeners care”, “Story prompt” and “Time” lines are notes for the speakers.\n'+plan+'\n\n'
-      +'## LISTENER FEEDBACK\n'+readers.map(r=>'### '+r.id+': '+r.label+' ('+r.desc+')\nExpects to take away: '+(r.takeaway||'(nothing)')+(r.question?('\nAsked "'+r.question+'": '+(r.answer||'(no answer)')):'')+'\nWould skip ahead at: '+(r.lost||'nowhere')+'\nDidn’t ring true: '+(r.inauthentic||'nothing')+'\nReaction: '+(r.reaction||'')).join('\n\n')+'\n\n'
+      +'## LISTENER FEEDBACK\n'+readers.map(r=>'### '+r.id+': '+r.label+' ('+r.desc+')\nExpects to take away: '+(r.takeaway||'(nothing)')+(r.question?('\nAsked "'+r.question+'": '+(r.answer||'(no answer)')):'')+this.readerFlagLines(r)+'\nReaction: '+(r.reaction||'')).join('\n\n')+'\n\n'
       +'## TASK\n1. "intended": what the requester wants listeners to come away with, in one sentence, from their idea and answers.\n'
       +'2. "verdicts": for each listener (use the id before the colon), whether what they expect to take away matches it: "got", "partly" or "missed", with one short reason.\n'
       +'3. "nextSteps": 2 or 3 concrete next steps, most important first, each pointing at a hook, topic or question. When several listeners point at the same topic or question, that agreement is the strongest signal: say it once, with how many noticed. Favor changes to what gets asked: a sharper or more honest question, a follow-up that draws out proof or a story, a topic swapped for one listeners actually wonder about. Never suggest scripting the answers or polishing the bullets.\n'
@@ -3978,8 +4000,8 @@ class Component extends DCLogic {
     if(!rv || i==null || st.view!=='workspace') return {walkOn:false, walkSecs:[], walkSteps:[]};
     const readers=rv.readers||[]; const n=readers.length; const idx=Math.max(0, Math.min(i, n)); const onSum=idx>=n; const r=onSum?null:readers[idx];
     const marks=[]; const found={lost:false, false:false};
-    if(r){ this.reviewQuotes(r.lost).forEach(q=>marks.push({q, k:'lost', tag:this.isPodcast()?'← would skip ahead here':'← got lost here', bg:'rgba(247,105,35,0.22)', tagColor:'#C4471A'}));
-      this.reviewQuotes(r.inauthentic).forEach(q=>marks.push({q, k:'false', tag:'← didn’t ring true', bg:'rgba(255,200,54,0.42)', tagColor:'#7A5C00'})); }
+    if(r){ this.reviewQuotes(r.lost).forEach(q=>marks.push({q, k:'lost', tag:'← '+this.flagLabels(r, this.currentType()).lost.toLowerCase(), bg:'rgba(247,105,35,0.22)', tagColor:'#C4471A'}));
+      this.reviewQuotes(r.inauthentic).forEach(q=>marks.push({q, k:'false', tag:'← '+this.flagLabels(r, this.currentType()).fake.toLowerCase(), bg:'rgba(255,200,54,0.42)', tagColor:'#7A5C00'})); }
     const changeIds=onSum?(rv.changes||[]).filter(c=>this.fixOn(c) && c.state!=='done').map(c=>c.section):[];
     const secs=(st.sections||[]).filter(x=>String(x.text||'').trim()).map(x=>{
       const text=String(x.text); const ranges=[];
@@ -3995,10 +4017,19 @@ class Component extends DCLogic {
         .concat([{label:'Summary', current:onSum?'step':'false', bg:onSum?'var(--c-violet)':'var(--c-grey-100)', color:onSum?'#fff':'var(--c-navy)', onGo:()=>this.setState({rvWalk:n})}]),
       walkWho:r?(r.who||r.desc||''):'', walkQ:(r && r.question)||null, walkA:(r && r.answer)||null, walkTake:(r && r.takeaway)||null, walkWhy:(r && r.why)||null, walkFailed:!!(r && r.failed),
       walkHasV:!!v, walkVLabel:v?v[2]:'', walkVColor:v?v[0]:'var(--fg-muted)', walkVBg:v?v[1]:'transparent',
-      walkLost:(r && r.lost)||null, walkLostLabel:this.isPodcast()?'Would skip ahead:':'Got lost:', walkFalse:(r && r.inauthentic)||null, walkLostNote:found.lost?'  (highlighted in the script)':'', walkFalseNote:found.false?'  (highlighted in the script)':'', walkReact:(r && r.reaction)||null,
+      walkLost:(r && r.lost)||null, walkLostLabel:this.flagLabels(r, this.currentType()).lost+':', walkFalseLabel:this.flagLabels(r, this.currentType()).fake+':', walkLostSame:r?this.flagSame(readers, idx, r.lost, true):'', walkFalseSame:r?this.flagSame(readers, idx, r.inauthentic, true):'', walkFalse:(r && r.inauthentic)||null, walkLostNote:found.lost?'  (highlighted in the script)':'', walkFalseNote:found.false?'  (highlighted in the script)':'', walkReact:(r && r.reaction)||null,
       walkSecs:secs, walkStale:stale, walkRightTitle:(this.isPodcast()?'Your episode plan':'Your script')+(onSum?' · ticked fixes are marked':' · what this reader flagged is highlighted'),
       walkPrevShow:idx>0, onWalkPrev:()=>this.setState({rvWalk:idx-1}), walkNextLabel:idx===n-1?'How to take it forward →':'Next reader →', onWalkNext:()=>this.setState({rvWalk:idx+1}),
       onWalkClose:()=>this.closeWalk(), walkCanRevise:onSum && !this.reviewStale(rv, st.sections, st.selectedTypeId) && (rv.changes||[]).some(c=>c.state!=='done'), onWalkRevise:()=>{ this.closeWalk(); this.reviseFromReview(); } };
+  }
+  flagLabels(r, type){ const pod=!!(type && type.kind==='podcast'); return {lost:(r && r.lostLabel)||(pod?'Would skip ahead':'Got lost'), fake:(r && r.falseLabel)||'Didn’t ring true'}; }
+  // The same spot, flagged by other readers: said once as a note, so agreement reads as a signal rather than repetition.
+  flagKey(t){ const q=this.reviewQuotes(t)[0]; return q?q.toLowerCase().replace(/[’']/g,'').replace(/[^a-z0-9]+/g,' ').trim():''; }
+  flagSame(readers, i, t, lead){
+    const k=this.flagKey(t); if(k.length<12) return '';
+    const hit=(o)=>{ const x=this.flagKey(o); return x.length>=12 && (x===k || x.startsWith(k.slice(0,40)) || k.startsWith(x.slice(0,40))); };
+    const names=(readers||[]).filter((o,j)=>j!==i && o && (hit(o.lost) || hit(o.inauthentic))).map(o=>o.label);
+    return names.length?((lead?' · ':'')+'Also flagged by '+names.join(', ')):'';
   }
   // What both the Script page and the Studio show; `open` says which readers are expanded.
   reviewVM(rv, sections, typeId, open, setOpen, edit){
@@ -4009,7 +4040,7 @@ class Component extends DCLogic {
     return { has:true, stale, when:'Read '+this.relTime(rv.at)+(rv.revisedAt?(' · revised '+this.relTime(rv.revisedAt)):''), intended:rv.intended||null, plan:rv.plan||'',
       steps:(rv.nextSteps||[]).map(t=>({text:t})), hasSteps:!!(rv.nextSteps||[]).length, ...this.fixesVM(rv, sections, stale, edit, label),
       canUndo:!!edit && !!rv.before,
-      readers:(rv.readers||[]).map((r,i)=>{ const v=vc[r.verdict]; return { lostLabel:(type && type.kind==='podcast')?'Would skip ahead:':'Got lost:', open:!!open[i], expanded:open[i]?'true':'false', toggleLabel:open[i]?'Hide':'Details', onToggle:()=>{ if(setOpen) setOpen(i); }, takeLine:r.takeaway?('“'+r.takeaway+'”'):(r.failed?'Didn’t answer':''), label:r.label, desc:r.who||r.desc, question:r.question||'', answer:r.answer||null, failed:!!r.failed, hasVerdict:!!v, verdictLabel:v?v[2]:'', vColor:v?v[0]:'var(--fg-muted)', vBg:v?v[1]:'transparent', why:r.why||null, takeaway:r.takeaway||null, lost:r.lost||null, inauthentic:r.inauthentic||null, reaction:r.reaction||null }; }) };
+      readers:(rv.readers||[]).map((r,i)=>{ const v=vc[r.verdict]; const fl=this.flagLabels(r, type); return { lostLabel:fl.lost+':', falseLabel:fl.fake+':', lostSame:this.flagSame(rv.readers, i, r.lost), falseSame:this.flagSame(rv.readers, i, r.inauthentic), open:!!open[i], expanded:open[i]?'true':'false', toggleLabel:open[i]?'Hide':'Details', onToggle:()=>{ if(setOpen) setOpen(i); }, takeLine:r.takeaway?('“'+r.takeaway+'”'):(r.failed?'Didn’t answer':''), label:r.label, desc:r.who||r.desc, question:r.question||'', answer:r.answer||null, failed:!!r.failed, hasVerdict:!!v, verdictLabel:v?v[2]:'', vColor:v?v[0]:'var(--fg-muted)', vBg:v?v[1]:'transparent', why:r.why||null, takeaway:r.takeaway||null, lost:r.lost||null, inauthentic:r.inauthentic||null, reaction:r.reaction||null }; }) };
   }
 
   // ---------- podcasts ----------
